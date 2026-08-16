@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -12,270 +12,47 @@
 <meta http-equiv="Expires" content="0" />
 <title>The Ledger</title>
 <style>
- :root {
-   --bg: #0A0F1D;
-   --card: #121A2C;
-   --card-elevated: #162035;
-   --raised: #0A0F1D;
-   --hairline: rgba(255, 255, 255, 0.08);
-   --hairline-strong: rgba(255, 255, 255, 0.14);
-   --text: #F0F4FC;
-   --text-muted: #8292B2;
-   --accent: #E5B869;
-   --accent-ink: #0A0F1D;
-   --rust: #E05D44;
-   --rust-wash: rgba(224, 93, 68, 0.14);
-   --positive: #4ECB8F;
-   --positive-wash: rgba(78, 203, 143, 0.14);
-   --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
-   --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.45);
-   --f-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-   --f-mono: "SF Mono", Menlo, Consolas, Monaco, monospace;
-   --f-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
- }
-
- * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
- html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior-y: none; background: var(--bg); }
- body { font-family: var(--f-ui); color: var(--text); -webkit-font-smoothing: antialiased; letter-spacing: -0.01em; }
- #root { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; min-height: var(--vh100, 100dvh); }
- 
- .wrap {
-   flex: 1 0 auto;
-   max-width: 420px;
-   width: 100%;
-   margin: 0 auto;
-   box-sizing: border-box;
-   padding: calc(env(safe-area-inset-top, 0px) + 64px) 16px calc(env(safe-area-inset-bottom, 0px) + 92px);
- }
-
- .app-header-fixed {
-   position: fixed;
-   top: 0;
-   left: 0;
-   right: 0;
-   height: calc(env(safe-area-inset-top, 0px) + 54px);
-   padding-top: env(safe-area-inset-top, 0px);
-   backdrop-filter: blur(24px);
-   -webkit-backdrop-filter: blur(24px);
-   background: rgba(10, 15, 29, 0.78);
-   border-bottom: 1px solid var(--hairline);
-   z-index: 35;
-   display: flex;
-   align-items: center;
-   justify-content: center;
- }
-
- .header-inner {
-   max-width: 420px;
-   width: 100%;
-   padding: 0 16px;
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
- }
-
- .row { display: flex; align-items: center; }
- .between { justify-content: space-between; }
- .col { display: flex; flex-direction: column; }
- .gap2 { gap: 8px; }
- .gap3 { gap: 12px; }
- .display { font-family: var(--f-display); font-weight: 700; letter-spacing: -0.03em; }
- .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
- .eyebrow { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
- .muted { color: var(--text-muted); }
- 
- .card {
-   background: var(--card);
-   border: 1px solid var(--hairline);
-   border-radius: 18px;
-   box-shadow: var(--shadow-card);
-   transition: transform 0.15s ease;
- }
-
- .interactive-card:active { transform: scale(0.985); }
-
- .icon-btn {
-   width: 36px;
-   height: 36px;
-   border-radius: 999px;
-   background: rgba(255, 255, 255, 0.06);
-   border: 1px solid var(--hairline);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   color: var(--text);
-   transition: all 0.15s ease;
- }
- .icon-btn:active { transform: scale(0.92); background: rgba(255, 255, 255, 0.12); }
-
- button { font-family: inherit; cursor: pointer; color: inherit; border: none; }
- input, select, textarea { font-family: inherit; color: var(--text); }
- input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.75); }
-
- .field {
-   -webkit-appearance: none;
-   appearance: none;
-   width: 100%;
-   box-sizing: border-box;
-   display: block;
-   border-radius: 12px;
-   padding: 12px 14px;
-   background: var(--card-elevated);
-   border: 1px solid var(--hairline);
-   font-size: 14px;
-   color: var(--text);
-   transition: border 0.15s ease;
- }
- .field:focus { outline: none; border-color: var(--accent); }
-
- .btn-accent {
-   background: linear-gradient(135deg, #ECC57D 0%, #D8A550 100%);
-   color: var(--accent-ink);
-   font-weight: 600;
-   border-radius: 14px;
-   padding: 12px 20px;
-   font-size: 14px;
-   box-shadow: 0 4px 14px rgba(229, 184, 105, 0.25);
-   transition: transform 0.15s ease, opacity 0.15s ease;
- }
- .btn-accent:active { transform: scale(0.97); }
- .btn-accent:disabled { opacity: 0.4; }
-
- .btn-outline {
-   background: var(--card-elevated);
-   border: 1px solid var(--hairline-strong);
-   color: var(--text);
-   font-weight: 500;
-   border-radius: 14px;
-   padding: 11px 18px;
-   font-size: 14px;
-   transition: transform 0.15s ease;
- }
- .btn-outline:active { transform: scale(0.97); }
-
- .btn-rust {
-   background: linear-gradient(135deg, #EA684E 0%, #D14F37 100%);
-   color: #fff;
-   font-weight: 600;
-   border-radius: 14px;
-   padding: 11px 18px;
-   font-size: 14px;
- }
- .btn-rust:active { transform: scale(0.97); }
-
- .segmented-bar {
-   background: rgba(255, 255, 255, 0.05);
-   border: 1px solid var(--hairline);
-   border-radius: 12px;
-   padding: 3px;
-   display: flex;
- }
- .segmented-item {
-   flex: 1;
-   border: none;
-   border-radius: 9px;
-   padding: 7px 0;
-   font-size: 13px;
-   font-weight: 500;
-   background: transparent;
-   color: var(--text-muted);
-   transition: all 0.15s ease;
- }
- .segmented-item.active {
-   background: var(--card-elevated);
-   color: var(--text);
-   font-weight: 600;
-   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
- }
-
- .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
- .hairline-top { border-top: 1px solid var(--hairline); }
- .hairline-bottom { border-bottom: 1px solid var(--hairline); }
-
- /* Native Bottom Sheet Modal */
- .modal-backdrop {
-   position: fixed;
-   inset: 0;
-   background: rgba(4, 8, 16, 0.65);
-   backdrop-filter: blur(8px);
-   -webkit-backdrop-filter: blur(8px);
-   display: flex;
-   align-items: flex-end;
-   justify-content: center;
-   z-index: 50;
-   animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
- }
- @media (min-width: 480px) { .modal-backdrop { align-items: center; } }
- 
- .modal-card {
-   width: 100%;
-   max-width: 420px;
-   max-height: 88vh;
-   overflow-y: auto;
-   background: var(--card);
-   border: 1px solid var(--hairline-strong);
-   border-radius: 26px 26px 0 0;
-   padding: 12px 20px 24px;
-   box-shadow: var(--shadow-elevated);
-   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
- }
- @media (min-width: 480px) { .modal-card { border-radius: 24px; } }
-
- .modal-handle {
-   width: 40px;
-   height: 5px;
-   background: rgba(255, 255, 255, 0.18);
-   border-radius: 999px;
-   margin: 4px auto 14px;
- }
-
- @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
- @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
- .pill-scroll {
-   display: flex;
-   gap: 6px;
-   overflow-x: auto;
-   scrollbar-width: none;
-   -ms-overflow-style: none;
-   padding-bottom: 4px;
-   margin-bottom: 12px;
- }
- .pill-scroll::-webkit-scrollbar { display: none; }
- .pill-btn {
-   white-space: nowrap;
-   font-size: 12px;
-   font-weight: 500;
-   border-radius: 999px;
-   padding: 7px 14px;
-   border: 1px solid var(--hairline);
-   background: rgba(255, 255, 255, 0.04);
-   color: var(--text-muted);
-   transition: all 0.15s ease;
- }
- .pill-btn:active { transform: scale(0.94); }
- .pill-btn.active {
-   background: var(--accent);
-   color: var(--accent-ink);
-   font-weight: 600;
-   border-color: var(--accent);
-   box-shadow: 0 2px 10px rgba(229, 184, 105, 0.3);
- }
-
- .interactive-subcard {
-   background: rgba(0, 0, 0, 0.25);
-   border: 1px solid var(--hairline);
-   border-radius: 14px;
-   padding: 12px 14px;
-   margin-top: 10px;
- }
- .reorder-bar {
-   background: rgba(229, 184, 105, 0.08);
-   border: 1px dashed var(--accent);
-   border-radius: 12px;
-   padding: 8px 12px;
-   margin-bottom: 10px;
- }
+  :root {
+    --bg:#0C1322; --card:#131C31; --raised:#0C1322; --hairline:#26314D;
+    --text:#E8EDF7; --text-muted:#8595B5; --accent:#E0B368; --accent-ink:#0C1322;
+    --rust:#D4614A; --rust-wash: rgba(212,97,74,0.10);
+    --f-display: 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    --f-mono: 'SF Mono', Menlo, Consolas, monospace;
+    --f-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%; overscroll-behavior-y: none; background: var(--bg); }
+  body { font-family: var(--f-ui); color: var(--text); -webkit-tap-highlight-color: transparent; }
+  #root { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; min-height: var(--vh100, 100dvh); }
+  .wrap { flex: 1 0 auto; max-width: 420px; width: 100%; margin: 0 auto; box-sizing: border-box; padding: calc(env(safe-area-inset-top, 0px) + 20px) 16px calc(env(safe-area-inset-bottom, 0px) + 84px); }
+  .row { display: flex; align-items: center; }
+  .between { justify-content: space-between; }
+  .col { display: flex; flex-direction: column; }
+  .gap2 { gap: 8px; }
+  .display { font-family: var(--f-display); }
+  .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+  .eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--card); border: 1px solid var(--hairline); border-radius: 16px; }
+  .icon-btn { padding: 8px; border-radius: 999px; background: var(--card); border: 1px solid var(--hairline); display:flex; align-items:center; justify-content:center; }
+  button { font-family: inherit; cursor: pointer; color: inherit; }
+  input, textarea { font-family: inherit; color: var(--text); }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.65); }
+  .field { -webkit-appearance:none; appearance:none; width:100%; box-sizing:border-box; display:block; border-radius:10px; padding:10px 12px; background: var(--raised); border:1px solid var(--hairline); font-size:14px; }
+  .field:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-accent { background: var(--accent); color: var(--accent-ink); font-weight:600; border:none; border-radius:10px; padding:10px 16px; }
+  .btn-accent:disabled { opacity:0.4; }
+  .btn-outline { background: transparent; border:1px solid var(--hairline); color: var(--text); border-radius:10px; padding:9px 16px; }
+  .btn-rust { background: var(--rust); color:#fff; font-weight:600; border:none; border-radius:10px; padding:9px 16px; }
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .hairline-top { border-top: 1px solid var(--hairline); }
+  .hairline-bottom { border-bottom: 1px solid var(--hairline); }
+  .modal-backdrop { position:fixed; inset:0; background:rgba(6,10,20,0.55); display:flex; align-items:flex-end; justify-content:center; z-index:50; }
+  @media (min-width: 480px) { .modal-backdrop { align-items:center; } }
+  .modal-card { width:100%; max-width:420px; max-height:85vh; overflow-y:auto; background:var(--card); border:1px solid var(--hairline); border-radius:20px 20px 0 0; padding:20px; }
+  @media (min-width: 480px) { .modal-card { border-radius:20px; } }
+  .day-row { width:100%; display:flex; align-items:center; justify-content:space-between; padding:12px 16px; text-align:left; background:none; border:none; }
+  .txn-line { display:flex; align-items:center; justify-content:space-between; padding:4px 0 4px 8px; border-left:2px solid var(--hairline); }
 </style>
 </head>
 <body>
@@ -283,57 +60,20 @@
 <script>
 "use strict";
 
-/* ---------------- Constants & Default Settings ---------------- */
+/* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
 var TEST_KEY = "ledger-selftest";
-var DEFAULT_SETTINGS = {
-  weeklyTarget: 1800,
-  theme: "dark",
-  trackingStartDate: null,
-  categories: ["Food & Dining", "Groceries", "Transport", "Shopping", "Bills & Utilities", "Health", "Entertainment", "Other"],
-  rateHistory: null,
-  analysisSectionOrder: null
-};
-
-var DEFAULT_ANALYSIS_ORDER = [
-  "summary",
-  "dailySpend",
-  "dailySaving",
-  "monthlyBar",
-  "category",
-  "dow",
-  "topTransactions"
-];
-
-var ANALYSIS_SECTION_LABELS = {
-  summary: "Summary Metrics",
-  dailySpend: "Spend per day (Columns)",
-  dailySaving: "Saved per day (Columns)",
-  monthlyBar: "Monthly spend vs target",
-  category: "Spend by category",
-  dow: "Average by day of week",
-  topTransactions: "Biggest transactions"
-};
-
+var DEFAULT_SETTINGS = { weeklyTarget: 1800, theme: "dark", trackingStartDate: null, categories: ["Food & Dining","Groceries","Transport","Shopping","Bills & Utilities","Health","Entertainment","Other"], rateHistory: null, analysisSectionOrder: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null };
+var DEFAULT_ANALYSIS_ORDER = ["summary","dailySpend","dailySaving","monthlyBar","category","dow","topTransactions"];
+var ANALYSIS_SECTION_LABELS = { summary:"Summary", dailySpend:"Spend per day", dailySaving:"Saved per day", monthlyBar:"Monthly spend vs target", category:"Spend by category", dow:"Average by day of week", topTransactions:"Biggest transactions" };
 function normalizeAnalysisOrder(order) {
-  var out = (order || []).filter(function(id){ return DEFAULT_ANALYSIS_ORDER.indexOf(id) !== -1; });
-  DEFAULT_ANALYSIS_ORDER.forEach(function(id){ if (out.indexOf(id) === -1) out.push(id); });
+  var out = (order||[]).filter(function(id){ return DEFAULT_ANALYSIS_ORDER.indexOf(id) !== -1; });
+  DEFAULT_ANALYSIS_ORDER.forEach(function(id){ if (out.indexOf(id)===-1) out.push(id); });
   return out;
 }
-
 var PALETTES = {
-  dark: {
-    bg: "#0A0F1D", card: "#121A2C", cardElevated: "#162035", raised: "#0A0F1D",
-    hairline: "rgba(255, 255, 255, 0.08)", text: "#F0F4FC", textMuted: "#8292B2",
-    accent: "#E5B869", accentInk: "#0A0F1D", rust: "#E05D44", rustWash: "rgba(224, 93, 68, 0.14)",
-    positive: "#4ECB8F", positiveWash: "rgba(78, 203, 143, 0.14)"
-  },
-  light: {
-    bg: "#F2F5FA", card: "#FFFFFF", cardElevated: "#F8FAFD", raised: "#F2F5FA",
-    hairline: "rgba(0, 0, 0, 0.06)", text: "#141D33", textMuted: "#6B7B99",
-    accent: "#AF7E26", accentInk: "#FFFFFF", rust: "#C6462C", rustWash: "rgba(198, 70, 44, 0.08)",
-    positive: "#1B8C58", positiveWash: "rgba(27, 140, 88, 0.08)"
-  }
+  dark:  { bg:"#0C1322", card:"#131C31", raised:"#0C1322", hairline:"#26314D", text:"#E8EDF7", textMuted:"#8595B5", accent:"#E0B368", accentInk:"#0C1322", rust:"#D4614A", rustWash:"rgba(212,97,74,0.10)", positive:"#5EBD8C" },
+  light: { bg:"#F4F6FB", card:"#FFFFFF", raised:"#F4F6FB", hairline:"#E1E6F1", text:"#16203A", textMuted:"#66748F", accent:"#B07F2A", accentInk:"#FFFFFF", rust:"#C0442B", rustWash:"rgba(192,68,43,0.08)", positive:"#1E8E5A" },
 };
 
 function toStr(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -341,26 +81,17 @@ function parseD(s){ return new Date(s+"T00:00:00"); }
 function todayStr(){ return toStr(new Date()); }
 function minStr(a,b){ return a<b?a:b; }
 function round2(n){ return Math.round(n*100)/100; }
-function startOfWeek(d){
-  var x = new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  var day = x.getDay();
-  var back = day===0?6:day-1;
-  x.setDate(x.getDate()-back);
-  return x;
-}
-function addDays(d,n){ var x = new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()+n); return x; }
+function startOfWeek(d){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); var day=x.getDay(); var back=day===0?6:day-1; x.setDate(x.getDate()-back); return x; }
+function addDays(d,n){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()+n); return x; }
 function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
 function addMonths(d,n){ return new Date(d.getFullYear(), d.getMonth()+n, 1); }
 function endOfMonth(d){ return new Date(d.getFullYear(), d.getMonth()+1, 0); }
 function daysInMonth(d){ return endOfMonth(d).getDate(); }
 function daysBetween(aStr,bStr){ return Math.round((parseD(bStr)-parseD(aStr))/86400000); }
-function fmt(n, dp){
-  dp = (dp === undefined || dp === null) ? 0 : dp;
-  return (Number(n)||0).toLocaleString("en-US", {minimumFractionDigits:dp, maximumFractionDigits:dp});
-}
-function dayLabel(s){ return parseD(s).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short"}); }
-function shortLabel(s){ return parseD(s).toLocaleDateString("en-GB", {day:"numeric", month:"short"}); }
-function weekdayLong(s){ return parseD(s).toLocaleDateString("en-GB", {weekday:"long"}); }
+function fmt(n, dp){ dp = dp || 0; return (Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:dp, maximumFractionDigits:dp}); }
+function dayLabel(s){ return parseD(s).toLocaleDateString("en-GB",{weekday:"short", day:"numeric", month:"short"}); }
+function shortLabel(s){ return parseD(s).toLocaleDateString("en-GB",{day:"numeric", month:"short"}); }
+function weekdayLong(s){ return parseD(s).toLocaleDateString("en-GB",{weekday:"long"}); }
 function sumSpent(e){ return (e && Array.isArray(e.items)) ? e.items.reduce(function(s,i){ return s+i.amount; },0) : 0; }
 function itemTimeKey(it){ var n = parseInt(String(it.id).split("-")[0], 10); return isNaN(n) ? 0 : n; }
 function newestFirst(items){ return items.slice().sort(function(a,b){ return itemTimeKey(b) - itemTimeKey(a); }); }
@@ -369,12 +100,14 @@ function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ re
 function getPeriodBounds(viewType, off, weeklyTarget, dailyAllowanceVal) {
   var now = new Date();
   var tsd = state.settings.trackingStartDate;
+  /* Sum the per-day allowance actually in effect on each day, so a past period is
+     measured against the rate that applied then rather than today's rate. */
   function clippedTarget(startStr, endStr, fullTarget) {
     var s = (tsd && tsd > startStr) ? tsd : startStr;
     if (s > endStr) return 0;
     var sum = 0;
     var cur = parseD(s);
-    while (toStr(cur) <= endStr) { sum += allowanceForDate(toStr(cur)); cur = addDays(cur,1); }
+    while (toStr(cur) <= endStr) { sum += referenceForDate(toStr(cur)); cur = addDays(cur,1); }
     return sum;
   }
   if (viewType === "week") {
@@ -383,34 +116,25 @@ function getPeriodBounds(viewType, off, weeklyTarget, dailyAllowanceVal) {
     var title = (start.getMonth()===end.getMonth())
       ? (start.getDate()+"–"+end.getDate()+" "+end.toLocaleDateString("en-GB",{month:"long",year:"numeric"}))
       : (shortLabel(toStr(start))+" – "+shortLabel(toStr(end)));
-    return {
-      startStr: toStr(start), endStr: toStr(end), days: 7,
-      target: clippedTarget(toStr(start), toStr(end), weeklyTarget),
-      title: title,
-      sub: off===0 ? "This week" : off===-1 ? "Last week" : (Math.abs(off)+" weeks ago")
-    };
+    return { startStr: toStr(start), endStr: toStr(end), days: 7, target: clippedTarget(toStr(start), toStr(end), weeklyTarget), title: title,
+      sub: off===0 ? "This week" : off===-1 ? "Last week" : (Math.abs(off)+" weeks ago") };
   }
   if (viewType === "month") {
     var mstart = addMonths(startOfMonth(now), off);
     var mend = endOfMonth(mstart);
     var dim = daysInMonth(mstart);
-    return {
-      startStr: toStr(mstart), endStr: toStr(mend), days: dim,
-      target: clippedTarget(toStr(mstart), toStr(mend), dailyAllowanceVal*dim),
+    return { startStr: toStr(mstart), endStr: toStr(mend), days: dim, target: clippedTarget(toStr(mstart), toStr(mend), dailyAllowanceVal*dim),
       title: mstart.toLocaleDateString("en-GB",{month:"long",year:"numeric"}),
-      sub: off===0 ? "This month" : off===-1 ? "Last month" : (Math.abs(off)+" months ago")
-    };
+      sub: off===0 ? "This month" : off===-1 ? "Last month" : (Math.abs(off)+" months ago") };
   }
+  // year
   var y = now.getFullYear() + off;
   var ystart = new Date(y,0,1);
   var yend = new Date(y,11,31);
   var ydays = Math.round((yend-ystart)/86400000)+1;
-  return {
-    startStr: toStr(ystart), endStr: toStr(yend), days: ydays,
-    target: clippedTarget(toStr(ystart), toStr(yend), dailyAllowanceVal*ydays),
+  return { startStr: toStr(ystart), endStr: toStr(yend), days: ydays, target: clippedTarget(toStr(ystart), toStr(yend), dailyAllowanceVal*ydays),
     title: String(y),
-    sub: off===0 ? "This year" : off===-1 ? "Last year" : (Math.abs(off)+" years ago")
-  };
+    sub: off===0 ? "This year" : off===-1 ? "Last year" : (Math.abs(off)+" years ago") };
 }
 
 function migrateEntries(raw, fallbackAllowance) {
@@ -423,7 +147,7 @@ function migrateEntries(raw, fallbackAllowance) {
   return out;
 }
 
-/* ---------------- Application State ---------------- */
+/* ---------------- app state (single source of truth) ---------------- */
 var state = {
   settings: DEFAULT_SETTINGS,
   entries: {},
@@ -450,19 +174,18 @@ var state = {
   txnPeriodDate: "",
   txnPeriodFrom: "",
   txnPeriodTo: "",
-
-  // Interactive Analytics
-  analysisPeriodMode: "thisMonth",
-  analysisPeriodDate: "",
+  analysisPeriodMode: "month",
+  analysisOffset: 0,
   analysisPeriodFrom: "",
   analysisPeriodTo: "",
   analysisReorderMode: false,
-  analysisSelectedDate: null,
-  analysisSelectedCategory: null,
-  analysisSelectedDow: null,
-  analysisTopLimit: 5
+  basis: "budget",
+  incomeDraftMode: null,
+  incomeDraftAmount: null,
 };
 
+/* Rate history: records what the weekly target was over time, so past periods are
+   judged against the rate that was actually in effect then, not today's rate. */
 function rateForDate(ds) {
   var hist = state.settings.rateHistory;
   if (!hist || !hist.length) return state.settings.weeklyTarget;
@@ -474,13 +197,13 @@ function rateForDate(ds) {
 }
 function currentWeeklyTarget(){ return rateForDate(todayStr()); }
 function dailyAllowance(){ return currentWeeklyTarget()/7; }
-
+/* A logged day keeps whatever rate it was saved at; unlogged days fall back to
+   whatever rate history says applied on that date. */
 function allowanceForDate(ds) {
   var e = state.entries[ds];
   if (e && typeof e.allowance === "number") return e.allowance;
   return rateForDate(ds)/7;
 }
-
 function normalizeRateHistory(hist) {
   var out = (hist||[]).slice().sort(function(a,b){ return a.from < b.from ? -1 : a.from > b.from ? 1 : 0; });
   var dedup = [];
@@ -492,6 +215,64 @@ function normalizeRateHistory(hist) {
   return dedup;
 }
 
+/* ---------------- income ----------------
+   Income mirrors rateHistory: whatever was in effect on a given day is what
+   that day is judged against, so a raise never retroactively rewrites history.
+   Entered either as a monthly figure (divided across that month's real length,
+   so it accrues to exactly the full amount by month end) or as a flat daily
+   figure. */
+function incomeForDate(ds) {
+  var hist = state.settings.incomeHistory;
+  if (!hist || !hist.length) {
+    return { mode: state.settings.incomeMode || "monthly", amount: Number(state.settings.incomeAmount) || 0 };
+  }
+  var cur = hist[0];
+  for (var i=0;i<hist.length;i++) {
+    if (hist[i].from <= ds) cur = hist[i]; else break;
+  }
+  return cur;
+}
+function dailyIncomeForDate(ds) {
+  var inc = incomeForDate(ds);
+  var amt = Number(inc && inc.amount) || 0;
+  if (amt <= 0) return 0;
+  if (inc.mode === "daily") return amt;
+  return amt / daysInMonth(parseD(ds));
+}
+function monthlyIncomeForDate(ds) {
+  var inc = incomeForDate(ds);
+  var amt = Number(inc && inc.amount) || 0;
+  if (amt <= 0) return 0;
+  if (inc.mode === "daily") return amt * daysInMonth(parseD(ds));
+  return amt;
+}
+function incomeIsSet() {
+  return dailyIncomeForDate(todayStr()) > 0;
+}
+function normalizeIncomeHistory(hist) {
+  var out = (hist||[]).slice().sort(function(a,b){ return a.from < b.from ? -1 : a.from > b.from ? 1 : 0; });
+  var dedup = [];
+  for (var i=0;i<out.length;i++) {
+    var prev = dedup.length ? dedup[dedup.length-1] : null;
+    if (prev && prev.from === out[i].from) dedup[dedup.length-1] = out[i];
+    else if (prev && prev.mode === out[i].mode && prev.amount === out[i].amount) continue;
+    else dedup.push(out[i]);
+  }
+  return dedup;
+}
+
+/* The single number every savings calculation compares a day's spending
+   against. Swapping the basis swaps this, and every downstream figure —
+   headline saved, calendar deltas, charts, forecasts — follows automatically. */
+function referenceForDate(ds) {
+  return state.basis === "income" ? dailyIncomeForDate(ds) : allowanceForDate(ds);
+}
+function dailyReference() { return referenceForDate(todayStr()); }
+function basisWord() { return state.basis === "income" ? "income" : "budget"; }
+function basisWordCap() { return state.basis === "income" ? "Income" : "Budget"; }
+
+
+/* ---------------- persistence ---------------- */
 function loadInitial() {
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
@@ -508,6 +289,7 @@ function loadInitial() {
     state.settings.rateHistory = [{ from: "1900-01-01", weeklyTarget: state.settings.weeklyTarget }];
   }
   state.settings.analysisSectionOrder = normalizeAnalysisOrder(state.settings.analysisSectionOrder);
+  state.settings.incomeHistory = normalizeIncomeHistory(state.settings.incomeHistory);
   state.loading = false;
   try {
     localStorage.setItem(TEST_KEY, "1");
@@ -528,32 +310,36 @@ function persistAll(nextSettings, nextEntries, label) {
   }
 }
 
+/* ---------------- period math ---------------- */
 function periodStats(startStr, endStrRaw) {
   var endStr = minStr(endStrRaw, todayStr());
-  var opening = 0;
+  var opening = 0; // each period is self-contained: always starts fresh at 0
+
   var tsd = state.settings.trackingStartDate;
   var effectiveStart = (tsd && tsd > startStr) ? tsd : startStr;
+
   var rows = [];
   if (effectiveStart <= endStr) {
     var cur = parseD(effectiveStart);
     while (toStr(cur) <= endStr) {
       var ds = toStr(cur);
       var e = state.entries[ds];
-      rows.push({ date: ds, logged: !!e, items: e ? e.items : [], spent: e ? sumSpent(e) : 0, allowance: allowanceForDate(ds) });
+      rows.push({ date: ds, logged: !!e, items: e ? e.items : [], spent: e ? sumSpent(e) : 0, allowance: referenceForDate(ds) });
       cur = addDays(cur, 1);
     }
   }
   var net = round2(rows.reduce(function(s,r){ return s+(r.allowance-r.spent); },0));
   var closing = round2(opening+net);
   var calendarElapsedDays = (startStr <= endStr) ? (daysBetween(startStr, endStr) + 1) : 0;
-  return {
-    opening:opening, net:net, closing:closing, rows:rows, elapsedDays: rows.length, calendarElapsedDays: calendarElapsedDays,
-    loggedCount: rows.filter(function(r){return r.logged;}).length, spent: rows.reduce(function(s,r){return s+r.spent;},0)
-  };
+  return { opening:opening, net:net, closing:closing, rows:rows, elapsedDays: rows.length, calendarElapsedDays: calendarElapsedDays,
+    loggedCount: rows.filter(function(r){return r.logged;}).length, spent: rows.reduce(function(s,r){return s+r.spent;},0) };
 }
 
+/* Daily budget left for the CURRENT (live) instance of a given view type,
+   treating today as a fresh, still-available day rather than one already
+   partly spent. Returns null when there are no days left to plan for. */
 function computeDailyBudgetLeft(viewType, spentTodayVal) {
-  var da_ = dailyAllowance();
+  var da_ = dailyReference();
   var per = getPeriodBounds(viewType, 0, currentWeeklyTarget(), da_);
   var stats = periodStats(per.startStr, per.endStr);
   var daysLeftLocal = Math.max(0, per.days - stats.calendarElapsedDays);
@@ -564,9 +350,9 @@ function computeDailyBudgetLeft(viewType, spentTodayVal) {
   return { value: remainingExclToday/planDaysLocal, planDays: planDaysLocal, daysLeft: daysLeftLocal };
 }
 
-/* ---------------- Charts (Hardware-Accelerated SVGs) ---------------- */
+/* ---------------- chart (plain SVG string) ---------------- */
 function renderChart(data, T) {
-  var w=340,h=220,padL=40,padR=8,padT=12,padB=24;
+  var w=340,h=230,padL=40,padR=8,padT=12,padB=22;
   var values = data.map(function(d){return d.balance;});
   var min = Math.min.apply(null,[0].concat(values)), max = Math.max.apply(null,[0].concat(values));
   var range = (max-min)||1;
@@ -583,52 +369,50 @@ function renderChart(data, T) {
   }).join("");
   return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="none">'
     + tickSvg
-    + '<polygon points="'+areaPts+'" fill="'+T.accent+'" fill-opacity="0.16"/>'
-    + '<polyline points="'+linePts+'" fill="none" stroke="'+T.accent+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'
+    + '<polygon points="'+areaPts+'" fill="'+T.accent+'" fill-opacity="0.18"/>'
+    + '<polyline points="'+linePts+'" fill="none" stroke="'+T.accent+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
     + '<text x="'+x(0)+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'">'+esc(data[0].label)+'</text>'
     + '<text x="'+x(data.length-1)+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="end">'+esc(data[data.length-1].label)+'</text>'
     + '</svg>';
 }
 
-/* ---------------- Icons (Clean SF-Style Vectors) ---------------- */
+/* ---------------- tiny inline icons ---------------- */
 var ICONS = {
-  plus: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-  trash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>',
-  settings: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-  x: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-  chevronLeft: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
-  chevronRight: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
-  chevronUp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>',
-  chevronDown: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
-  sun: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>',
-  moon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
-  home: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-  list: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
-  calendar: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-  chart: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
-  pencil: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
-  check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-  alert: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-  rotate: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>'
+  plus: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  trash: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>',
+  settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  x: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  chevronLeft: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+  chevronRight: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+  chevronUp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>',
+  chevronDown: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+  sun: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>',
+  moon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+  save: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>',
+  alert: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  rotate: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',
+  home: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  list: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+  calendar: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  chart: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+  pencil: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  check: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
 };
 
-/* ---------------- Theme & Lock ---------------- */
+/* ---------------- rendering ---------------- */
 function applyTheme(T) {
   var r = document.documentElement.style;
-  r.setProperty("--bg", T.bg);
-  r.setProperty("--card", T.card);
-  r.setProperty("--card-elevated", T.cardElevated);
-  r.setProperty("--raised", T.raised);
-  r.setProperty("--hairline", T.hairline);
-  r.setProperty("--text", T.text);
-  r.setProperty("--text-muted", T.textMuted);
-  r.setProperty("--accent", T.accent);
-  r.setProperty("--accent-ink", T.accentInk);
-  r.setProperty("--rust", T.rust);
-  r.setProperty("--rust-wash", T.rustWash);
+  r.setProperty("--bg", T.bg); r.setProperty("--card", T.card); r.setProperty("--raised", T.raised);
+  r.setProperty("--hairline", T.hairline); r.setProperty("--text", T.text); r.setProperty("--text-muted", T.textMuted);
+  r.setProperty("--accent", T.accent); r.setProperty("--accent-ink", T.accentInk);
+  r.setProperty("--rust", T.rust); r.setProperty("--rust-wash", T.rustWash);
   r.setProperty("--positive", T.positive);
 }
 
+/* Body scroll lock: while any modal is open, pin the underlying page in place
+   so touch-scrolling inside the modal can't bleed through and scroll the page
+   behind it (a known iOS quirk with position:fixed overlays). The modal's own
+   .modal-card keeps its internal overflow-y:auto scroll regardless. */
 var bodyScrollLocked = false;
 var lockedScrollY = 0;
 function lockBodyScroll() {
@@ -636,45 +420,53 @@ function lockBodyScroll() {
   lockedScrollY = window.scrollY || window.pageYOffset || 0;
   document.body.style.position = "fixed";
   document.body.style.top = (-lockedScrollY) + "px";
-  document.body.style.left = "0"; document.body.style.right = "0"; document.body.style.width = "100%";
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+  document.body.style.width = "100%";
   bodyScrollLocked = true;
 }
 function unlockBodyScroll() {
   if (!bodyScrollLocked) return;
-  document.body.style.position = ""; document.body.style.top = ""; document.body.style.left = ""; document.body.style.right = ""; document.body.style.width = "";
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  document.body.style.width = "";
   bodyScrollLocked = false;
   window.scrollTo(0, lockedScrollY);
 }
 
-/* ---------------- Main Render Dispatcher ---------------- */
 function render() {
   var root = document.getElementById("root");
   var T = PALETTES[state.settings.theme] || PALETTES.dark;
   applyTheme(T);
+
   var anyModalOpen = state.showAddTxn || state.showSettings || state.showBackup || state.showResetConfirm;
   if (anyModalOpen) lockBodyScroll(); else unlockBodyScroll();
+
   if (state.loading) {
-    root.innerHTML = '<div class="row" style="min-height:100vh; align-items:center; justify-content:center;"><div class="muted" style="font-size:14px; font-weight:500;">Loading Ledger…</div></div>';
+    root.innerHTML = '<div class="row" style="min-height:100vh; align-items:center; justify-content:center;"><div class="muted" style="font-size:14px;">Loading your ledger…</div></div>';
     return;
   }
-  var da = dailyAllowance();
-  var html = "";
 
-  // Floating iOS Header
-  html += '<header class="app-header-fixed">';
-  html += '<div class="header-inner">';
-  html += '<div><div class="display" style="font-size:18px;">The Ledger</div><div class="muted mono" style="font-size:10px; margin-top:1px;">'+fmt(da,0)+' AED/day · Mon–Sun</div></div>';
+  var da = dailyReference();
+  var html = "";
+  html += '<div class="wrap">';
+
+  // header
+  html += '<div class="row between" style="align-items:flex-start; margin-bottom:16px;">';
+  html += '<div><div class="display" style="font-size:22px;">The Ledger</div><div class="muted" style="font-size:12px; margin-top:2px;">'+fmt(da,0)+' AED a day'+(state.basis==="income"?" income":"")+' · weeks run Mon–Sun</div></div>';
   html += '<div class="row gap2">';
   html += '<button class="icon-btn" data-action="toggle-theme" aria-label="Toggle theme">'+(state.settings.theme==="dark"?ICONS.sun:ICONS.moon)+'</button>';
   html += '<button class="icon-btn" data-action="open-settings" aria-label="Settings">'+ICONS.settings+'</button>';
-  html += '</div></div></header>';
+  html += '</div></div>';
 
-  html += '<div class="wrap">';
+  // storage warning
   if (state.storageOK === false) {
-    html += '<div class="card" style="padding:12px 16px; margin-bottom:14px; display:flex; gap:12px; background:var(--rust-wash); border-color:var(--rust);">';
-    html += '<div style="flex-shrink:0; color:var(--rust);">'+ICONS.alert+'</div>';
-    html += '<div><div style="font-size:12px; font-weight:500;">Browser is blocking local storage.</div>';
-    html += '<button data-action="open-backup" style="background:none;border:none;padding:0;text-decoration:underline;color:var(--rust);font-size:12px;margin-top:2px;">Open backup tool</button></div></div>';
+    html += '<div class="card" style="padding:12px 16px; margin-bottom:12px; display:flex; gap:10px; background:var(--rust-wash); border-color:var(--rust);">';
+    html += '<div style="flex-shrink:0; margin-top:1px; color:var(--rust);">'+ICONS.alert+'</div>';
+    html += '<div><div style="font-size:12px;">Your browser is blocking local storage (common in Private Browsing).</div>';
+    html += '<button data-action="open-backup" style="background:none;border:none;padding:0;text-decoration:underline;color:var(--rust);font-size:12px;margin-top:4px;">Open backup as a safety net</button></div></div>';
   }
 
   if (state.page === "transactions") html += renderTransactionsBody();
@@ -683,38 +475,68 @@ function render() {
   else html += renderHomeBody(T, da);
 
   if (state.saveError) {
-    html += '<div style="text-align:center; margin-top:14px; font-size:12px; color:var(--rust);">Could not save '+esc(state.saveError.label)+' — <button data-action="retry-save" style="background:none;border:none;padding:0;text-decoration:underline;color:var(--rust);font-size:12px;">retry</button>.</div>';
+    html += '<div style="text-align:center; margin-top:12px; font-size:12px; color:var(--rust);">Couldn\'t save '+esc(state.saveError.label)+' — <button data-action="retry-save" style="background:none;border:none;padding:0;text-decoration:underline;color:var(--rust);font-size:12px;">tap to retry</button>.</div>';
   }
-  html += '</div>';
 
+  html += '</div>'; // end wrap
   if (state.page === "home" || state.page === "transactions" || state.page === "calendar") html += renderFab();
   html += renderBottomNav();
 
-  // Modals
+  // modals
   if (state.showAddTxn) html += renderAddTxnModal();
-  if (state.showSettings) html += renderSettingsModal();
-  if (state.showBackup) html += renderBackupModal();
-  if (state.showResetConfirm) html += renderResetConfirmModal();
+  if (state.showSettings) {
+    html += renderSettingsModal();
+  }
+
+  if (state.showBackup) {
+    var backupText = JSON.stringify({settings:state.settings, entries:state.entries}, null, 2);
+    html += '<div class="modal-backdrop" data-action="close-backup">';
+    html += '<div class="modal-card" data-action="noop">';
+    html += '<div class="row between" style="margin-bottom:12px;"><div class="display" style="font-size:18px;">Backup & restore</div><button data-action="close-backup" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
+    html += '<div class="muted" style="font-size:12px; margin-bottom:8px;">Use this to move data to another device, or as a safety net.</div>';
+    html += '<textarea readonly class="field mono" style="height:120px; font-size:11px; margin-bottom:8px; resize:none;" onfocus="this.select()">'+esc(backupText)+'</textarea>';
+    html += '<button id="copyBackupBtn" data-action="copy-backup" class="btn-accent" style="width:100%; margin-bottom:20px;">Copy backup</button>';
+    html += '<div class="muted" style="font-size:12px; margin-bottom:8px;">Restore from a backup:</div>';
+    html += '<textarea id="restoreInput" class="field mono" style="height:90px; font-size:11px; margin-bottom:8px; resize:none;" placeholder="Paste backup text here"></textarea>';
+    if (state.restoreError) html += '<div style="color:var(--rust); font-size:12px; margin-bottom:8px;">'+esc(state.restoreError)+'</div>';
+    html += '<button data-action="restore-backup" class="btn-outline" style="width:100%;">Restore this backup</button>';
+    html += '</div></div>';
+  }
+
+  if (state.showResetConfirm) {
+    html += '<div class="modal-backdrop" data-action="close-reset" style="padding:0 24px;">';
+    html += '<div class="modal-card" style="border-radius:20px;" data-action="noop">';
+    html += '<div class="display" style="font-size:18px; margin-bottom:8px;">Clear all entries?</div>';
+    html += '<div class="muted" style="font-size:14px; margin-bottom:16px;">Every logged transaction is removed. Your weekly target and theme stay. This can\'t be undone.</div>';
+    html += '<div class="row gap2">';
+    html += '<button data-action="close-reset" class="btn-outline" style="flex:1;">Cancel</button>';
+    html += '<button data-action="confirm-reset" class="btn-rust row gap2" style="flex:1; justify-content:center; align-items:center;">'+ICONS.rotate+' Clear</button>';
+    html += '</div></div></div>';
+  }
 
   if (state.toastMessage) {
-    html += '<div style="position:fixed; top:calc(env(safe-area-inset-top,0px) + 62px); left:50%; transform:translateX(-50%); background:var(--positive); color:#0A0F1D; font-size:13px; font-weight:600; padding:8px 18px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,0.4); z-index:70; animation:slideUp 0.2s ease;">'+esc(state.toastMessage)+'</div>';
+    html += '<div style="position:fixed; top:calc(env(safe-area-inset-top,0px) + 16px); left:50%; transform:translateX(-50%); background:var(--positive); color:#0C1322; font-size:13px; font-weight:600; padding:9px 18px; border-radius:999px; box-shadow:0 4px 14px rgba(0,0,0,0.35); z-index:60;">'+esc(state.toastMessage)+'</div>';
   }
+
   root.innerHTML = html;
 }
 
-/* ---------------- Home Page ---------------- */
 function renderHomeBody(T, da) {
   var period = getPeriodBounds(state.view, state.offset, state.settings.weeklyTarget, da);
   var displayed = periodStats(period.startStr, period.endStr);
+
   var isClosed = period.endStr < todayStr();
   var isCurrent = state.offset === 0;
   var daysLeft = Math.max(0, period.days - displayed.calendarElapsedDays);
   var elapsedTarget = displayed.elapsedDays * da;
+
   var chartData = displayed.rows.length ? (function(){
     var acc = displayed.opening;
     return displayed.rows.map(function(r){ acc = round2(acc + (r.allowance-r.spent)); return { label: shortLabel(r.date), balance: acc }; });
   })() : [];
+
   var netColor = displayed.net >= 0 ? "var(--positive)" : "var(--rust)";
+
   var entryDates = Object.keys(state.entries).sort();
   var cumAnchor = state.settings.trackingStartDate || (entryDates.length ? entryDates[0] : todayStr());
   var cumulative = periodStats(cumAnchor, todayStr());
@@ -723,8 +545,11 @@ function renderHomeBody(T, da) {
   var todayEntryForCard = state.entries[todayStr()];
   var spentToday = todayEntryForCard ? sumSpent(todayEntryForCard) : 0;
   var spentTodayColor = spentToday > da ? "var(--rust)" : "var(--text)";
-  var todayAllowanceForCard = allowanceForDate(todayStr());
+  var todayAllowanceForCard = referenceForDate(todayStr());
 
+  /* Left to spend today: take the tightest of today's own rate, this week's
+     pace-adjusted daily left, and this month's — whichever is lowest wins,
+     so today's spending stays honest against both horizons at once. */
   var weekDBL = computeDailyBudgetLeft("week", spentToday);
   var monthDBL = computeDailyBudgetLeft("month", spentToday);
   var capCandidates = [todayAllowanceForCard];
@@ -733,42 +558,61 @@ function renderHomeBody(T, da) {
   var effectiveDailyCap = Math.min.apply(null, capCandidates);
   var leftToday = effectiveDailyCap - spentToday;
   var leftTodayColor = leftToday < 0 ? "var(--rust)" : "var(--positive)";
+
+  /* Left to spend today (budget): the plain, uncapped daily rate minus what's
+     been spent today — unlike "Left to spend today" above, this ignores the
+     week/month pace horizons entirely, so it always reads today's own target. */
   var leftTodayBudget = todayAllowanceForCard - spentToday;
   var leftTodayBudgetColor = leftTodayBudget < 0 ? "var(--rust)" : "var(--positive)";
 
   var h = "";
-  // Rounded Top Metrics Card
-  h += '<div class="card" style="padding:16px 18px; margin-bottom:14px;">';
-  h += '<div class="row between"><span class="eyebrow">Left to spend today</span><span class="mono" style="font-size:17px; font-weight:600; color:'+leftTodayColor+';">'+fmt(Math.round(leftToday),0)+' AED</span></div>';
-  h += '<div class="row between" style="margin-top:12px;"><span class="eyebrow">Left to spend today (budget)</span><span class="mono" style="font-size:17px; font-weight:600; color:'+leftTodayBudgetColor+';">'+fmt(Math.round(leftTodayBudget),0)+' AED</span></div>';
-  h += '<div class="row between" style="margin-top:12px;"><span class="eyebrow">Spent today</span><span class="mono" style="font-size:17px; font-weight:600; color:'+spentTodayColor+';">'+fmt(Math.round(spentToday),0)+' AED</span></div>';
-  h += '<div class="row between" style="margin-top:12px;"><span class="eyebrow">'+esc(cumLabel)+'</span><span class="mono" style="font-size:17px; font-weight:600; color:'+cumColor+';">'+(cumulative.net>=0?"+":"−")+fmt(Math.round(Math.abs(cumulative.net)),0)+' AED</span></div>';
-  h += '</div>';
 
-  // Segmented Horizon Selector
-  h += '<div class="segmented-bar" style="margin-bottom:14px;">';
-  ["week","month","year"].forEach(function(v){
-    var active = state.view===v;
-    h += '<button data-action="switch-view" data-view="'+v+'" class="segmented-item '+(active?'active':'')+'" style="text-transform:capitalize;">'+v+'</button>';
+  /* Basis toggle: budget = the spending cap you set yourself; income = money
+     actually earned, accrued day by day. Everything below reads from it. */
+  h += '<div class="row card" style="padding:4px; margin-bottom:12px;">';
+  [["budget","vs Budget"],["income","vs Income"]].forEach(function(opt){
+    var active = state.basis === opt[0];
+    h += '<button data-action="set-basis" data-basis="'+opt[0]+'" style="flex:1; border:none; border-radius:10px; padding:6px 0; font-size:13px; background:'+(active?"var(--accent)":"transparent")+'; color:'+(active?"var(--accent-ink)":"var(--text-muted)")+'; font-weight:'+(active?600:400)+';">'+opt[1]+'</button>';
   });
   h += '</div>';
 
-  // Period Detail Card
-  h += '<div class="card" style="margin-bottom:16px; overflow:hidden;">';
-  h += '<div class="row between" style="padding:14px 16px; border-bottom:1px solid var(--hairline);">';
-  h += '<button data-action="nav-offset" data-delta="-1" class="icon-btn" aria-label="Previous">'+ICONS.chevronLeft+'</button>';
-  h += '<div style="text-align:center;"><div style="font-size:15px; font-weight:600;">'+esc(period.title)+'</div>';
-  h += '<div class="eyebrow" style="margin-top:3px;">'+esc(period.sub)+(isClosed?" · closed":"")+' · Budget '+fmt(period.target,0)+' AED</div>';
-  if (isCurrent) {
-    h += '<div class="muted" style="font-size:11px; margin-top:3px;">'+(state.view==="week"?esc(weekdayLong(todayStr()))+" · ":"")+'Day '+displayed.calendarElapsedDays+' of '+period.days+' · '+daysLeft+' day'+(daysLeft===1?"":"s")+' left</div>';
+  if (state.basis === "income" && !incomeIsSet()) {
+    h += '<div class="card" style="padding:14px 16px; margin-bottom:12px; background:var(--rust-wash); border-color:var(--rust);">';
+    h += '<div style="font-size:13px; margin-bottom:8px;">Set your income to use this view.</div>';
+    h += '<button data-action="open-income-settings" class="btn-accent" style="width:100%;">Set income</button>';
+    h += '</div>';
+    return h;
   }
-  h += '</div>';
-  h += '<button data-action="nav-offset" data-delta="1" class="icon-btn" style="'+(isCurrent?"opacity:0.3;pointer-events:none;":"")+'" aria-label="Next">'+ICONS.chevronRight+'</button>';
+
+  h += '<div class="card" style="padding:14px 16px; margin-bottom:12px;">';
+  h += '<div class="row between"><span class="eyebrow" style="font-size:10px;">Left to spend today</span><span class="mono" style="font-size:16px; color:'+leftTodayColor+';">'+fmt(leftToday,0)+' AED</span></div>';
+  h += '<div class="row between" style="margin-top:10px;"><span class="eyebrow" style="font-size:10px;">Left to spend today ('+basisWord()+')</span><span class="mono" style="font-size:16px; color:'+leftTodayBudgetColor+';">'+fmt(leftTodayBudget,0)+' AED</span></div>';
+  h += '<div class="row between" style="margin-top:10px;"><span class="eyebrow" style="font-size:10px;">Spent today</span><span class="mono" style="font-size:16px; color:'+spentTodayColor+';">'+fmt(spentToday,0)+' AED</span></div>';
+  h += '<div class="row between" style="margin-top:10px;"><span class="eyebrow" style="font-size:10px;">'+esc(cumLabel)+'</span><span class="mono" style="font-size:16px; color:'+cumColor+';">'+(cumulative.net>=0?"+":"−")+fmt(Math.abs(cumulative.net),0)+' AED</span></div>';
   h += '</div>';
 
-  h += '<div style="padding:18px 20px 14px;">';
+  h += '<div class="row card" style="padding:4px; margin-bottom:12px;">';
+  ["week","month","year"].forEach(function(v){
+    var active = state.view===v;
+    h += '<button data-action="switch-view" data-view="'+v+'" style="flex:1; border:none; border-radius:10px; padding:6px 0; font-size:14px; text-transform:capitalize; background:'+(active?"var(--accent)":"transparent")+'; color:'+(active?"var(--accent-ink)":"var(--text-muted)")+'; font-weight:'+(active?600:400)+';">'+v+'</button>';
+  });
+  h += '</div>';
+
+  h += '<div class="card" style="margin-bottom:16px; overflow:hidden;">';
+  h += '<div class="row between" style="padding:12px; border-bottom:1px solid var(--hairline);">';
+  h += '<button data-action="nav-offset" data-delta="-1" class="icon-btn" style="border-radius:10px;" aria-label="Previous">'+ICONS.chevronLeft+'</button>';
+  h += '<div style="text-align:center;"><div style="font-size:14px; font-weight:500;">'+esc(period.title)+'</div>';
+  h += '<div class="eyebrow" style="margin-top:2px;">'+esc(period.sub)+(isClosed?" · closed":"")+' · '+basisWordCap()+' '+fmt(period.target,0)+' AED</div>';
+  if (isCurrent) {
+    h += '<div class="muted" style="font-size:11px; margin-top:4px;">'+(state.view==="week"?esc(weekdayLong(todayStr()))+" · ":"")+'Day '+displayed.calendarElapsedDays+' of '+period.days+' · '+daysLeft+' day'+(daysLeft===1?"":"s")+' left</div>';
+  }
+  h += '</div>';
+  h += '<button data-action="nav-offset" data-delta="1" class="icon-btn" style="border-radius:10px;'+(isCurrent?"opacity:0.3;pointer-events:none;":"")+'" aria-label="Next">'+ICONS.chevronRight+'</button>';
+  h += '</div>';
+
+  h += '<div style="padding:16px 20px 12px;">';
   h += '<div class="eyebrow">'+(isClosed?"Saved this period":"Saved so far")+'</div>';
-  h += '<div class="mono" style="font-size:36px; font-weight:700; margin-top:4px; color:'+netColor+';">'+(displayed.net>=0?"+":"−")+fmt(Math.abs(displayed.net),0)+' <span class="muted" style="font-size:18px; font-weight:400;">AED</span></div>';
+  h += '<div class="mono" style="font-size:34px; margin-top:4px; color:'+netColor+';">'+(displayed.net>=0?"+":"−")+fmt(Math.abs(displayed.net),0)+' <span class="muted" style="font-size:17px;">AED</span></div>';
   h += '<div class="muted" style="font-size:12px; margin-top:4px;">'+(displayed.elapsedDays===0 ? ("This "+state.view+" hasn't started yet") : (displayed.loggedCount+" of "+displayed.elapsedDays+" elapsed day"+(displayed.elapsedDays===1?"":"s")+" logged"))+'</div>';
   h += '</div>';
 
@@ -780,7 +624,7 @@ function renderHomeBody(T, da) {
   var remainingBudget = period.target - displayed.spent;
   var allowedText, allowedTone, planDaysShown;
   if (daysLeft > 0) {
-    planDaysShown = daysLeft + 1;
+    planDaysShown = daysLeft + 1; // today counts as a fresh, still-available day
     var spentBeforeToday = displayed.spent - spentToday;
     var remainingExclToday = period.target - spentBeforeToday;
     var perDayLeft = remainingExclToday/planDaysShown;
@@ -790,444 +634,167 @@ function renderHomeBody(T, da) {
     allowedText = isClosed ? "—" : "Last day";
     allowedTone = "var(--text-muted)";
   }
-
-  h += '<div class="stat-grid hairline-top" style="padding:14px 20px 16px;">';
+  h += '<div class="stat-grid hairline-top" style="padding:12px 20px 16px;">';
   h += statBlock("Spent so far", fmt(displayed.spent,0)+" AED", displayed.spent>elapsedTarget?"var(--rust)":"var(--text)");
-  h += statBlock("Budget remaining", (remainingBudget>=0?"":"−")+fmt(Math.abs(remainingBudget),0)+" AED", remainingBudget<0?"var(--rust)":"var(--text)");
+  h += statBlock(basisWordCap()+" remaining", (remainingBudget>=0?"":"−")+fmt(Math.abs(remainingBudget),0)+" AED", remainingBudget<0?"var(--rust)":"var(--text)");
   h += statBlock("Avg daily spend", avgSpentPerDay===null ? "—" : (fmt(avgSpentPerDay,0)+" AED"), (avgSpentPerDay!==null && avgSpentPerDay>da)?"var(--rust)":"var(--text)");
-  h += statBlock("Daily budget left"+(daysLeft>0?" ("+planDaysShown+"d)":""), allowedText, allowedTone);
+  h += statBlock("Daily "+basisWord()+" left"+(daysLeft>0?" ("+planDaysShown+"d)":""), allowedText, allowedTone);
   h += '</div>';
 
   if (chartData.length >= 2) {
-    h += '<div class="hairline-top" style="padding:14px 10px 12px;">'+renderChart(chartData, T)+'</div>';
+    h += '<div class="hairline-top" style="padding:12px 8px 12px;">'+renderChart(chartData, T)+'</div>';
   }
-  h += '</div>';
+  h += '</div>'; // end period card
 
+  /* Forecast: project where this period lands if spending continues at the
+     current pace. Uses the same "Avg daily spend" figure shown above (which
+     excludes today, since today isn't finished yet) for consistency. */
   if (isCurrent && daysLeft > 0 && avgSpentPerDay !== null) {
     var pacePerDay = avgSpentPerDay;
     var projectedSpend = displayed.spent + pacePerDay * daysLeft;
     var projectedSaved = period.target - projectedSpend;
     var onTrack = projectedSaved >= 0;
-    h += '<div class="card" style="padding:16px 18px; margin-bottom:16px;">';
-    h += '<div class="eyebrow" style="margin-bottom:3px;">Forecast at '+(state.view==="week"?"week":state.view==="month"?"month":"year")+' close</div>';
-    h += '<div class="muted" style="font-size:11px; margin-bottom:14px;">Based on your '+fmt(pacePerDay,0)+' AED/day average for '+daysLeft+' remaining day'+(daysLeft===1?"":"s")+'</div>';
+    h += '<div class="card" style="padding:16px; margin-bottom:16px;">';
+    h += '<div class="eyebrow" style="margin-bottom:2px;">Forecast at '+(state.view==="week"?"week":state.view==="month"?"month":"year")+' close</div>';
+    h += '<div class="muted" style="font-size:11px; margin-bottom:12px;">Based on your '+fmt(pacePerDay,0)+' AED/day average, for the remaining '+daysLeft+' day'+(daysLeft===1?"":"s")+'</div>';
     h += '<div class="stat-grid">';
     h += statBlock("Projected spend", fmt(projectedSpend,0)+" AED", projectedSpend>period.target?"var(--rust)":"var(--text)");
     h += statBlock("Projected saved", (projectedSaved>=0?"+":"−")+fmt(Math.abs(projectedSaved),0)+" AED", onTrack?"var(--positive)":"var(--rust)");
     h += '</div>';
-    h += '<div style="margin-top:12px; font-size:12px; font-weight:500; color:'+(onTrack?"var(--positive)":"var(--rust)")+';">'+(onTrack?"✓ On track to finish under budget":"⚠ On track to overshoot — ease off to recover")+'</div>';
+    h += '<div style="margin-top:10px; font-size:12px; color:'+(onTrack?"var(--positive)":"var(--rust)")+';">'+(onTrack?"On track to finish under budget":"On track to overshoot — ease off to recover")+'</div>';
     h += '</div>';
   }
+
   return h;
 }
 
-/* ---------------- Palette & Category Styles ---------------- */
-var PIE_COLORS = ["#E5B869","#4ECB8F","#7AA3D4","#E05D44","#B689D8","#56C2C2","#E28859","#99B078","#C97EA4","#7E8ED0"];
+function renderSettingsModal() {
+  var tabs = [{id:"budget",label:"Budget"},{id:"income",label:"Income"},{id:"tracking",label:"Tracking"},{id:"categories",label:"Categories"}];
+  var h = '<div class="modal-backdrop" data-action="close-settings">';
+  h += '<div class="modal-card" data-action="noop">';
+  h += '<div class="row between" style="margin-bottom:14px;"><div class="display" style="font-size:18px;">Settings</div><button data-action="close-settings" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
 
-var CAT_ICON_SVGS = {
-  fork: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7a2 2 0 0 0 4 0V2M5 2v20M21 15V2a5 5 0 0 0-5 5v6a2 2 0 0 0 2 2h3zm0 0v7"/></svg>',
-  basket: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8h13l-1.5 11.2a2 2 0 0 1-2 1.8H9a2 2 0 0 1-2-1.8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>',
-  car: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17V11l2-5h14l2 5v6"/><path d="M5 17h14"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
-  bag: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>',
-  bolt: '<svg width="15" height="15" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>',
-  heart: '<svg width="15" height="15" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 9.9 1.9 6 5.4 5.1 7.6 4.5 9.8 5.5 12 8c2.2-2.5 4.4-3.5 6.6-2.9 3.5.9 4.6 4.8 2.7 7.8C18.7 16.65 12 21 12 21z"/></svg>',
-  film: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg>',
-  tag: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.83 0L2.6 13.4a2 2 0 0 1 0-2.83l8-8A2 2 0 0 1 12 2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-.4 1.2Z"/><circle cx="16.5" cy="7.5" r="1"/></svg>'
-};
-
-var CATEGORY_STYLES = {
-  "Food & Dining": { icon:"fork", color:"#E05D44" },
-  "Groceries": { icon:"basket", color:"#53A853" },
-  "Transport": { icon:"car", color:"#7AA3D4" },
-  "Shopping": { icon:"bag", color:"#B689D8" },
-  "Bills & Utilities": { icon:"bolt", color:"#CDA423" },
-  "Health": { icon:"heart", color:"#E06376" },
-  "Entertainment": { icon:"film", color:"#7E8ED0" },
-  "Other": { icon:"tag", color:"#8292B2" }
-};
-
-function categoryStyle(name) {
-  if (!name) return { icon:"tag", color:"#8292B2" };
-  if (CATEGORY_STYLES[name]) return CATEGORY_STYLES[name];
-  var hash = 0;
-  for (var i=0;i<name.length;i++) hash = (hash*31 + name.charCodeAt(i)) >>> 0;
-  return { icon:"tag", color: PIE_COLORS[hash % PIE_COLORS.length] };
-}
-
-function catIconCircle(categoryName) {
-  var st = categoryStyle(categoryName);
-  return '<span style="width:34px; height:34px; border-radius:50%; background:'+st.color+'; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 10px rgba(0,0,0,0.25);">'+CAT_ICON_SVGS[st.icon]+'</span>';
-}
-
-/* ---------------- Interactive Column & Donut Charts ---------------- */
-function renderInteractiveDonut(slices, T, selectedCat) {
-  var size = 180, r = 76, cx = size/2, cy = size/2;
-  var total = slices.reduce(function(s,x){ return s+x.value; }, 0);
-  if (total <= 0) return "";
-  var angle = -Math.PI/2;
-  var paths = "";
-  slices.forEach(function(sl, i){
-    var frac = sl.value/total;
-    var sweep = frac * Math.PI * 2;
-    var end = angle + sweep;
-    var color = PIE_COLORS[i % PIE_COLORS.length];
-    var isSel = (selectedCat && selectedCat === sl.label);
-    var segR = isSel ? r + 3 : r;
-    var strokeStyle = isSel ? ' stroke="#FFFFFF" stroke-width="2.5"' : '';
-
-    if (frac >= 0.9999) {
-      paths += '<circle cx="'+cx+'" cy="'+cy+'" r="'+segR+'" fill="'+color+'"'+strokeStyle+' data-action="analysis-select-cat" data-cat="'+esc(sl.label)+'" style="cursor:pointer;" />';
-    } else {
-      var x1 = cx + segR*Math.cos(angle), y1 = cy + segR*Math.sin(angle);
-      var x2 = cx + segR*Math.cos(end), y2 = cy + segR*Math.sin(end);
-      var large = sweep > Math.PI ? 1 : 0;
-      paths += '<path d="M '+cx+' '+cy+' L '+x1+' '+y1+' A '+segR+' '+segR+' 0 '+large+' 1 '+x2+' '+y2+' Z" fill="'+color+'"'+strokeStyle+' data-action="analysis-select-cat" data-cat="'+esc(sl.label)+'" style="cursor:pointer; transition: transform 0.15s ease;" />';
-    }
-    angle = end;
-  });
-  paths += '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.58)+'" fill="'+T.card+'" pointer-events="none" />';
-  return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'">'+paths+'</svg>';
-}
-
-function renderBarChart(items, T) {
-  var w = 340, h = 140, padL = 30, padR = 8, padT = 10, padB = 20;
-  var maxVal = Math.max.apply(null, items.map(function(i){ return Math.max(i.spent, i.target); }).concat([1]));
-  var plotW = w-padL-padR, plotH = h-padT-padB;
-  var n = items.length;
-  var slot = plotW/n;
-  var barW = Math.min(22, slot*0.55);
-  function y(v){ return padT + plotH - (Math.min(v,maxVal)/maxVal)*plotH; }
-  var bars = items.map(function(it,i){
-    var cx = padL + slot*i + slot/2;
-    var barTopY = y(it.spent);
-    var barH = Math.max(0, plotH - (barTopY-padT));
-    var color = it.spent <= it.target ? T.positive : T.rust;
-    var targetY = y(it.target);
-    return '<rect x="'+(cx-barW/2)+'" y="'+barTopY+'" width="'+barW+'" height="'+barH+'" fill="'+color+'" rx="3"/>'
-      + '<line x1="'+(cx-barW/2-2)+'" x2="'+(cx+barW/2+2)+'" y1="'+targetY+'" y2="'+targetY+'" stroke="'+T.textMuted+'" stroke-dasharray="2,2"/>'
-      + '<text x="'+cx+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="middle">'+esc(it.label)+'</text>';
-  }).join("");
-  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'">'
-    + '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+y(0)+'" y2="'+y(0)+'" stroke="'+T.hairline+'"/>'
-    + bars + '</svg>';
-}
-
-function renderDailyBarChart(rows, getValue, getColor, T, selectedDate) {
-  if (!rows.length) return '<div class="muted" style="font-size:12px; padding:12px 0;">No transactions in this period.</div>';
-  var w = 340, h = 145, padL = 34, padR = 10, padT = 12, padB = 22;
-  var values = rows.map(getValue);
-  var maxVal = Math.max.apply(null, values.concat([0]));
-  var minVal = Math.min.apply(null, values.concat([0]));
-  var range = (maxVal - minVal) || 1;
-  var plotW = w-padL-padR, plotH = h-padT-padB;
-  var n = rows.length;
-  var slot = plotW/n;
-  var barW = Math.max(2.5, Math.min(18, slot*0.74));
-  function y(v){ return padT + plotH - ((v-minVal)/range)*plotH; }
-  var zeroY = y(0);
-
-  var bars = rows.map(function(r,i){
-    var v = getValue(r);
-    var cx = padL + slot*i + slot/2;
-    var top = v>=0 ? y(v) : zeroY;
-    var barH = Math.max(2, Math.abs(y(v)-zeroY));
-    var isSel = (selectedDate && selectedDate === r.date);
-    var stroke = isSel ? ' stroke="#FFFFFF" stroke-width="2.2"' : '';
-
-    return '<g data-action="analysis-select-day" data-date="'+r.date+'" style="cursor:pointer;">'
-      + '<rect x="'+(cx-slot/2)+'" y="'+padT+'" width="'+slot+'" height="'+plotH+'" fill="transparent" />'
-      + '<rect x="'+(cx-barW/2)+'" y="'+top+'" width="'+barW+'" height="'+barH+'" fill="'+getColor(r,v)+'" rx="2.5"'+stroke+' />'
-      + '</g>';
-  }).join("");
-
-  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'">'
-    + '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+zeroY+'" y2="'+zeroY+'" stroke="'+T.hairline+'" stroke-width="1.5"/>'
-    + (minVal < 0 ? '<text x="2" y="'+(zeroY+3)+'" font-size="8" fill="'+T.textMuted+'" font-family="var(--f-mono)">0</text>' : '')
-    + (maxVal > 0 ? '<text x="2" y="'+(y(maxVal)+3)+'" font-size="8" fill="'+T.textMuted+'" font-family="var(--f-mono)">'+fmt(maxVal,0)+'</text>' : '')
-    + bars
-    + '<text x="'+padL+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'">'+esc(shortLabel(rows[0].date))+'</text>'
-    + '<text x="'+(w-padR)+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="end">'+esc(shortLabel(rows[rows.length-1].date))+'</text>'
-    + '</svg>';
-}
-
-/* ---------------- Analysis Page ---------------- */
-function getAnalysisPeriodBounds() {
-  var today = todayStr();
-  var now = new Date();
-  var tsd = state.settings.trackingStartDate;
-  var entryDatesAll = Object.keys(state.entries).sort();
-  var naturalAnchor = tsd || (entryDatesAll.length ? entryDatesAll[0] : today);
-  var mode = state.analysisPeriodMode || "thisMonth";
-  var anchor = state.analysisPeriodDate || today;
-  var from = state.analysisPeriodFrom || "";
-  var to = state.analysisPeriodTo || "";
-
-  if (mode === "thisWeek") {
-    var sw = startOfWeek(now);
-    return { start: toStr(sw), end: toStr(addDays(sw,6)), title: "This Week" };
-  }
-  if (mode === "thisMonth") {
-    var sm = startOfMonth(now);
-    return { start: toStr(sm), end: toStr(endOfMonth(sm)), title: sm.toLocaleDateString("en-GB",{month:"long",year:"numeric"}) };
-  }
-  if (mode === "last30") {
-    var s30 = addDays(now, -29);
-    return { start: toStr(s30), end: today, title: "Last 30 Days" };
-  }
-  if (mode === "thisYear") {
-    var sy = new Date(now.getFullYear(),0,1);
-    var ey = new Date(now.getFullYear(),11,31);
-    return { start: toStr(sy), end: toStr(ey), title: String(now.getFullYear()) };
-  }
-  if (mode === "week" && anchor) {
-    var s = startOfWeek(parseD(anchor));
-    return { start: toStr(s), end: toStr(addDays(s,6)), title: shortLabel(toStr(s))+' – '+shortLabel(toStr(addDays(s,6))) };
-  }
-  if (mode === "month" && anchor) {
-    var s2 = startOfMonth(parseD(anchor));
-    return { start: toStr(s2), end: toStr(endOfMonth(s2)), title: s2.toLocaleDateString("en-GB",{month:"long",year:"numeric"}) };
-  }
-  if (mode === "range") {
-    var sR = from || naturalAnchor;
-    var eR = to || today;
-    return { start: sR, end: eR, title: shortLabel(sR)+' – '+shortLabel(eR) };
-  }
-  return { start: naturalAnchor, end: today, title: "All Time (Since "+shortLabel(naturalAnchor)+")" };
-}
-
-function renderAnalysisBody(T) {
-  var da = dailyAllowance();
-  var today = todayStr();
-  var periodMode = state.analysisPeriodMode || "thisMonth";
-  var periodFrom = state.analysisPeriodFrom || "";
-  var periodTo = state.analysisPeriodTo || "";
-  var bounds = getAnalysisPeriodBounds();
-  var cs = periodStats(bounds.start, bounds.end);
-  var h = "";
-
-  h += '<div class="row between" style="align-items:center; margin-bottom:8px;">';
-  h += '<div><div class="eyebrow">Analytics & Insights</div><div class="muted" style="font-size:12px; margin-top:2px;">'+esc(bounds.title)+'</div></div>';
-  h += '<button class="icon-btn" data-action="toggle-analysis-reorder" style="border-radius:10px; gap:4px; padding:6px 12px; font-size:12px; width:auto; color:'+(state.analysisReorderMode?"var(--accent)":"var(--text)")+';" aria-label="Reorder sections">';
-  h += (state.analysisReorderMode ? ICONS.check + ' <span style="font-weight:600;">Done</span>' : ICONS.pencil + ' <span>Reorder</span>');
-  h += '</button>';
-  h += '</div>';
-
-  var pills = [
-    {id:"thisMonth", label:"This Month"},
-    {id:"thisWeek", label:"This Week"},
-    {id:"last30", label:"Last 30 Days"},
-    {id:"thisYear", label:"This Year"},
-    {id:"all", label:"All Time"},
-    {id:"range", label:"Custom..."}
-  ];
-  h += '<div class="pill-scroll">';
-  pills.forEach(function(p){
-    var active = (periodMode === p.id);
-    h += '<button class="pill-btn '+(active?'active':'')+'" data-action="analysis-select-period-pill" data-mode="'+p.id+'">'+p.label+'</button>';
+  h += '<div class="row" style="background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:3px; margin-bottom:16px;">';
+  tabs.forEach(function(t){
+    var active = state.settingsTab === t.id;
+    h += '<button data-action="settings-tab" data-tab="'+t.id+'" style="flex:1; border:none; border-radius:8px; padding:6px 0; font-size:13px; background:'+(active?"var(--accent)":"transparent")+'; color:'+(active?"var(--accent-ink)":"var(--text-muted)")+'; font-weight:'+(active?600:400)+';">'+t.label+'</button>';
   });
   h += '</div>';
 
-  if (periodMode === "range") {
-    h += '<div class="card row gap2" style="padding:10px 12px; margin-bottom:14px;">';
-    h += '<input id="analysisPeriodFromInput" type="date" class="field mono" style="flex:1; font-size:12px; padding:8px 10px;" value="'+esc(periodFrom)+'" max="'+today+'" placeholder="From" />';
-    h += '<input id="analysisPeriodToInput" type="date" class="field mono" style="flex:1; font-size:12px; padding:8px 10px;" value="'+esc(periodTo)+'" max="'+today+'" placeholder="To" />';
+  if (state.settingsTab === "budget") {
+    var curWeekly = currentWeeklyTarget();
+    var wkBounds = getPeriodBounds("week", 0, curWeekly, curWeekly/7);
+    h += '<label class="eyebrow">Weekly budget target</label>';
+    h += '<div style="position:relative; margin:6px 0 6px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px;">AED</span>';
+    h += '<input id="weeklyDraftInput" type="number" inputmode="decimal" class="field mono" style="padding-left:44px;" value="'+curWeekly+'" /></div>';
+    h += '<div class="muted" style="font-size:12px; margin-bottom:14px;">= '+fmt(curWeekly/7,2)+' AED per day. Choose how far this change should reach:</div>';
+    h += '<button data-action="apply-budget" data-scope="future" class="btn-accent" style="width:100%; margin-bottom:8px;">This week onward</button>';
+    h += '<div class="muted" style="font-size:11px; margin-bottom:12px;">From '+esc(shortLabel(wkBounds.startStr))+' forward. Earlier weeks keep their old rate — this is usually what you want.</div>';
+    h += '<button data-action="apply-budget" data-scope="thisPeriod" class="btn-outline" style="width:100%; margin-bottom:8px;">This week only</button>';
+    h += '<div class="muted" style="font-size:11px; margin-bottom:12px;">Just '+esc(shortLabel(wkBounds.startStr))+'–'+esc(shortLabel(wkBounds.endStr))+'. Reverts to the previous rate afterwards.</div>';
+    h += '<button data-action="apply-budget" data-scope="all" class="btn-outline" style="width:100%; margin-bottom:8px;">All periods, past and future</button>';
+    h += '<div class="muted" style="font-size:11px;">Rewrites your whole history to this rate. Use if you were still dialling the number in and want past weeks re-judged against it.</div>';
+  }
+
+  if (state.settingsTab === "tracking") {
+    h += '<label class="eyebrow">Tracking start date (optional)</label>';
+    h += '<input id="trackingStartInput" type="date" class="field mono" style="margin:6px 0 6px;" value="'+(state.settings.trackingStartDate||"")+'" max="'+todayStr()+'" />';
+    h += '<div class="muted" style="font-size:12px; margin-bottom:16px;">Caps how far back Week/Month/Year totals count. Set this to when you actually started using the app so untracked earlier days aren\'t assumed as saved. Leave blank to count from each period\'s natural start.</div>';
+    h += '<button data-action="save-tracking" class="btn-accent" style="width:100%; margin-bottom:20px;">Save</button>';
+    h += '<div class="hairline-top" style="padding-top:14px;">';
+    h += '<label class="eyebrow">Backup & restore</label>';
+    h += '<div class="muted" style="font-size:12px; margin:6px 0 10px;">Copy your data out, or paste it back in — also how you move data between devices or browsers.</div>';
+    h += '<button data-action="open-backup" class="btn-outline" style="width:100%;">Open backup & restore</button>';
     h += '</div>';
   }
 
-  var selectedDayRow = state.analysisSelectedDate ? cs.rows.find(function(r){ return r.date === state.analysisSelectedDate; }) : null;
-  function renderDayDetailCard(row) {
-    if (!row) return '';
-    var dDelta = row.allowance - row.spent;
-    var s = '<div class="interactive-subcard">';
-    s += '<div class="row between" style="margin-bottom:6px;">';
-    s += '<div><span class="mono" style="font-size:13px; font-weight:600;">'+esc(dayLabel(row.date))+'</span><span class="muted" style="font-size:11px; margin-left:6px;">Spent '+fmt(row.spent,0)+' / Budget '+fmt(row.allowance,0)+' AED</span></div>';
-    s += '<button data-action="analysis-clear-day" style="background:none;border:none;color:var(--text-muted);padding:2px;">'+ICONS.x+'</button>';
-    s += '</div>';
-    s += '<div class="row between" style="margin-bottom:8px;"><span class="eyebrow">Net Saved</span><span class="mono" style="font-size:13px; font-weight:600; color:'+(dDelta>=0?"var(--positive)":"var(--rust)")+';">'+(dDelta>=0?"+":"−")+fmt(Math.abs(dDelta),2)+' AED</span></div>';
-    if (row.items && row.items.length) {
-      s += '<div class="hairline-top" style="padding-top:6px;">';
-      newestFirst(row.items).forEach(function(it){ s += renderTxnRow(row.date, it); });
-      s += '</div>';
-    } else {
-      s += '<div class="muted" style="font-size:11px;">Assumed full allowance saved (no entries logged).</div>';
+  if (state.settingsTab === "income") {
+    var curInc = incomeForDate(todayStr());
+    var draftMode = state.incomeDraftMode || curInc.mode || "monthly";
+    var curAmt = Number(curInc.amount) || 0;
+    var dim = daysInMonth(new Date());
+    var monthName = new Date().toLocaleDateString("en-GB",{month:"long"});
+    var mBounds = getPeriodBounds("month", 0, currentWeeklyTarget(), dailyReference());
+    h += '<label class="eyebrow">How do you want to enter it?</label>';
+    h += '<div class="row" style="background:var(--raised); border:1px solid var(--hairline); border-radius:10px; padding:3px; margin:6px 0 10px;">';
+    [["monthly","Monthly"],["daily","Daily"]].forEach(function(opt){
+      var act = draftMode === opt[0];
+      h += '<button data-action="income-mode" data-mode="'+opt[0]+'" style="flex:1; border:none; border-radius:8px; padding:6px 0; font-size:13px; background:'+(act?"var(--accent)":"transparent")+'; color:'+(act?"var(--accent-ink)":"var(--text-muted)")+'; font-weight:'+(act?600:400)+';">'+opt[1]+'</button>';
+    });
+    h += '</div>';
+    h += '<label class="eyebrow">'+(draftMode==="monthly"?"Monthly income":"Daily income")+'</label>';
+    h += '<div style="position:relative; margin:6px 0 6px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px;">AED</span>';
+    var shownAmt = (state.incomeDraftAmount != null) ? state.incomeDraftAmount : (curAmt || "");
+    h += '<input id="incomeDraftInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" value="'+esc(shownAmt)+'" /></div>';
+    if (curAmt > 0) {
+      var perDayNow = dailyIncomeForDate(todayStr());
+      var perMonthNow = monthlyIncomeForDate(todayStr());
+      h += '<div class="muted" style="font-size:12px; margin-bottom:6px;">Currently '+fmt(perMonthNow,0)+' AED in '+esc(monthName)+' · '+fmt(perDayNow,2)+' AED a day.</div>';
     }
-    s += '</div>';
-    return s;
+    h += '<div class="muted" style="font-size:11px; margin-bottom:14px;">'+(draftMode==="monthly"
+      ? ("A monthly figure is divided across that month's real length ("+dim+" days in "+esc(monthName)+"), so it accrues to exactly the full amount by month end.")
+      : "A daily figure stays flat, so a month's total varies with its length.")+'</div>';
+    h += '<button data-action="apply-income" data-scope="future" class="btn-accent" style="width:100%; margin-bottom:8px;">From this month onward</button>';
+    h += '<div class="muted" style="font-size:11px; margin-bottom:12px;">From '+esc(shortLabel(mBounds.startStr))+' forward. Earlier months keep the income they were actually judged against — this is usually what you want.</div>';
+    h += '<button data-action="apply-income" data-scope="all" class="btn-outline" style="width:100%; margin-bottom:8px;">All periods, past and future</button>';
+    h += '<div class="muted" style="font-size:11px;">Rewrites your whole history to this figure. Use if you were just correcting the number.</div>';
   }
 
-  var sectionHtml = {};
-
-  sectionHtml.summary = function(){
-    var s = '<div class="card" style="padding:16px 18px; margin-bottom:14px;">';
-    s += '<div class="stat-grid">';
-    s += statBlock("Total spent", fmt(cs.spent,0)+" AED", "var(--text)");
-    s += statBlock("Total saved", (cs.net>=0?"+":"−")+fmt(Math.abs(cs.net),0)+" AED", cs.net>=0?"var(--positive)":"var(--rust)");
-    s += statBlock("Avg daily spend", fmt(cs.elapsedDays>0?cs.spent/cs.elapsedDays:0,0)+" AED", (cs.elapsedDays>0 && cs.spent/cs.elapsedDays>da)?"var(--rust)":"var(--text)");
-    s += statBlock("Days tracked", String(cs.elapsedDays), "var(--text)");
-    s += '</div></div>';
-    return s;
-  };
-
-  sectionHtml.dailySpend = function(){
-    var s = '<div class="card" style="padding:14px 16px; margin-bottom:14px;">';
-    s += '<div class="row between" style="margin-bottom:6px;"><span class="eyebrow">Spend per day</span><span class="muted mono" style="font-size:10px;">Tap bar to inspect</span></div>';
-    s += renderDailyBarChart(cs.rows, function(r){ return r.spent; }, function(r,v){ return v>r.allowance ? T.rust : T.positive; }, T, state.analysisSelectedDate);
-    if (selectedDayRow) s += renderDayDetailCard(selectedDayRow);
-    s += '</div>';
-    return s;
-  };
-
-  sectionHtml.dailySaving = function(){
-    var s = '<div class="card" style="padding:14px 16px; margin-bottom:14px;">';
-    s += '<div class="row between" style="margin-bottom:6px;"><span class="eyebrow">Saved per day (Net)</span><span class="muted mono" style="font-size:10px;">Green = Saved · Red = Over</span></div>';
-    s += renderDailyBarChart(cs.rows, function(r){ return r.allowance - r.spent; }, function(r,v){ return v>=0 ? T.positive : T.rust; }, T, state.analysisSelectedDate);
-    if (selectedDayRow) s += renderDayDetailCard(selectedDayRow);
-    s += '</div>';
-    return s;
-  };
-
-  sectionHtml.monthlyBar = function(){
-    var now = new Date();
-    var endMonthStart = startOfMonth(parseD(bounds.end));
-    var startMonthStart = startOfMonth(parseD(bounds.start));
-    var offEnd = (endMonthStart.getFullYear()-now.getFullYear())*12 + (endMonthStart.getMonth()-now.getMonth());
-    var offStart = (startMonthStart.getFullYear()-now.getFullYear())*12 + (startMonthStart.getMonth()-now.getMonth());
-    var months = [];
-    for (var mOff = offStart; mOff <= offEnd && months.length < 36; mOff++) {
-      var mb = getPeriodBounds("month", mOff, state.settings.weeklyTarget, da);
-      var ms = periodStats(mb.startStr, mb.endStr);
-      months.push({ label: parseD(mb.startStr).toLocaleDateString("en-GB",{month:"short"}), spent: ms.spent, target: mb.target });
-    }
-    if (months.length < 2) return "";
-    var s = '<div class="card" style="padding:14px 16px; margin-bottom:14px;">';
-    s += '<div class="eyebrow" style="margin-bottom:8px;">Monthly spend vs target</div>';
-    s += renderBarChart(months, T);
-    s += '<div class="muted" style="font-size:10px; margin-top:4px;">Dashed line marks that month\'s target · red bars ran over</div>';
-    s += '</div>';
-    return s;
-  };
-
-  sectionHtml.category = function(){
-    var catTotals = {};
-    var catItemsMap = {};
-    cs.rows.forEach(function(r){
-      r.items.forEach(function(it){
-        var key = it.category || "Uncategorised";
-        catTotals[key] = (catTotals[key] || 0) + it.amount;
-        if (!catItemsMap[key]) catItemsMap[key] = [];
-        catItemsMap[key].push({ date: r.date, item: it });
-      });
-    });
-    var catSlices = Object.keys(catTotals).map(function(k){ return { label:k, value:catTotals[k] }; }).sort(function(a,b){ return b.value - a.value; });
-    var catTotal = catSlices.reduce(function(s,x){ return s+x.value; }, 0);
-    if (!catSlices.length) return "";
-
-    var s = '<div class="card" style="padding:16px 18px; margin-bottom:14px;">';
-    s += '<div class="row between" style="margin-bottom:8px;"><span class="eyebrow">Spend by category</span><span class="muted" style="font-size:11px;">Tap category to drill down</span></div>';
-    s += '<div style="display:flex; justify-content:center; margin-bottom:12px;">'+renderInteractiveDonut(catSlices, T, state.analysisSelectedCategory)+'</div>';
-
-    catSlices.forEach(function(sl,i){
-      var pct = catTotal>0 ? (sl.value/catTotal*100) : 0;
-      var isCatSel = (state.analysisSelectedCategory === sl.label);
-      s += '<div data-action="analysis-select-cat" data-cat="'+esc(sl.label)+'" class="row between interactive-card" style="padding:8px 10px; border-radius:10px; cursor:pointer; background:'+(isCatSel?'var(--card-elevated)':'transparent')+';'+(i>0&&!isCatSel?"border-top:1px solid var(--hairline);":"")+'">';
-      s += '<div class="row" style="align-items:center; gap:8px; min-width:0;"><span style="width:10px;height:10px;border-radius:3px;flex-shrink:0;background:'+PIE_COLORS[i % PIE_COLORS.length]+';"></span><span style="font-size:13px; font-weight:'+(isCatSel?600:400)+';">'+esc(sl.label)+'</span></div>';
-      s += '<div class="row" style="align-items:baseline; gap:8px;"><span class="mono" style="font-size:13px;">'+fmt(sl.value,0)+'</span><span class="muted mono" style="font-size:10px; width:34px; text-align:right;">'+pct.toFixed(0)+'%</span></div>';
-      s += '</div>';
-    });
-
-    if (state.analysisSelectedCategory && catItemsMap[state.analysisSelectedCategory]) {
-      s += '<div class="interactive-subcard">';
-      s += '<div class="row between" style="margin-bottom:6px;">';
-      s += '<span class="eyebrow" style="color:var(--accent);">'+esc(state.analysisSelectedCategory)+' ('+catItemsMap[state.analysisSelectedCategory].length+' txns)</span>';
-      s += '<button data-action="analysis-clear-cat" style="background:none;border:none;color:var(--text-muted);padding:2px;">'+ICONS.x+'</button>';
-      s += '</div>';
-      catItemsMap[state.analysisSelectedCategory].forEach(function(entry){
-        s += renderTxnRow(entry.date, entry.item);
-      });
-      s += '</div>';
-    }
-    s += '</div>';
-    return s;
-  };
-
-  sectionHtml.dow = function(){
-    var dowSums = [0,0,0,0,0,0,0], dowCounts = [0,0,0,0,0,0,0], dowTxnCount = [0,0,0,0,0,0,0];
-    cs.rows.forEach(function(r){
-      var dow = parseD(r.date).getDay();
-      var idx = dow===0?6:dow-1;
-      dowSums[idx] += r.spent;
-      dowCounts[idx] += 1;
-      dowTxnCount[idx] += r.items.length;
-    });
-    var dowLabels = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-    var dowAvg = dowSums.map(function(s2,i){ return dowCounts[i]>0 ? s2/dowCounts[i] : 0; });
-    var maxDow = Math.max.apply(null, dowAvg.concat([1]));
-
-    var s = '<div class="card" style="padding:16px 18px; margin-bottom:14px;">';
-    s += '<div class="row between" style="margin-bottom:10px;"><span class="eyebrow">Average spend by day of week</span><span class="muted" style="font-size:11px;">Tap day to inspect</span></div>';
-    dowLabels.forEach(function(lbl,i){
-      var pct = maxDow>0 ? Math.round((dowAvg[i]/maxDow)*100) : 0;
-      var over = dowAvg[i] > da;
-      var isDowSel = (state.analysisSelectedDow === i);
-      s += '<div data-action="analysis-select-dow" data-dow="'+i+'" style="cursor:pointer; padding:6px 8px; border-radius:8px; background:'+(isDowSel?'var(--card-elevated)':'transparent')+'; margin-bottom:4px;">';
-      s += '<div class="row" style="align-items:center; gap:8px;">';
-      s += '<span class="muted" style="font-size:11px; width:26px; font-weight:'+(isDowSel?600:400)+';">'+lbl+'</span>';
-      s += '<div style="flex:1; background:rgba(255,255,255,0.06); border-radius:999px; height:8px; overflow:hidden;"><div style="width:'+pct+'%; height:100%; border-radius:999px; background:'+(over?"var(--rust)":"var(--positive)")+';"></div></div>';
-      s += '<span class="mono muted" style="font-size:11px; width:40px; text-align:right;">'+fmt(dowAvg[i],0)+'</span>';
-      s += '</div>';
-      if (isDowSel) {
-        s += '<div class="row between muted" style="font-size:10px; margin-top:6px; padding-left:34px;"><span>Total: '+fmt(dowSums[i],0)+' AED across '+dowCounts[i]+' '+lbl+'s</span><span>'+dowTxnCount[i]+' transactions</span></div>';
-      }
-      s += '</div>';
-    });
-    s += '</div>';
-    return s;
-  };
-
-  sectionHtml.topTransactions = function(){
-    var allItems = [];
-    cs.rows.forEach(function(r){
-      r.items.forEach(function(it){ allItems.push({date:r.date, item:it}); });
-    });
-    allItems.sort(function(a,b){ return b.item.amount - a.item.amount; });
-    var limit = state.analysisTopLimit || 5;
-    var topList = allItems.slice(0, limit);
-
-    var s = '<div class="card" style="padding:16px 18px; margin-bottom:14px;">';
-    s += '<div class="row between" style="margin-bottom:10px;">';
-    s += '<span class="eyebrow">Biggest transactions</span>';
-    s += '<button data-action="analysis-toggle-top-limit" style="background:var(--card-elevated); border:1px solid var(--hairline-strong); border-radius:8px; font-size:11px; font-weight:500; padding:4px 10px; color:var(--accent);">Show '+(limit===5?'Top 10':'Top 5')+'</button>';
-    s += '</div>';
-
-    if (topList.length === 0) {
-      s += '<div class="muted" style="font-size:13px;">Nothing logged in this period.</div>';
-    } else {
-      topList.forEach(function(entry, i){
-        s += renderTxnRow(entry.date, entry.item);
-      });
-    }
-    s += '</div>';
-    return s;
-  };
-
-  var order = normalizeAnalysisOrder(state.settings.analysisSectionOrder);
-  order.forEach(function(id, idx){
-    var content = sectionHtml[id] ? sectionHtml[id]() : "";
-    if (!content) return;
-    if (state.analysisReorderMode) {
-      h += '<div class="row between reorder-bar">';
-      h += '<span style="font-size:12px; font-weight:600; color:var(--accent);">'+esc(ANALYSIS_SECTION_LABELS[id]||id)+'</span>';
+  if (state.settingsTab === "categories") {
+    h += '<label class="eyebrow">Categories</label>';
+    h += '<div style="display:flex; flex-direction:column; gap:6px; margin:8px 0 10px;">';
+    var catList = state.settings.categories||[];
+    catList.forEach(function(c,ci){
+      h += '<div class="row between" style="background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:7px 8px 7px 12px;">';
+      h += '<span style="font-size:13px;">'+esc(c)+'</span>';
       h += '<div class="row gap2">';
-      h += '<button data-action="move-analysis-section" data-section="'+id+'" data-dir="-1" class="icon-btn" style="padding:4px 10px; width:auto; height:28px; font-size:11px; border-radius:8px; background:var(--card); color:'+(idx===0?"var(--hairline)":"var(--text)")+';" '+(idx===0?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+' Up</button>';
-      h += '<button data-action="move-analysis-section" data-section="'+id+'" data-dir="1" class="icon-btn" style="padding:4px 10px; width:auto; height:28px; font-size:11px; border-radius:8px; background:var(--card); color:'+(idx===order.length-1?"var(--hairline)":"var(--text)")+';" '+(idx===order.length-1?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+' Down</button>';
+      h += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="-1" style="background:none;border:none;padding:3px;color:'+(ci===0?"var(--hairline)":"var(--text-muted)")+';" '+(ci===0?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+'</button>';
+      h += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="1" style="background:none;border:none;padding:3px;color:'+(ci===catList.length-1?"var(--hairline)":"var(--text-muted)")+';" '+(ci===catList.length-1?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+'</button>';
+      h += '<button data-action="remove-category" data-cat="'+esc(c)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Remove">'+ICONS.trash+'</button>';
       h += '</div></div>';
-    }
-    h += content;
-  });
+    });
+    if (!catList.length) h += '<span class="muted" style="font-size:12px;">No categories yet.</span>';
+    h += '</div>';
+    h += '<div class="row gap2"><input id="newCategoryInput" type="text" class="field" placeholder="New category" style="flex:1;" /><button data-action="add-category" class="btn-outline">Add</button></div>';
+  }
+
+  h += '</div></div>';
   return h;
 }
 
-/* ---------------- Transactions Body ---------------- */
+function renderAddTxnModal() {
+  var editingItem = null;
+  if (state.editingItemId && state.editingOriginalDate) {
+    var origDay = state.entries[state.editingOriginalDate];
+    if (origDay) editingItem = origDay.items.find(function(i){ return i.id === state.editingItemId; }) || null;
+  }
+  var formDate = state.entryDate || todayStr();
+  var todayEntry = state.entries[formDate];
+  var cats = state.settings.categories || [];
+
+  var h = '<div class="modal-backdrop" data-action="close-add-txn">';
+  h += '<div class="modal-card" data-action="noop">';
+  h += '<div class="row between" style="margin-bottom:16px;"><div class="display" style="font-size:18px;">'+(editingItem?"Edit transaction":"Add transaction")+'</div><button data-action="close-add-txn" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
+  h += '<input id="entryDateInput" type="date" class="field mono" style="margin-bottom:8px;" value="'+formDate+'" max="'+todayStr()+'" />';
+  h += '<div style="position:relative; margin-bottom:8px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none;">AED</span>';
+  h += '<input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" placeholder="Amount" value="'+(editingItem?editingItem.amount:"")+'" /></div>';
+  h += '<select id="entryCategoryInput" class="field" style="margin-bottom:8px;">';
+  h += '<option value="">No category</option>';
+  cats.forEach(function(c){
+    h += '<option value="'+esc(c)+'"'+(editingItem && editingItem.category===c?" selected":"")+'>'+esc(c)+'</option>';
+  });
+  h += '</select>';
+  h += '<input id="entryNoteInput" type="text" class="field" style="margin-bottom:12px;" placeholder="What was it for? (optional)" value="'+(editingItem?esc(editingItem.note||""):"")+'" />';
+  h += '<button id="addTxnBtn" data-action="add-transaction" class="btn-accent row gap2" style="width:100%; justify-content:center; align-items:center;">'+(editingItem?ICONS.check+" Save":ICONS.plus+" Add")+'</button>';
+  h += '<div id="entryHint" class="muted" style="font-size:11px; margin-top:8px;">'+(todayEntry && !editingItem ? (esc(dayLabel(formDate))+" so far: "+todayEntry.items.length+" transaction"+(todayEntry.items.length===1?"":"s")+", "+fmt(sumSpent(todayEntry),2)+" AED total.") : "")+'</div>';
+  h += '</div></div>';
+  return h;
+}
+
+function renderFab() {
+  return '<button data-action="open-add-txn" aria-label="Add transaction" style="position:fixed; right:calc(env(safe-area-inset-right,0px) + 18px); bottom:calc(var(--vvb, 0px) + env(safe-area-inset-bottom,0px) + 78px); width:52px; height:52px; border-radius:999px; background:var(--accent); color:var(--accent-ink); border:none; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.35); z-index:45;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+}
+
 function renderTransactionsBody() {
   var entryDates = Object.keys(state.entries).sort();
   var cumAnchor = state.settings.trackingStartDate || (entryDates.length ? entryDates[0] : todayStr());
@@ -1235,12 +802,14 @@ function renderTransactionsBody() {
   var acc = 0;
   var balanceMap = {};
   cs.rows.forEach(function(r){ acc = round2(acc + (r.allowance-r.spent)); balanceMap[r.date] = acc; });
+
   var categoryFilter = state.txnCategoryFilter || "";
   var periodMode = state.txnPeriodMode || "all";
   var periodAnchor = state.txnPeriodDate || "";
   var periodFrom = state.txnPeriodFrom || "";
   var periodTo = state.txnPeriodTo || "";
   function itemCat(it){ return it.category || "Uncategorised"; }
+
   function periodWeekBounds(){ var s = startOfWeek(parseD(periodAnchor)); return { start: toStr(s), end: toStr(addDays(s,6)) }; }
   function periodMonthBounds(){ var s = startOfMonth(parseD(periodAnchor)); return { start: toStr(s), end: toStr(endOfMonth(s)) }; }
   function inPeriod(d) {
@@ -1259,12 +828,24 @@ function renderTransactionsBody() {
     }
     return true;
   }
+  var periodActive = periodMode !== "all";
+  var anyFilterActive = !!categoryFilter || periodActive;
+
   var filterOptions = (state.settings.categories||[]).slice();
   filterOptions.push("Uncategorised");
 
+  var filterCount = 0, filterSum = 0;
+  entryDates.forEach(function(d){
+    if (!inPeriod(d)) return;
+    state.entries[d].items.forEach(function(it){
+      if (!categoryFilter || itemCat(it) === categoryFilter) { filterCount++; filterSum += it.amount; }
+    });
+  });
+
   var h = '<div class="card" style="overflow:hidden; margin-bottom:16px;">';
-  h += '<div class="eyebrow" style="padding:16px 18px 4px;">All transactions</div>';
-  h += '<div class="muted" style="font-size:11px; padding:0 18px 12px;">Balance tracks rollover accrual across all days.</div>';
+  h += '<div class="eyebrow" style="padding:16px 16px 4px;">All transactions</div>';
+  h += '<div class="muted" style="font-size:11px; padding:0 16px 12px;">Balance is a running total — days between entries you didn\'t log still count, assumed fully saved.</div>';
+
   h += '<div style="padding:0 16px 8px;"><select id="txnCategoryFilterSelect" class="field" style="font-size:13px;">';
   h += '<option value=""'+(categoryFilter===""?" selected":"")+'>All categories</option>';
   filterOptions.forEach(function(c){
@@ -1280,12 +861,29 @@ function renderTransactionsBody() {
 
   if (periodMode === "week" || periodMode === "month") {
     h += '<div style="padding:0 16px 8px;"><input id="txnPeriodAnchorInput" type="date" class="field mono" style="font-size:13px;" value="'+esc(periodAnchor)+'" max="'+todayStr()+'" /></div>';
+    if (periodAnchor) {
+      var boundsLabel = periodMode === "week" ? periodWeekBounds() : periodMonthBounds();
+      h += '<div class="muted" style="font-size:11px; padding:0 16px 8px;">'+esc(shortLabel(boundsLabel.start))+' – '+esc(shortLabel(boundsLabel.end))+'</div>';
+    }
   }
   if (periodMode === "range") {
     h += '<div class="row gap2" style="padding:0 16px 8px;">';
     h += '<input id="txnPeriodFromInput" type="date" class="field mono" style="flex:1; font-size:13px;" value="'+esc(periodFrom)+'" max="'+todayStr()+'" />';
     h += '<input id="txnPeriodToInput" type="date" class="field mono" style="flex:1; font-size:13px;" value="'+esc(periodTo)+'" max="'+todayStr()+'" />';
     h += '</div>';
+  }
+
+  if (anyFilterActive) {
+    var descParts = [];
+    if (categoryFilter) descParts.push("in "+categoryFilter);
+    if (periodMode === "week" && periodAnchor) descParts.push("week of "+shortLabel(periodWeekBounds().start));
+    if (periodMode === "month" && periodAnchor) descParts.push(parseD(periodMonthBounds().start).toLocaleDateString("en-GB",{month:"long",year:"numeric"}));
+    if (periodMode === "range") {
+      if (periodFrom && periodTo) descParts.push(shortLabel(periodFrom)+" – "+shortLabel(periodTo));
+      else if (periodFrom) descParts.push("from "+shortLabel(periodFrom));
+      else if (periodTo) descParts.push("up to "+shortLabel(periodTo));
+    }
+    h += '<div class="muted" style="font-size:11px; padding:0 16px 12px;">'+filterCount+' transaction'+(filterCount===1?"":"s")+' · '+fmt(filterSum,2)+' AED total'+(descParts.length?" "+esc(descParts.join(", ")):"")+'</div>';
   }
 
   var datesDesc = entryDates.slice().reverse();
@@ -1296,30 +894,40 @@ function renderTransactionsBody() {
   });
 
   if (dates.length === 0) {
-    h += '<div class="muted" style="padding:20px; font-size:14px; text-align:center;">No matching transactions.</div>';
+    h += '<div class="muted" style="padding:0 16px 20px; font-size:14px;">'+(anyFilterActive ? "No matching transactions." : "Nothing logged yet.")+'</div>';
   } else {
     dates.forEach(function(date, i){
       var day = state.entries[date];
       var spent = sumSpent(day);
-      var delta = day.allowance - spent;
+      var dayRef = referenceForDate(date);
+      var delta = dayRef - spent;
       var bal = balanceMap[date];
       var displayItems = categoryFilter ? day.items.filter(function(it){ return itemCat(it) === categoryFilter; }) : day.items;
       var dayFilteredSpent = displayItems.reduce(function(s,it){ return s+it.amount; }, 0);
-      h += '<div style="padding:14px 16px;'+(i===0?"":"border-top:1px solid var(--hairline);")+'">';
+      h += '<div style="padding:12px 16px;'+(i===0?"":"border-top:1px solid var(--hairline);")+'">';
       h += '<div class="row between">';
-      h += '<div><div style="font-size:14px; font-weight:600;">'+esc(dayLabel(date))+'</div>';
-      h += '<div class="mono muted" style="font-size:11px; margin-top:2px;">'+day.items.length+' txn'+(day.items.length===1?"":"s")+' · spent '+fmt(spent,2)+' of '+fmt(day.allowance,2)+'</div></div>';
+      h += '<div><div style="font-size:14px;">'+esc(dayLabel(date))+'</div>';
+      h += '<div class="mono muted" style="font-size:11px; margin-top:2px;">'+day.items.length+' txn'+(day.items.length===1?"":"s")+' · spent '+fmt(spent,2)+' of '+fmt(dayRef,2)+(categoryFilter?' · '+displayItems.length+' match'+(displayItems.length===1?"":"es"):"")+'</div></div>';
       if (categoryFilter) {
-        h += '<div style="text-align:right;"><div class="mono" style="font-size:13px; font-weight:600; color:var(--rust);">−'+fmt(dayFilteredSpent,2)+'</div><div class="mono muted" style="font-size:10px;">in '+esc(categoryFilter)+'</div></div>';
+        h += '<div style="text-align:right;"><div class="mono" style="font-size:12px; color:var(--rust);">−'+fmt(dayFilteredSpent,2)+'</div>';
+        h += '<div class="mono muted" style="font-size:10px;">in '+esc(categoryFilter)+'</div></div>';
       } else {
-        h += '<div style="text-align:right;"><div class="mono" style="font-size:13px; font-weight:600; color:'+(delta>=0?"var(--positive)":"var(--rust)")+';">'+(delta>=0?"+":"−")+fmt(Math.abs(delta),2)+'</div><div class="mono muted" style="font-size:10px;">bal '+fmt(bal,0)+'</div></div>';
+        h += '<div style="text-align:right;"><div class="mono" style="font-size:12px; color:'+(delta>=0?"var(--positive)":"var(--rust)")+';">'+(delta>=0?"+":"−")+fmt(Math.abs(delta),2)+'</div>';
+        h += '<div class="mono muted" style="font-size:10px;">bal '+fmt(bal,0)+'</div></div>';
       }
       h += '</div>';
-      h += '<div style="margin-top:8px;">';
+      h += '<div style="margin-top:4px;">';
       newestFirst(displayItems).forEach(function(it){
         h += renderTxnRow(date, it);
       });
       h += '</div></div>';
+      if (!anyFilterActive && i < dates.length - 1) {
+        var gapDays = daysBetween(dates[i+1], date) - 1;
+        if (gapDays > 0) {
+          var gapAmount = round2(gapDays * dailyReference());
+          h += '<div style="padding:6px 16px; text-align:center; font-size:10px; color:var(--text-muted); background:var(--raised); border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline);">'+gapDays+' unlogged day'+(gapDays===1?"":"s")+' in between · assumed +'+fmt(gapAmount,0)+' AED saved</div>';
+        }
+      }
     });
   }
   h += '</div>';
@@ -1327,71 +935,82 @@ function renderTransactionsBody() {
   return h;
 }
 
+function legendSwatch(bg, label, fg) {
+  return '<div class="row" style="align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:3px; background:'+bg+'; display:inline-block;"></span><span style="font-size:10px; color:'+(fg||"var(--text-muted)")+';">'+esc(label)+'</span></div>';
+}
+
+/* Shared transaction-row renderer used by both the Transactions page and the
+   Calendar day-detail panel, so the two never visually drift apart. */
 function renderTxnRow(date, it) {
   var key = date+"|"+it.id;
   if (state.pendingDeleteKey === key) {
-    return '<div class="row between" style="background:var(--rust-wash); border-radius:12px; padding:10px 12px; margin-bottom:4px;">'
-      + '<span style="font-size:12px; font-weight:500;">Delete transaction?</span>'
-      + '<div class="row gap2"><button data-action="delete-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:var(--rust);border:none;border-radius:8px;padding:6px 10px;color:#fff;" aria-label="Confirm delete">'+ICONS.check+'</button>'
-      + '<button data-action="cancel-delete-txn" style="background:none;border:1px solid var(--hairline-strong);border-radius:8px;padding:6px 10px;color:var(--text-muted);" aria-label="Cancel">'+ICONS.x+'</button></div></div>';
+    return '<div class="row between" style="background:var(--rust-wash); border-radius:8px; padding:8px 10px; margin-bottom:2px;">'
+      + '<span style="font-size:12px;">Delete this?</span>'
+      + '<div class="row gap2"><button data-action="delete-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:var(--rust);border:none;border-radius:5px;padding:4px;color:#fff;" aria-label="Confirm delete">'+ICONS.check+'</button>'
+      + '<button data-action="cancel-delete-txn" style="background:none;border:1px solid var(--hairline);border-radius:5px;padding:4px;color:var(--text-muted);" aria-label="Cancel">'+ICONS.x+'</button></div></div>';
   }
-  var h = '<div class="row interactive-card" style="align-items:center; gap:12px; padding:8px 4px; margin-bottom:2px; border-radius:10px;">';
-  h += '<button data-action="edit-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:none;border:none;padding:0;flex:1;min-width:0;display:flex;align-items:center;gap:12px;text-align:left;">';
+  var h = '<div class="row" style="align-items:center; gap:10px; padding:6px 0; margin-bottom:2px;">';
+  h += '<button data-action="edit-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:none;border:none;padding:0;flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;">';
   h += catIconCircle(it.category);
   h += '<span style="min-width:0; flex:1;">';
-  h += '<div style="font-size:14px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+(it.note?esc(it.note):(it.category?esc(it.category):"Spent"))+'</div>';
-  h += '<div class="muted" style="font-size:11px; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(dayLabel(date))+' · '+(it.category?esc(it.category):"Uncategorised")+'</div>';
+  h += '<div style="font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+(it.category?esc(it.category):"Spent")+'</div>';
+  if (it.note) h += '<div class="muted" style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(it.note)+'</div>';
   h += '</span></button>';
-  h += '<div class="mono" style="font-size:14px; font-weight:600; color:var(--rust); flex-shrink:0;">−'+fmt(it.amount,2)+' AED</div>';
-  h += '<button data-action="ask-delete-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:none;border:none;padding:6px;color:var(--text-muted);flex-shrink:0;" aria-label="Delete">'+ICONS.trash+'</button>';
+  h += '<div class="mono" style="font-size:13px; font-weight:600; color:var(--rust); flex-shrink:0;">−'+fmt(it.amount,2)+' AED</div>';
+  h += '<button data-action="ask-delete-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:none;border:none;padding:4px;color:var(--text-muted);flex-shrink:0;" aria-label="Delete">'+ICONS.trash+'</button>';
   h += '</div>';
   return h;
 }
 
-/* ---------------- Calendar Body ---------------- */
 function renderCalendarBody() {
   var base = addMonths(startOfMonth(new Date()), state.calendarOffset);
   var monthStartStr = toStr(base);
   var monthEndStr = toStr(endOfMonth(base));
   var title = base.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
-  var da = dailyAllowance();
+  var da = dailyReference();
   var today = todayStr();
   var tsd = state.settings.trackingStartDate;
+
   var h = "";
-  h += '<div class="card" style="padding:16px; margin-bottom:14px;">';
-  h += '<div class="row between" style="margin-bottom:14px;">';
-  h += '<button data-action="cal-nav" data-delta="-1" class="icon-btn" aria-label="Previous month">'+ICONS.chevronLeft+'</button>';
-  h += '<div style="font-size:15px; font-weight:600;">'+esc(title)+'</div>';
-  h += '<button data-action="cal-nav" data-delta="1" class="icon-btn" style="'+(state.calendarOffset>=0?"opacity:0.3;pointer-events:none;":"")+'" aria-label="Next month">'+ICONS.chevronRight+'</button>';
+  h += '<div class="card" style="padding:14px; margin-bottom:12px;">';
+  h += '<div class="row between" style="margin-bottom:12px;">';
+  h += '<button data-action="cal-nav" data-delta="-1" class="icon-btn" style="border-radius:10px;" aria-label="Previous month">'+ICONS.chevronLeft+'</button>';
+  h += '<div style="font-size:15px; font-weight:500;">'+esc(title)+'</div>';
+  h += '<button data-action="cal-nav" data-delta="1" class="icon-btn" style="border-radius:10px;'+(state.calendarOffset>=0?"opacity:0.3;pointer-events:none;":"")+'" aria-label="Next month">'+ICONS.chevronRight+'</button>';
   h += '</div>';
-  h += '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:8px;">';
-  ["Mo","Tu","We","Th","Fr","Sa","Su"].forEach(function(lbl){ h += '<div class="muted" style="text-align:center; font-size:11px; font-weight:500;">'+lbl+'</div>'; });
+
+  h += '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px;">';
+  ["Mo","Tu","We","Th","Fr","Sa","Su"].forEach(function(lbl){ h += '<div class="muted" style="text-align:center; font-size:10px;">'+lbl+'</div>'; });
   h += '</div>';
+
   var firstDow = base.getDay();
   var leadingBlanks = firstDow===0 ? 6 : firstDow-1;
-  h += '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px;">';
+  h += '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">';
   for (var i=0;i<leadingBlanks;i++) h += '<div></div>';
+
   var cur = parseD(monthStartStr);
   while (toStr(cur) <= monthEndStr) {
     var ds = toStr(cur);
     var e = state.entries[ds];
     var logged = !!e;
     var spent = logged ? sumSpent(e) : 0;
-    var allowance = logged ? e.allowance : da;
+    var allowance = referenceForDate(ds);
     var isFuture = ds > today;
     var isPreTracking = tsd && ds < tsd;
     var isToday = ds === today;
     var isSelected = state.calendarSelectedDate === ds;
+
     var bg, fg;
     if (isFuture) { bg = "transparent"; fg = "var(--text-muted)"; }
-    else if (isPreTracking) { bg = "rgba(255,255,255,0.03)"; fg = "var(--text-muted)"; }
-    else if (!logged) { bg = "rgba(229, 184, 105, 0.12)"; fg = "var(--text)"; }
-    else if (spent <= allowance) { bg = "rgba(229, 184, 105, 0.28)"; fg = "var(--text)"; }
+    else if (isPreTracking) { bg = "var(--raised)"; fg = "var(--text-muted)"; }
+    else if (!logged) { bg = "rgba(224,179,104,0.14)"; fg = "var(--text)"; }
+    else if (spent <= allowance) { bg = "rgba(224,179,104,0.32)"; fg = "var(--text)"; }
     else { bg = "var(--rust-wash)"; fg = "var(--rust)"; }
+
     var isTracked = !isFuture && !isPreTracking;
-    var border = isToday ? "2px solid var(--accent)" : (isSelected ? "2px solid #FFFFFF" : "1px solid transparent");
-    h += '<button data-action="cal-select" data-date="'+ds+'" style="min-height:64px; border-radius:12px; border:'+border+'; background:'+bg+'; color:'+fg+'; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:5px 2px; gap:3px;">';
-    h += '<span style="font-size:14px; font-weight:600;">'+cur.getDate()+'</span>';
+    var border = isToday ? "2px solid var(--accent)" : (isSelected ? "2px solid var(--text)" : "1px solid transparent");
+    h += '<button data-action="cal-select" data-date="'+ds+'" style="min-height:64px; border-radius:9px; border:'+border+'; background:'+bg+'; color:'+fg+'; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4px 1px; min-width:0; gap:3px;">';
+    h += '<span style="font-size:14px; font-weight:500;">'+cur.getDate()+'</span>';
     var spentText = logged ? fmt(spent,0) : (isTracked ? "0" : "\u00A0");
     h += '<span class="mono" style="font-size:10px; line-height:1;">'+spentText+'</span>';
     var dayDelta = allowance - spent;
@@ -1400,138 +1019,426 @@ function renderCalendarBody() {
       deltaClr = dayDelta >= 0 ? "var(--positive)" : "var(--rust)";
       deltaText = (dayDelta>=0?"+":"−")+fmt(Math.abs(dayDelta),0);
     }
-    h += '<span class="mono" style="font-size:10px; line-height:1; font-weight:500; color:'+deltaClr+';">'+deltaText+'</span>';
+    h += '<span class="mono" style="font-size:10px; line-height:1; color:'+deltaClr+';">'+deltaText+'</span>';
     h += '</button>';
     cur = addDays(cur,1);
   }
   h += '</div>';
+  h += '</div>'; // end grid card
+
+  h += '<div class="row" style="gap:14px; margin-bottom:16px; flex-wrap:wrap;">';
+  h += legendSwatch("rgba(224,179,104,0.32)", "Under budget");
+  h += legendSwatch("var(--rust-wash)", "Over budget", "var(--rust)");
+  h += legendSwatch("rgba(224,179,104,0.14)", "Not logged");
+  h += legendSwatch("var(--raised)", "Before tracking");
   h += '</div>';
 
   if (state.calendarSelectedDate) {
     var sd = state.calendarSelectedDate;
     var sday = state.entries[sd];
-    h += '<div class="card" style="padding:16px 18px; margin-bottom:16px;">';
+    h += '<div class="card" style="padding:16px;">';
     h += '<div class="eyebrow" style="margin-bottom:8px;">'+esc(dayLabel(sd))+'</div>';
     if (sday && sday.items.length) {
-      newestFirst(sday.items).forEach(function(it){ h += renderTxnRow(sd, it); });
+      newestFirst(sday.items).forEach(function(it){
+        h += renderTxnRow(sd, it);
+      });
     } else {
-      h += '<div class="muted" style="font-size:13px;">Nothing logged on this day.</div>';
+      h += '<div class="muted" style="font-size:13px;">Nothing logged this day.</div>';
     }
     h += '</div>';
   }
+
   return h;
 }
 
-/* ---------------- Bottom Sheet Modals ---------------- */
-function renderAddTxnModal() {
-  var editingItem = null;
-  if (state.editingItemId && state.editingOriginalDate) {
-    var origDay = state.entries[state.editingOriginalDate];
-    if (origDay) editingItem = origDay.items.find(function(i){ return i.id === state.editingItemId; }) || null;
-  }
-  var formDate = state.entryDate || todayStr();
-  var cats = state.settings.categories || [];
-  var h = '<div class="modal-backdrop" data-action="close-add-txn">';
-  h += '<div class="modal-card" data-action="noop">';
-  h += '<div class="modal-handle"></div>';
-  h += '<div class="row between" style="margin-bottom:16px;"><div class="display" style="font-size:19px;">'+(editingItem?"Edit Transaction":"New Transaction")+'</div><button data-action="close-add-txn" class="icon-btn">'+ICONS.x+'</button></div>';
-  h += '<input id="entryDateInput" type="date" class="field mono" style="margin-bottom:10px;" value="'+formDate+'" max="'+todayStr()+'" />';
-  h += '<div style="position:relative; margin-bottom:10px;"><span class="muted mono" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none;">AED</span>';
-  h += '<input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:48px; font-size:16px; font-weight:600;" placeholder="0.00" value="'+(editingItem?editingItem.amount:"")+'" /></div>';
-  h += '<select id="entryCategoryInput" class="field" style="margin-bottom:10px;">';
-  h += '<option value="">No category</option>';
-  cats.forEach(function(c){
-    h += '<option value="'+esc(c)+'"'+(editingItem && editingItem.category===c?" selected":"")+'>'+esc(c)+'</option>';
+var PIE_COLORS = ["#E0B368","#5EBD8C","#7BA7D4","#D4614A","#B58BD0","#5FC2C2","#E08A5E","#9AAF7A","#C77FA3","#7E8CC4"];
+
+/* Category icons & colors: fixed for the built-in set, hashed to a stable
+   fallback color for any custom category the user adds. */
+var CAT_ICON_SVGS = {
+  fork: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7a2 2 0 0 0 4 0V2M5 2v20M21 15V2a5 5 0 0 0-5 5v6a2 2 0 0 0 2 2h3zm0 0v7"/></svg>',
+  basket: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8h13l-1.5 11.2a2 2 0 0 1-2 1.8H9a2 2 0 0 1-2-1.8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>',
+  car: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17V11l2-5h14l2 5v6"/><path d="M5 17h14"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+  bag: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>',
+  bolt: '<svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>',
+  heart: '<svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 21s-6.7-4.35-9.3-8.1C.8 9.9 1.9 6 5.4 5.1 7.6 4.5 9.8 5.5 12 8c2.2-2.5 4.4-3.5 6.6-2.9 3.5.9 4.6 4.8 2.7 7.8C18.7 16.65 12 21 12 21z"/></svg>',
+  film: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg>',
+  tag: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.83 0L2.6 13.4a2 2 0 0 1 0-2.83l8-8A2 2 0 0 1 12 2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-.4 1.2Z"/><circle cx="16.5" cy="7.5" r="1"/></svg>',
+};
+var CATEGORY_STYLES = {
+  "Food & Dining": { icon:"fork", color:"#D4614A" },
+  "Groceries": { icon:"basket", color:"#5EA05E" },
+  "Transport": { icon:"car", color:"#7BA7D4" },
+  "Shopping": { icon:"bag", color:"#B58BD0" },
+  "Bills & Utilities": { icon:"bolt", color:"#C9A227" },
+  "Health": { icon:"heart", color:"#E0687A" },
+  "Entertainment": { icon:"film", color:"#7E8CC4" },
+  "Other": { icon:"tag", color:"#8595B5" },
+};
+function categoryStyle(name) {
+  if (!name) return { icon:"tag", color:"#8595B5" };
+  if (CATEGORY_STYLES[name]) return CATEGORY_STYLES[name];
+  var hash = 0;
+  for (var i=0;i<name.length;i++) hash = (hash*31 + name.charCodeAt(i)) >>> 0;
+  return { icon:"tag", color: PIE_COLORS[hash % PIE_COLORS.length] };
+}
+function catIconCircle(categoryName) {
+  var st = categoryStyle(categoryName);
+  return '<span style="width:32px; height:32px; border-radius:50%; background:'+st.color+'; display:flex; align-items:center; justify-content:center; flex-shrink:0;">'+CAT_ICON_SVGS[st.icon]+'</span>';
+}
+
+function renderPieChart(slices, T) {
+  var size = 180, r = 78, cx = size/2, cy = size/2;
+  var total = slices.reduce(function(s,x){ return s+x.value; }, 0);
+  if (total <= 0) return "";
+  var angle = -Math.PI/2;
+  var paths = "";
+  slices.forEach(function(sl, i){
+    var frac = sl.value/total;
+    var sweep = frac * Math.PI * 2;
+    var end = angle + sweep;
+    var color = PIE_COLORS[i % PIE_COLORS.length];
+    if (frac >= 0.9999) {
+      paths += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+color+'"/>';
+    } else {
+      var x1 = cx + r*Math.cos(angle), y1 = cy + r*Math.sin(angle);
+      var x2 = cx + r*Math.cos(end),   y2 = cy + r*Math.sin(end);
+      var large = sweep > Math.PI ? 1 : 0;
+      paths += '<path d="M '+cx+' '+cy+' L '+x1+' '+y1+' A '+r+' '+r+' 0 '+large+' 1 '+x2+' '+y2+' Z" fill="'+color+'"/>';
+    }
+    angle = end;
   });
-  h += '</select>';
-  h += '<input id="entryNoteInput" type="text" class="field" style="margin-bottom:16px;" placeholder="Merchant or Note (optional)" value="'+(editingItem?esc(editingItem.note||""):"")+'" />';
-  h += '<button id="addTxnBtn" data-action="add-transaction" class="btn-accent row gap2" style="width:100%; justify-content:center; align-items:center;">'+(editingItem?ICONS.check+" Save Changes":ICONS.plus+" Add Transaction")+'</button>';
-  h += '</div></div>';
-  return h;
+  paths += '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*0.55)+'" fill="'+T.card+'"/>';
+  return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'">'+paths+'</svg>';
 }
 
-function renderSettingsModal() {
-  var tabs = [{id:"budget",label:"Budget"},{id:"tracking",label:"Tracking"},{id:"categories",label:"Categories"}];
-  var h = '<div class="modal-backdrop" data-action="close-settings">';
-  h += '<div class="modal-card" data-action="noop">';
-  h += '<div class="modal-handle"></div>';
-  h += '<div class="row between" style="margin-bottom:14px;"><div class="display" style="font-size:19px;">Settings</div><button data-action="close-settings" class="icon-btn">'+ICONS.x+'</button></div>';
-  h += '<div class="segmented-bar" style="margin-bottom:16px;">';
-  tabs.forEach(function(t){
-    var active = state.settingsTab === t.id;
-    h += '<button data-action="settings-tab" data-tab="'+t.id+'" class="segmented-item '+(active?'active':'')+'">'+t.label+'</button>';
+function renderBarChart(items, T) {
+  var w = 340, h = 140, padL = 30, padR = 8, padT = 10, padB = 20;
+  var maxVal = Math.max.apply(null, items.map(function(i){ return Math.max(i.spent, i.target); }).concat([1]));
+  var plotW = w-padL-padR, plotH = h-padT-padB;
+  var n = items.length;
+  var slot = plotW/n;
+  var barW = Math.min(24, slot*0.55);
+  function y(v){ return padT + plotH - (Math.min(v,maxVal)/maxVal)*plotH; }
+  var bars = items.map(function(it,i){
+    var cx = padL + slot*i + slot/2;
+    var barTopY = y(it.spent);
+    var barH = Math.max(0, plotH - (barTopY-padT));
+    var color = it.spent <= it.target ? T.positive : T.rust;
+    var targetY = y(it.target);
+    return '<rect x="'+(cx-barW/2)+'" y="'+barTopY+'" width="'+barW+'" height="'+barH+'" fill="'+color+'" rx="2"/>'
+      + '<line x1="'+(cx-barW/2-2)+'" x2="'+(cx+barW/2+2)+'" y1="'+targetY+'" y2="'+targetY+'" stroke="'+T.textMuted+'" stroke-dasharray="2,2"/>'
+      + '<text x="'+cx+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="middle">'+esc(it.label)+'</text>';
+  }).join("");
+  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'">'
+    + '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+y(0)+'" y2="'+y(0)+'" stroke="'+T.hairline+'"/>'
+    + bars + '</svg>';
+}
+
+/* Generic bucketed bar chart: one bar per bucket, value from getValue(), color
+   from getColor(bucket, value). Bars can go negative (drawn below a zero line)
+   which the saved-per-period chart needs. Value labels are drawn above/below
+   each bar (rounded, no decimals) as long as bars are wide enough to fit them
+   without overlapping; refLine (optional) draws a labelled dashed marker, e.g.
+   the daily budget. Buckets carry their own `label`, so the same chart works
+   whether they're days or months. */
+function renderDailyBarChart(buckets, getValue, getColor, T, refLine) {
+  if (!buckets.length) return '<div class="muted" style="font-size:12px;">No data in this period.</div>';
+  var w = 340, h = 156, padL = 30, padR = 8, padT = 18, padB = 20;
+  var values = buckets.map(getValue);
+  var maxVal = Math.max.apply(null, values.concat([0, refLine==null?0:refLine]));
+  var minVal = Math.min.apply(null, values.concat([0]));
+  var range = (maxVal - minVal) || 1;
+  var plotW = w-padL-padR, plotH = h-padT-padB;
+  var n = buckets.length;
+  var slot = plotW/n;
+  var barW = Math.max(1, Math.min(20, slot*0.7));
+  var showLabels = slot >= 20;
+  function y(v){ return padT + plotH - ((v-minVal)/range)*plotH; }
+  var zeroY = y(0);
+  var bars = buckets.map(function(b,i){
+    var v = getValue(b);
+    var cx = padL + slot*i + slot/2;
+    var top = v>=0 ? y(v) : zeroY;
+    var barH = Math.max(0.5, Math.abs(y(v)-zeroY));
+    var svg = '<rect x="'+(cx-barW/2)+'" y="'+top+'" width="'+barW+'" height="'+barH+'" fill="'+getColor(b,v)+'" rx="1"/>';
+    if (showLabels && Math.round(v) !== 0) {
+      var labelY = v>=0 ? Math.max(9, top-3) : (top+barH+9);
+      var roundedV = Math.round(v);
+      var labelStr = roundedV < 0 ? ("−"+fmt(Math.abs(roundedV),0)) : fmt(roundedV,0);
+      svg += '<text x="'+cx+'" y="'+labelY+'" font-size="8" fill="'+T.textMuted+'" text-anchor="middle">'+labelStr+'</text>';
+    }
+    return svg;
+  }).join("");
+  var refSvg = "";
+  if (refLine != null) {
+    var ry = y(refLine);
+    refSvg = '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+ry+'" y2="'+ry+'" stroke="'+T.textMuted+'" stroke-dasharray="3,3"/>'
+      + '<text x="2" y="'+(ry+3)+'" font-size="8" fill="'+T.textMuted+'">'+fmt(Math.round(refLine),0)+'</text>';
+  }
+  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'">'
+    + refSvg
+    + '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+zeroY+'" y2="'+zeroY+'" stroke="'+T.hairline+'"/>'
+    + bars
+    + '<text x="'+padL+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'">'+esc(buckets[0].label)+'</text>'
+    + '<text x="'+(w-padR)+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="end">'+esc(buckets[buckets.length-1].label)+'</text>'
+    + '</svg>';
+}
+
+/* Resolves the Analysis page's selected period. week/month/year are navigable
+   via analysisOffset (0 = current, -1 = previous, …), reusing getPeriodBounds so
+   titles and bounds match the Home page exactly. custom uses explicit dates. */
+function getAnalysisPeriodInfo() {
+  var today = todayStr();
+  var mode = state.analysisPeriodMode || "month";
+  var off = state.analysisOffset || 0;
+  if (mode === "custom") {
+    var entryDatesAll = Object.keys(state.entries).sort();
+    var fallbackStart = state.settings.trackingStartDate || (entryDatesAll.length ? entryDatesAll[0] : today);
+    var from = state.analysisPeriodFrom || fallbackStart;
+    var to = state.analysisPeriodTo || today;
+    if (from > to) { var swap = from; from = to; to = swap; }
+    return { start: from, end: to, title: shortLabel(from)+" – "+shortLabel(to), sub: "Custom range", isCurrent: true, mode: mode };
+  }
+  var per = getPeriodBounds(mode, off, currentWeeklyTarget(), dailyReference());
+  return { start: per.startStr, end: per.endStr, title: per.title, sub: per.sub, isCurrent: off === 0, mode: mode };
+}
+
+/* Week/month are short enough to read day-by-day; a year would be 365 bars, so
+   it rolls up to months. Custom ranges switch over at roughly two months. */
+function analysisGranularity(info) {
+  if (info.mode === "year") return "month";
+  if (info.mode === "custom") return daysBetween(info.start, info.end) > 62 ? "month" : "day";
+  return "day";
+}
+
+/* Collapses periodStats rows into chart buckets at the chosen granularity.
+   Monthly buckets sum both spend and allowance, so a bucket's own target stays
+   correct even when months differ in length. */
+function buildAnalysisBuckets(rows, granularity) {
+  if (granularity !== "month") {
+    return rows.map(function(r){
+      return { label: shortLabel(r.date), date: r.date, spent: r.spent, allowance: r.allowance, days: 1 };
+    });
+  }
+  var map = {}, order = [];
+  rows.forEach(function(r){
+    var key = r.date.slice(0,7);
+    if (!map[key]) {
+      map[key] = { label: parseD(r.date).toLocaleDateString("en-GB",{month:"short"}), date: r.date, spent: 0, allowance: 0, days: 0 };
+      order.push(key);
+    }
+    map[key].spent += r.spent;
+    map[key].allowance += r.allowance;
+    map[key].days += 1;
+  });
+  return order.map(function(k){ return map[k]; });
+}
+
+
+function renderAnalysisBody(T) {
+  var da = dailyReference();
+  var today = todayStr();
+  var periodMode = state.analysisPeriodMode || "month";
+  var periodFrom = state.analysisPeriodFrom || "";
+  var periodTo = state.analysisPeriodTo || "";
+  var info = getAnalysisPeriodInfo();
+  var cs = periodStats(info.start, info.end);
+  var granularity = analysisGranularity(info);
+  var buckets = buildAnalysisBuckets(cs.rows, granularity);
+  var perLabel = granularity === "month" ? "month" : "day";
+
+  var h = "";
+  h += '<div class="row between" style="align-items:center; margin-bottom:10px;">';
+  h += '<div class="eyebrow">Analysis</div>';
+  h += '<button data-action="toggle-analysis-reorder" class="btn-outline row gap2" style="padding:5px 10px; font-size:12px; align-items:center;">'+(state.analysisReorderMode?ICONS.check+" Done":ICONS.pencil+" Reorder")+'</button>';
+  h += '</div>';
+
+  h += '<div class="row card" style="padding:4px; margin-bottom:10px;">';
+  [["budget","vs Budget"],["income","vs Income"]].forEach(function(opt){
+    var activeB = state.basis === opt[0];
+    h += '<button data-action="set-basis" data-basis="'+opt[0]+'" style="flex:1; border:none; border-radius:10px; padding:6px 0; font-size:13px; background:'+(activeB?"var(--accent)":"transparent")+'; color:'+(activeB?"var(--accent-ink)":"var(--text-muted)")+'; font-weight:'+(activeB?600:400)+';">'+opt[1]+'</button>';
   });
   h += '</div>';
 
-  if (state.settingsTab === "budget") {
-    var curWeekly = currentWeeklyTarget();
-    h += '<label class="eyebrow">Weekly Target</label>';
-    h += '<div style="position:relative; margin:6px 0 6px;"><span class="muted mono" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:14px;">AED</span>';
-    h += '<input id="weeklyDraftInput" type="number" inputmode="decimal" class="field mono" style="padding-left:48px; font-size:16px; font-weight:600;" value="'+curWeekly+'" /></div>';
-    h += '<div class="muted mono" style="font-size:12px; margin-bottom:14px;">= '+fmt(curWeekly/7,2)+' AED / day</div>';
-    h += '<button data-action="apply-budget" data-scope="future" class="btn-accent" style="width:100%; margin-bottom:8px;">This week onward</button>';
-    h += '<button data-action="apply-budget" data-scope="thisPeriod" class="btn-outline" style="width:100%; margin-bottom:8px;">This week only</button>';
-    h += '<button data-action="apply-budget" data-scope="all" class="btn-outline" style="width:100%; margin-bottom:8px;">All periods, past and future</button>';
-  }
-  if (state.settingsTab === "tracking") {
-    h += '<label class="eyebrow">Tracking Start Date</label>';
-    h += '<input id="trackingStartInput" type="date" class="field mono" style="margin:6px 0 6px;" value="'+(state.settings.trackingStartDate||"")+'" max="'+todayStr()+'" />';
-    h += '<button data-action="save-tracking" class="btn-accent" style="width:100%; margin-bottom:20px;">Save Start Date</button>';
-    h += '<div class="hairline-top" style="padding-top:14px;"><label class="eyebrow">Backup & Data</label><button data-action="open-backup" class="btn-outline" style="width:100%; margin-top:8px;">Open Backup & Restore</button></div>';
-  }
-  if (state.settingsTab === "categories") {
-    h += '<label class="eyebrow">Categories</label>';
-    h += '<div style="display:flex; flex-direction:column; gap:6px; margin:8px 0 12px;">';
-    var catList = state.settings.categories||[];
-    catList.forEach(function(c,ci){
-      h += '<div class="row between" style="background:var(--card-elevated); border:1px solid var(--hairline); border-radius:12px; padding:8px 12px;">';
-      h += '<span style="font-size:13px; font-weight:500;">'+esc(c)+'</span>';
-      h += '<div class="row gap2">';
-      h += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="-1" style="background:none;border:none;padding:3px;color:'+(ci===0?"var(--hairline)":"var(--text-muted)")+';" '+(ci===0?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+'</button>';
-      h += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="1" style="background:none;border:none;padding:3px;color:'+(ci===catList.length-1?"var(--hairline)":"var(--text-muted)")+';" '+(ci===catList.length-1?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+'</button>';
-      h += '<button data-action="remove-category" data-cat="'+esc(c)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Remove">'+ICONS.trash+'</button>';
-      h += '</div></div>';
-    });
+  if (state.basis === "income" && !incomeIsSet()) {
+    h += '<div class="card" style="padding:14px 16px; margin-bottom:12px; background:var(--rust-wash); border-color:var(--rust);">';
+    h += '<div style="font-size:13px; margin-bottom:8px;">Set your income to use this view.</div>';
+    h += '<button data-action="open-income-settings" class="btn-accent" style="width:100%;">Set income</button>';
     h += '</div>';
-    h += '<div class="row gap2"><input id="newCategoryInput" type="text" class="field" placeholder="New category name" style="flex:1;" /><button data-action="add-category" class="btn-outline">Add</button></div>';
+    return h;
   }
-  h += '</div></div>';
-  return h;
-}
 
-function renderBackupModal() {
-  var backupText = JSON.stringify({settings:state.settings, entries:state.entries}, null, 2);
-  var h = '<div class="modal-backdrop" data-action="close-backup">';
-  h += '<div class="modal-card" data-action="noop">';
-  h += '<div class="modal-handle"></div>';
-  h += '<div class="row between" style="margin-bottom:12px;"><div class="display" style="font-size:19px;">Backup & Restore</div><button data-action="close-backup" class="icon-btn">'+ICONS.x+'</button></div>';
-  h += '<div class="muted" style="font-size:12px; margin-bottom:8px;">Copy your raw data to move devices or save a snapshot:</div>';
-  h += '<textarea readonly class="field mono" style="height:110px; font-size:11px; margin-bottom:8px; resize:none;" onfocus="this.select()">'+esc(backupText)+'</textarea>';
-  h += '<button id="copyBackupBtn" data-action="copy-backup" class="btn-accent" style="width:100%; margin-bottom:18px;">Copy Backup</button>';
-  h += '<div class="muted" style="font-size:12px; margin-bottom:8px;">Restore data:</div>';
-  h += '<textarea id="restoreInput" class="field mono" style="height:80px; font-size:11px; margin-bottom:8px; resize:none;" placeholder="Paste backup JSON text here"></textarea>';
-  if (state.restoreError) h += '<div style="color:var(--rust); font-size:12px; margin-bottom:8px;">'+esc(state.restoreError)+'</div>';
-  h += '<button data-action="restore-backup" class="btn-outline" style="width:100%;">Restore this backup</button>';
-  h += '</div></div>';
-  return h;
-}
+  h += '<div class="row card" style="padding:4px; margin-bottom:10px;">';
+  [["week","Week"],["month","Month"],["year","Year"],["custom","Custom"]].forEach(function(opt){
+    var active = periodMode === opt[0];
+    h += '<button data-action="set-analysis-period" data-mode="'+opt[0]+'" style="flex:1; border:none; border-radius:10px; padding:6px 0; font-size:13px; background:'+(active?"var(--accent)":"transparent")+'; color:'+(active?"var(--accent-ink)":"var(--text-muted)")+'; font-weight:'+(active?600:400)+';">'+opt[1]+'</button>';
+  });
+  h += '</div>';
 
-function renderResetConfirmModal() {
-  var h = '<div class="modal-backdrop" data-action="close-reset">';
-  h += '<div class="modal-card" data-action="noop">';
-  h += '<div class="modal-handle"></div>';
-  h += '<div class="display" style="font-size:19px; margin-bottom:8px;">Clear All Entries?</div>';
-  h += '<div class="muted" style="font-size:13px; margin-bottom:18px;">Every logged transaction will be permanently erased. Settings and targets are retained.</div>';
-  h += '<div class="row gap2">';
-  h += '<button data-action="close-reset" class="btn-outline" style="flex:1;">Cancel</button>';
-  h += '<button data-action="confirm-reset" class="btn-rust row gap2" style="flex:1; justify-content:center; align-items:center;">'+ICONS.rotate+' Clear All</button>';
-  h += '</div></div></div>';
-  return h;
-}
+  if (periodMode === "custom") {
+    h += '<div class="row gap2" style="margin-bottom:12px;">';
+    h += '<input id="analysisPeriodFromInput" type="date" class="field mono" style="flex:1; font-size:13px;" value="'+esc(periodFrom)+'" max="'+today+'" />';
+    h += '<input id="analysisPeriodToInput" type="date" class="field mono" style="flex:1; font-size:13px;" value="'+esc(periodTo)+'" max="'+today+'" />';
+    h += '</div>';
+  } else {
+    h += '<div class="row between card" style="padding:8px 10px; margin-bottom:12px;">';
+    h += '<button data-action="analysis-nav-offset" data-delta="-1" class="icon-btn" style="border-radius:10px;" aria-label="Previous">'+ICONS.chevronLeft+'</button>';
+    h += '<div style="text-align:center; min-width:0;"><div style="font-size:13px; font-weight:500;">'+esc(info.title)+'</div>';
+    h += '<div class="eyebrow" style="margin-top:2px;">'+esc(info.sub)+'</div></div>';
+    h += '<button data-action="analysis-nav-offset" data-delta="1" class="icon-btn" style="border-radius:10px;'+(info.isCurrent?"opacity:0.3;pointer-events:none;":"")+'" aria-label="Next">'+ICONS.chevronRight+'</button>';
+    h += '</div>';
+  }
 
-/* ---------------- Floating Action Button & Bottom Bar ---------------- */
-function renderFab() {
-  return '<button data-action="open-add-txn" aria-label="Add transaction" style="position:fixed; right:calc(env(safe-area-inset-right,0px) + 18px); bottom:calc(var(--vvb, 0px) + env(safe-area-inset-bottom,0px) + 84px); width:54px; height:54px; border-radius:999px; background:linear-gradient(135deg, #ECC57D 0%, #D8A550 100%); color:var(--accent-ink); border:none; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(229, 184, 105, 0.4); z-index:45; transition:transform 0.15s ease;">'+ICONS.plus+'</button>';
+  var sectionHtml = {};
+
+  sectionHtml.summary = function(){
+    var s = '<div class="card" style="padding:16px; margin-bottom:16px;">';
+    s += '<div class="stat-grid">';
+    s += statBlock("Total spent", fmt(cs.spent,0)+" AED", "var(--text)");
+    s += statBlock("Total saved", (cs.net>=0?"+":"−")+fmt(Math.abs(cs.net),0)+" AED", cs.net>=0?"var(--positive)":"var(--rust)");
+    s += statBlock("Avg daily spend", fmt(cs.elapsedDays>0?cs.spent/cs.elapsedDays:0,0)+" AED", (cs.elapsedDays>0 && cs.spent/cs.elapsedDays>da)?"var(--rust)":"var(--text)");
+    s += statBlock("Days tracked", String(cs.elapsedDays), "var(--text)");
+    s += '</div></div>';
+    return s;
+  };
+
+  sectionHtml.dailySpend = function(){
+    /* Reference line is the budget for one bucket: the daily rate when bars are
+       days, or the average bucket target when they're months. */
+    var refSpend = granularity === "month"
+      ? (buckets.length ? buckets.reduce(function(t,b){ return t+b.allowance; },0)/buckets.length : null)
+      : da;
+    var s = '<div class="card" style="padding:14px; margin-bottom:16px;">';
+    s += '<div class="eyebrow" style="margin-bottom:8px;">Spend per '+perLabel+'</div>';
+    s += renderDailyBarChart(buckets, function(b){ return b.spent; }, function(b,v){ return v>b.allowance ? T.rust : T.positive; }, T, refSpend);
+    s += '</div>';
+    return s;
+  };
+
+  sectionHtml.dailySaving = function(){
+    var s = '<div class="card" style="padding:14px; margin-bottom:16px;">';
+    s += '<div class="eyebrow" style="margin-bottom:8px;">Saved per '+perLabel+'</div>';
+    s += renderDailyBarChart(buckets, function(b){ return b.allowance - b.spent; }, function(b,v){ return v>=0 ? T.positive : T.rust; }, T);
+    s += '</div>';
+    return s;
+  };
+
+  sectionHtml.monthlyBar = function(){
+    var now = new Date();
+    var endMonthStart = startOfMonth(parseD(info.end));
+    var startMonthStart = startOfMonth(parseD(info.start));
+    var offEnd = (endMonthStart.getFullYear()-now.getFullYear())*12 + (endMonthStart.getMonth()-now.getMonth());
+    var offStart = (startMonthStart.getFullYear()-now.getFullYear())*12 + (startMonthStart.getMonth()-now.getMonth());
+    var months = [];
+    for (var mOff = offStart; mOff <= offEnd && months.length < 36; mOff++) {
+      var mb = getPeriodBounds("month", mOff, state.settings.weeklyTarget, da);
+      var ms = periodStats(mb.startStr, mb.endStr);
+      months.push({ label: parseD(mb.startStr).toLocaleDateString("en-GB",{month:"short"}), spent: ms.spent, target: mb.target });
+    }
+    if (months.length < 2) return "";
+    var s = '<div class="card" style="padding:14px; margin-bottom:16px;">';
+    s += '<div class="eyebrow" style="margin-bottom:8px;">Monthly spend vs target</div>';
+    s += renderBarChart(months, T);
+    s += '<div class="muted" style="font-size:10px; margin-top:4px;">Dashed line marks that month\'s target · red bars ran over</div>';
+    s += '</div>';
+    return s;
+  };
+
+  sectionHtml.category = function(){
+    var catTotals = {};
+    cs.rows.forEach(function(r){
+      r.items.forEach(function(it){
+        var key = it.category || "Uncategorised";
+        catTotals[key] = (catTotals[key] || 0) + it.amount;
+      });
+    });
+    var catSlices = Object.keys(catTotals).map(function(k){ return { label:k, value:catTotals[k] }; })
+      .sort(function(a,b){ return b.value - a.value; });
+    var catTotal = catSlices.reduce(function(s,x){ return s+x.value; }, 0);
+    if (!catSlices.length) return "";
+    var s = '<div class="card" style="padding:16px; margin-bottom:16px;">';
+    s += '<div class="eyebrow" style="margin-bottom:10px;">Spend by category</div>';
+    s += '<div style="display:flex; justify-content:center; margin-bottom:12px;">'+renderPieChart(catSlices, T)+'</div>';
+    catSlices.forEach(function(sl,i){
+      var pct = catTotal>0 ? (sl.value/catTotal*100) : 0;
+      s += '<div class="row between" style="padding:5px 0;'+(i>0?"border-top:1px solid var(--hairline);":"")+'">';
+      s += '<div class="row" style="align-items:center; gap:7px; min-width:0;"><span style="width:10px;height:10px;border-radius:3px;flex-shrink:0;background:'+PIE_COLORS[i % PIE_COLORS.length]+';"></span><span style="font-size:13px;">'+esc(sl.label)+'</span></div>';
+      s += '<div class="row" style="align-items:baseline; gap:8px;"><span class="mono" style="font-size:13px;">'+fmt(sl.value,0)+'</span><span class="muted mono" style="font-size:10px; width:34px; text-align:right;">'+pct.toFixed(0)+'%</span></div>';
+      s += '</div>';
+    });
+    s += '</div>';
+    return s;
+  };
+
+  sectionHtml.dow = function(){
+    var dowSums = [0,0,0,0,0,0,0], dowCounts = [0,0,0,0,0,0,0];
+    cs.rows.forEach(function(r){
+      var dow = parseD(r.date).getDay();
+      var idx = dow===0?6:dow-1;
+      dowSums[idx] += r.spent;
+      dowCounts[idx] += 1;
+    });
+    var dowLabels = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    var dowAvg = dowSums.map(function(s2,i){ return dowCounts[i]>0 ? s2/dowCounts[i] : 0; });
+    var maxDow = Math.max.apply(null, dowAvg.concat([1]));
+    var s = '<div class="card" style="padding:16px; margin-bottom:16px;">';
+    s += '<div class="eyebrow" style="margin-bottom:10px;">Average spend by day of week</div>';
+    dowLabels.forEach(function(lbl,i){
+      var pct = maxDow>0 ? Math.round((dowAvg[i]/maxDow)*100) : 0;
+      var over = dowAvg[i] > da;
+      s += '<div class="row" style="align-items:center; gap:8px; margin-bottom:6px;">';
+      s += '<span class="muted" style="font-size:11px; width:26px;">'+lbl+'</span>';
+      s += '<div style="flex:1; background:var(--raised); border-radius:4px; height:8px; overflow:hidden;"><div style="width:'+pct+'%; height:100%; background:'+(over?"var(--rust)":"var(--positive)")+';"></div></div>';
+      s += '<span class="mono muted" style="font-size:10px; width:40px; text-align:right;">'+fmt(dowAvg[i],0)+'</span>';
+      s += '</div>';
+    });
+    s += '</div>';
+    return s;
+  };
+
+  sectionHtml.topTransactions = function(){
+    var allItems = [];
+    cs.rows.forEach(function(r){
+      r.items.forEach(function(it){ allItems.push({date:r.date, note:it.note, amount:it.amount, category:it.category}); });
+    });
+    allItems.sort(function(a,b){ return b.amount - a.amount; });
+    var top5 = allItems.slice(0,5);
+    var s = '<div class="card" style="padding:16px; margin-bottom:16px;">';
+    s += '<div class="eyebrow" style="margin-bottom:10px;">Biggest transactions</div>';
+    if (top5.length === 0) {
+      s += '<div class="muted" style="font-size:13px;">Nothing logged in this period.</div>';
+    } else {
+      top5.forEach(function(it,i){
+        var titleText = it.note ? it.note : (it.category ? it.category : "Spent");
+        var subtitleText = dayLabel(it.date) + (it.note && it.category ? " · "+it.category : "");
+        s += '<div class="row" style="align-items:center; gap:10px; padding:6px 0;'+(i>0?"border-top:1px solid var(--hairline);":"")+'">';
+        s += catIconCircle(it.category);
+        s += '<div style="flex:1; min-width:0;"><div style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(titleText)+'</div><div class="muted" style="font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(subtitleText)+'</div></div>';
+        s += '<div class="mono" style="font-size:13px; flex-shrink:0;">'+fmt(it.amount,2)+' AED</div>';
+        s += '</div>';
+      });
+    }
+    s += '</div>';
+    return s;
+  };
+
+  var order = normalizeAnalysisOrder(state.settings.analysisSectionOrder);
+  order.forEach(function(id, idx){
+    var content = sectionHtml[id] ? sectionHtml[id]() : "";
+    if (!content) return;
+    if (state.analysisReorderMode) {
+      h += '<div class="row between" style="padding:0 2px 6px; align-items:center;">';
+      h += '<span class="muted" style="font-size:11px;">'+esc(ANALYSIS_SECTION_LABELS[id]||id)+'</span>';
+      h += '<div class="row gap2">';
+      h += '<button data-action="move-analysis-section" data-section="'+id+'" data-dir="-1" style="background:none;border:none;padding:3px;color:'+(idx===0?"var(--hairline)":"var(--text-muted)")+';" '+(idx===0?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+'</button>';
+      h += '<button data-action="move-analysis-section" data-section="'+id+'" data-dir="1" style="background:none;border:none;padding:3px;color:'+(idx===order.length-1?"var(--hairline)":"var(--text-muted)")+';" '+(idx===order.length-1?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+'</button>';
+      h += '</div></div>';
+    }
+    h += content;
+  });
+
+  return h;
 }
 
 function renderBottomNav() {
@@ -1541,20 +1448,20 @@ function renderBottomNav() {
     {id:"calendar", label:"Calendar", icon:ICONS.calendar},
     {id:"analysis", label:"Analysis", icon:ICONS.chart},
   ];
-  var h = '<nav style="position:fixed; left:0; right:0; bottom:var(--vvb, 0px); display:flex; backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); background:rgba(10, 15, 29, 0.82); border-top:1px solid var(--hairline); padding:8px 4px calc(env(safe-area-inset-bottom, 0px) + 8px); z-index:40;">';
+  var h = '<div style="position:fixed; left:0; right:0; bottom:var(--vvb, 0px); display:flex; background:var(--card); border-top:1px solid var(--hairline); padding:6px 4px calc(env(safe-area-inset-bottom, 0px) + 6px); z-index:40;">';
   tabs.forEach(function(t){
     var active = state.page===t.id;
-    h += '<button data-action="go-page" data-page="'+t.id+'" style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; padding:4px 0; color:'+(active?"var(--accent)":"var(--text-muted)")+'; transition:color 0.15s ease;">'+t.icon+'<span style="font-size:10px; font-weight:'+(active?600:500)+';">'+t.label+'</span></button>';
+    h += '<button data-action="go-page" data-page="'+t.id+'" style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; background:none; border:none; padding:4px 0; color:'+(active?"var(--accent)":"var(--text-muted)")+';">'+t.icon+'<span style="font-size:9px;">'+t.label+'</span></button>';
   });
-  h += '</nav>';
+  h += '</div>';
   return h;
 }
 
 function statBlock(label, value, color) {
-  return '<div><div class="eyebrow">'+esc(label)+'</div><div class="mono" style="font-size:15px; font-weight:600; margin-top:3px; color:'+color+';">'+value+'</div></div>';
+  return '<div><div class="eyebrow">'+esc(label)+'</div><div class="mono" style="font-size:14px; margin-top:2px; color:'+color+';">'+value+'</div></div>';
 }
 
-/* ---------------- Event Delegation & Handlers ---------------- */
+/* ---------------- actions ---------------- */
 function handleAddTransaction() {
   var dateEl = document.getElementById("entryDateInput");
   var amtEl = document.getElementById("entryAmountInput");
@@ -1590,9 +1497,44 @@ function handleAddTransaction() {
     nextEntries[date] = existing ? Object.assign({}, existing, { items: existing.items.concat([newItem]) }) : { allowance: dailyAllowance(), items: [newItem] };
     state.showAddTxn = false;
   }
+
   state.entryDate = date;
   persistAll(state.settings, nextEntries, "your entry");
   showToast(wasEditing ? "Record updated" : "Record added");
+  render();
+}
+
+/* Mirrors handleApplyBudget: "future" appends a history entry from the start of
+   this month so earlier months stay judged against what they actually had;
+   "all" collapses history to a single entry. */
+function handleApplyIncome(scope) {
+  var el = document.getElementById("incomeDraftInput");
+  var v = el ? parseFloat(el.value) : NaN;
+  if (isNaN(v) || v < 0) return;
+  var mode = state.incomeDraftMode || incomeForDate(todayStr()).mode || "monthly";
+  var monthStart = toStr(startOfMonth(new Date()));
+  var hist = (state.settings.incomeHistory || []).slice();
+  var label;
+
+  if (scope === "all") {
+    hist = [{ from: "1900-01-01", mode: mode, amount: v }];
+    label = "Income applied to all periods";
+  } else {
+    hist.push({ from: monthStart, mode: mode, amount: v });
+    label = "Income applied from this month onward";
+  }
+  hist = normalizeIncomeHistory(hist);
+
+  var nextSettings = Object.assign({}, state.settings, {
+    incomeHistory: hist,
+    incomeMode: mode,
+    incomeAmount: v
+  });
+  persistAll(nextSettings, state.entries, "your income");
+  state.incomeDraftMode = null;
+  state.incomeDraftAmount = null;
+  state.showSettings = false;
+  showToast(label);
   render();
 }
 
@@ -1605,6 +1547,7 @@ function handleApplyBudget(scope) {
   var hist = (state.settings.rateHistory || []).slice();
   var nextEntries = Object.assign({}, state.entries);
   var label;
+
   function rewriteLoggedFrom(fromStr, toStr_) {
     Object.keys(nextEntries).forEach(function(d){
       if (d >= fromStr && (!toStr_ || d <= toStr_)) {
@@ -1612,6 +1555,7 @@ function handleApplyBudget(scope) {
       }
     });
   }
+
   if (scope === "all") {
     hist = [{ from: "1900-01-01", weeklyTarget: v }];
     rewriteLoggedFrom("1900-01-01", null);
@@ -1620,7 +1564,7 @@ function handleApplyBudget(scope) {
     hist.push({ from: wk.startStr, weeklyTarget: v });
     rewriteLoggedFrom(wk.startStr, null);
     label = "Applied from this week onward";
-  } else {
+  } else { // thisPeriod
     var prevRate = rateForDate(wk.startStr);
     var dayAfter = toStr(addDays(parseD(wk.endStr), 1));
     hist.push({ from: wk.startStr, weeklyTarget: v });
@@ -1628,6 +1572,7 @@ function handleApplyBudget(scope) {
     rewriteLoggedFrom(wk.startStr, wk.endStr);
     label = "Applied to this week only";
   }
+
   hist = normalizeRateHistory(hist);
   var nextSettings = Object.assign({}, state.settings, { rateHistory: hist });
   nextSettings.weeklyTarget = (function(){
@@ -1655,6 +1600,12 @@ function handleEditTxn(date, id) {
   render();
 }
 
+function handleCancelEdit() {
+  state.editingItemId = null;
+  state.editingOriginalDate = null;
+  render();
+}
+
 function handleDeleteTxn(date, id) {
   var day = state.entries[date];
   if (!day) return;
@@ -1666,10 +1617,21 @@ function handleDeleteTxn(date, id) {
   render();
 }
 
+function handleQuickDate(date) {
+  state.entryDate = date;
+  var dateEl = document.getElementById("entryDateInput");
+  if (dateEl) dateEl.value = date;
+  var hintEl = document.getElementById("entryHint");
+  if (hintEl) {
+    var day = state.entries[date];
+    hintEl.innerHTML = day ? (esc(dayLabel(date))+" so far: "+day.items.length+" transaction"+(day.items.length===1?"":"s")+", "+fmt(sumSpent(day),2)+" AED total.") : "";
+  }
+}
+
 function handleCopyBackup() {
   var btn = document.getElementById("copyBackupBtn");
   var text = JSON.stringify({settings:state.settings, entries:state.entries}, null, 2);
-  function done(msg) { if (btn) { btn.textContent = msg; setTimeout(function(){ if(btn) btn.textContent = "Copy Backup"; }, 2500); } }
+  function done(msg) { if (btn) { btn.textContent = msg; setTimeout(function(){ if(btn) btn.textContent = "Copy backup"; }, 2500); } }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(function(){ done("Copied ✓"); }).catch(function(){ done("Select the text above to copy"); });
   } else {
@@ -1685,16 +1647,18 @@ function handleRestore() {
     if (!parsed || typeof parsed !== "object" || typeof parsed.entries !== "object") throw new Error("bad shape");
     var nextSettings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings||{});
     nextSettings.analysisSectionOrder = normalizeAnalysisOrder(nextSettings.analysisSectionOrder);
+    nextSettings.incomeHistory = normalizeIncomeHistory(nextSettings.incomeHistory);
     var nextEntries = migrateEntries(parsed.entries||{}, nextSettings.weeklyTarget/7);
     persistAll(nextSettings, nextEntries, "restored data");
     state.restoreError = null;
     state.showBackup = false;
   } catch(e) {
-    state.restoreError = "Invalid backup text — paste the exact backup JSON.";
+    state.restoreError = "That doesn't look like a valid backup — paste the exact text you copied earlier.";
   }
   render();
 }
 
+/* ---------------- event delegation ---------------- */
 document.addEventListener("click", function(e) {
   var el = e.target.closest("[data-action]");
   if (!el) return;
@@ -1713,7 +1677,8 @@ document.addEventListener("click", function(e) {
     case "switch-view": state.view = el.dataset.view; state.offset = 0; render(); break;
     case "nav-offset":
       var delta = parseInt(el.dataset.delta,10);
-      state.offset = Math.min(0, state.offset + delta);
+      var next = state.offset + delta;
+      state.offset = Math.min(0, next);
       render();
       break;
     case "add-transaction": handleAddTransaction(); break;
@@ -1730,6 +1695,7 @@ document.addEventListener("click", function(e) {
       render();
       break;
     case "edit-txn": handleEditTxn(el.dataset.date, el.dataset.id); break;
+    case "cancel-edit": handleCancelEdit(); break;
     case "open-add-txn":
       state.editingItemId = null;
       state.editingOriginalDate = null;
@@ -1752,6 +1718,7 @@ document.addEventListener("click", function(e) {
       state.page = el.dataset.page;
       render();
       break;
+    case "quick-date": handleQuickDate(el.dataset.date); break;
     case "cal-nav":
       state.calendarOffset += parseInt(el.dataset.delta,10);
       state.calendarSelectedDate = null;
@@ -1801,12 +1768,42 @@ document.addEventListener("click", function(e) {
       var swapIdx = idx + dir;
       if (idx >= 0 && swapIdx >= 0 && swapIdx < cats2.length) {
         var tmp = cats2[idx]; cats2[idx] = cats2[swapIdx]; cats2[swapIdx] = tmp;
-        persistAll(Object.assign({}, state.settings, { categories: cats2 }), state.entries, "your settings");
+        var movedSettings = Object.assign({}, state.settings, { categories: cats2 });
+        persistAll(movedSettings, state.entries, "your settings");
         render();
       }
       break;
     case "toggle-analysis-reorder":
       state.analysisReorderMode = !state.analysisReorderMode;
+      render();
+      break;
+    case "set-analysis-period":
+      state.analysisPeriodMode = el.dataset.mode;
+      state.analysisOffset = 0;
+      render();
+      break;
+    case "set-basis":
+      state.basis = el.dataset.basis;
+      render();
+      break;
+    case "open-income-settings":
+      state.settingsTab = "income";
+      state.incomeDraftMode = null;
+      state.incomeDraftAmount = null;
+      state.showSettings = true;
+      render();
+      break;
+    case "income-mode":
+      var incEl = document.getElementById("incomeDraftInput");
+      if (incEl) state.incomeDraftAmount = incEl.value;
+      state.incomeDraftMode = el.dataset.mode;
+      render();
+      break;
+    case "apply-income":
+      handleApplyIncome(el.dataset.scope);
+      break;
+    case "analysis-nav-offset":
+      state.analysisOffset = Math.min(0, (state.analysisOffset||0) + parseInt(el.dataset.delta,10));
       render();
       break;
     case "move-analysis-section":
@@ -1820,36 +1817,6 @@ document.addEventListener("click", function(e) {
         render();
       }
       break;
-    case "analysis-select-period-pill":
-      state.analysisPeriodMode = el.dataset.mode;
-      state.analysisSelectedDate = null;
-      render();
-      break;
-    case "analysis-select-day":
-      state.analysisSelectedDate = (state.analysisSelectedDate === el.dataset.date) ? null : el.dataset.date;
-      render();
-      break;
-    case "analysis-clear-day":
-      state.analysisSelectedDate = null;
-      render();
-      break;
-    case "analysis-select-cat":
-      state.analysisSelectedCategory = (state.analysisSelectedCategory === el.dataset.cat) ? null : el.dataset.cat;
-      render();
-      break;
-    case "analysis-clear-cat":
-      state.analysisSelectedCategory = null;
-      render();
-      break;
-    case "analysis-select-dow":
-      var dowVal = parseInt(el.dataset.dow, 10);
-      state.analysisSelectedDow = (state.analysisSelectedDow === dowVal) ? null : dowVal;
-      render();
-      break;
-    case "analysis-toggle-top-limit":
-      state.analysisTopLimit = (state.analysisTopLimit === 5) ? 10 : 5;
-      render();
-      break;
     case "copy-backup": handleCopyBackup(); break;
     case "restore-backup": handleRestore(); break;
     case "confirm-reset":
@@ -1861,6 +1828,7 @@ document.addEventListener("click", function(e) {
 });
 
 document.addEventListener("change", function(e) {
+  if (e.target && e.target.id === "entryDateInput") handleQuickDate(e.target.value);
   if (e.target && e.target.id === "txnCategoryFilterSelect") { state.txnCategoryFilter = e.target.value; render(); }
   if (e.target && e.target.id === "txnPeriodModeSelect") {
     state.txnPeriodMode = e.target.value;
@@ -1874,7 +1842,7 @@ document.addEventListener("change", function(e) {
   if (e.target && e.target.id === "analysisPeriodToInput") { state.analysisPeriodTo = e.target.value; render(); }
 });
 
-/* ---------------- Viewport & Initialization ---------------- */
+/* ---------------- init ---------------- */
 function setViewportHeightVar() {
   document.documentElement.style.setProperty("--vh100", window.innerHeight + "px");
 }
@@ -1882,6 +1850,10 @@ setViewportHeightVar();
 window.addEventListener("resize", setViewportHeightVar);
 window.addEventListener("orientationchange", setViewportHeightVar);
 
+/* visualViewport: corrects position:fixed bottom offset when the browser's own
+   chrome (address bar, toolbar) takes up space that CSS position:fixed doesn't
+   know about, which iOS Safari/Chrome get wrong specifically on pages that
+   don't need to scroll. */
 function updateVisualViewportOffset() {
   var vv = window.visualViewport;
   if (!vv) { document.documentElement.style.setProperty("--vvb", "0px"); return; }
@@ -1893,6 +1865,8 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener("resize", updateVisualViewportOffset);
   window.visualViewport.addEventListener("scroll", updateVisualViewportOffset);
 }
+window.addEventListener("resize", updateVisualViewportOffset);
+window.addEventListener("orientationchange", updateVisualViewportOffset);
 setTimeout(updateVisualViewportOffset, 300);
 setTimeout(updateVisualViewportOffset, 1000);
 
