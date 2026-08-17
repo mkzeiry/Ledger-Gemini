@@ -1508,11 +1508,40 @@ function parseFreeTextLines(lines) {
   });
   return results;
 }
+/* Matches lines like:
+   "15/06/2026 14/06/2026 57180083 DELIVEROO, AE 123.95"
+   i.e. Posting Date, Transaction Date, Ref No., Description, Amount — a
+   layout used by several UAE bank statement exports. Anchored end-to-end so
+   the ref number (a bare run of digits) can never be mistaken for an amount,
+   and the SECOND date (transaction date) is what's used, not the first
+   (posting date) — posting date is administrative, not when the money moved. */
+var DUAL_DATE_LINE_RE = /^(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\s+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\s+(\d{3,15})\s+(.+?)\s+(-?\(?[\d,]*\d\.\d{2}\)?)$/;
+function parseDualDateLines(lines) {
+  var results = [];
+  var matchCount = 0;
+  lines.forEach(function(line){
+    var m = line.trim().match(DUAL_DATE_LINE_RE);
+    if (!m) return;
+    matchCount++;
+    var parsedDate = parseFlexibleDate(m[2]);
+    if (!parsedDate) return;
+    var rawAmount = m[5];
+    var isNegative = /^-|^\(/.test(rawAmount);
+    var numeric = parseFloat(rawAmount.replace(/[(),]/g,"").replace(/^-/,""));
+    if (isNaN(numeric)) return;
+    var description = m[4].trim().replace(/,\s*AE$/i, "").trim();
+    results.push({ date: parsedDate, amount: round2(numeric), note: description.slice(0,60), category: "", include: !isNegative, signSource: "inferred" });
+  });
+  if (!lines.length || matchCount/lines.length < 0.5) return null;
+  return results;
+}
 function parseStatementText(text) {
   var lines = text.split(/\r\n|\r|\n/).filter(function(l){ return l.trim().length>0; });
   if (!lines.length) return [];
   var csvResult = tryParseCSV(lines);
   if (csvResult && csvResult.length) return csvResult;
+  var dualDateResult = parseDualDateLines(lines);
+  if (dualDateResult && dualDateResult.length) return dualDateResult;
   return parseFreeTextLines(lines);
 }
 
