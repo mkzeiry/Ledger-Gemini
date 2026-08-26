@@ -104,6 +104,8 @@
   .seg-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
   .seg-scroll::-webkit-scrollbar { display:none; }
   .seg-scroll .seg-btn { flex: 0 0 auto; white-space:nowrap; padding: 7px 14px; }
+  .seg-wrap { flex-wrap: wrap; gap: 6px; }
+  .seg-wrap .seg-btn { flex: 0 0 auto; white-space:nowrap; padding: 7px 14px; }
 
   .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 12px; }
 
@@ -155,9 +157,9 @@
 /* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
 var TEST_KEY = "ledger-selftest";
-var DEFAULT_SETTINGS = { weeklyTarget: 1800, theme: "dark", trackingStartDate: null, categories: ["Food & Dining","Groceries","Transport","Shopping","Bills & Utilities","Health","Entertainment","Other"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, categoryStyles: null, recurringRules: null };
-var DEFAULT_ANALYSIS_ORDER = ["summary","forecastedSpend","spendTrend","dailySpend","dailySaving","category","dow","topTransactions"];
-var ANALYSIS_SECTION_LABELS = { summary:"Summary", forecastedSpend:"Forecasted spend", spendTrend:"Spend trend", dailySpend:"Spend per day", dailySaving:"Saved per day", category:"Spend by category", dow:"Average by day of week", topTransactions:"Biggest transactions" };
+var DEFAULT_SETTINGS = { weeklyTarget: null, theme: "dark", trackingStartDate: null, categories: ["Food & Dining","Groceries","Transport","Shopping","Bills & Utilities","Health","Entertainment","Other"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, categoryStyles: null, recurringRules: null, categoryGroups: null, categoryGroupOf: null, people: null, personColors: null, defaultPerson: null };
+var DEFAULT_ANALYSIS_ORDER = ["summary","forecastedSpend","spendTrend","dailySpend","dailySaving","cumulativeSaving","category","person","dow","topTransactions"];
+var ANALYSIS_SECTION_LABELS = { summary:"Summary", forecastedSpend:"Forecasted spend", spendTrend:"Spend trend", dailySpend:"Spend per day", dailySaving:"Saved per day", cumulativeSaving:"Cumulative saving", category:"Spend by category", person:"Spend by person", dow:"Average by day of week", topTransactions:"Biggest transactions" };
 function normalizeAnalysisOrder(order) {
   var out = (order||[]).filter(function(id){ return DEFAULT_ANALYSIS_ORDER.indexOf(id) !== -1; });
   DEFAULT_ANALYSIS_ORDER.forEach(function(id){ if (out.indexOf(id)===-1) out.push(id); });
@@ -173,6 +175,165 @@ function normalizeCategoryStyles(styles, categories) {
     if (valid.indexOf(name) !== -1) out[name] = styles[name];
   });
   return out;
+}
+/* Groups are an optional second, broader level above categories — e.g.
+   "Food & Drinks" containing the Restaurants/Food & Dining/Groceries
+   categories, or "Vehicle" containing Fuel/Parking/Fines. A category
+   belongs to at most one group; anything unassigned falls into an implicit
+   "Ungrouped" bucket in Analysis rather than needing every category to be
+   sorted before grouping is useful at all. */
+function normalizeCategoryGroups(groups) {
+  var out = [];
+  (groups||[]).forEach(function(g){
+    if (typeof g === "string" && g.trim() && out.indexOf(g) === -1) out.push(g);
+  });
+  return out;
+}
+function normalizeCategoryGroupOf(groupOf, categories, groups) {
+  var out = {};
+  var validCats = categories || [];
+  var validGroups = groups || [];
+  Object.keys(groupOf||{}).forEach(function(c){
+    if (validCats.indexOf(c) !== -1 && validGroups.indexOf(groupOf[c]) !== -1) out[c] = groupOf[c];
+  });
+  return out;
+}
+function categoryGroupOf(catName) {
+  var g = state.settings.categoryGroupOf && state.settings.categoryGroupOf[catName];
+  return g || null;
+}
+/* People are an optional flat list — who a transaction was for. No styling
+   system (icons/colors) for v1, unlike categories; the Analysis pie just
+   falls back to the same hashed-color scheme uncustomized categories use. */
+function normalizePeople(people) {
+  var out = [];
+  (people||[]).forEach(function(p){
+    if (typeof p === "string" && p.trim() && out.indexOf(p) === -1) out.push(p);
+  });
+  return out;
+}
+function normalizePersonColors(colors, people) {
+  var out = {};
+  var valid = people || [];
+  Object.keys(colors||{}).forEach(function(name){
+    if (valid.indexOf(name) !== -1) out[name] = colors[name];
+  });
+  return out;
+}
+function normalizeDefaultPerson(defaultPerson, people) {
+  return (people||[]).indexOf(defaultPerson) !== -1 ? defaultPerson : null;
+}
+/* The label color for a person. An explicit choice always wins; otherwise a
+   stable hash of the name picks from the shared palette, so every person
+   gets a distinct, consistent color immediately without anyone having to
+   configure one first. Same approach as uncustomized categories. */
+function personColor(name) {
+  if (!name) return "#8595B5";
+  var custom = state.settings.personColors && state.settings.personColors[name];
+  if (custom) return custom;
+  var hash = 0;
+  for (var i=0;i<name.length;i++) hash = (hash*31 + name.charCodeAt(i)) >>> 0;
+  return PIE_COLORS[hash % PIE_COLORS.length];
+}
+/* Renders a person's name as a colored chip, matching how banking apps tag a
+   transaction. Used on transaction rows and in the person analysis list. */
+function personChip(name, sizeVariant) {
+  var small = sizeVariant === "small";
+  return '<span style="display:inline-flex; align-items:center; background:'+personColor(name)+'; color:#fff; font-weight:600; border-radius:'+(small?"5px":"6px")+'; padding:'+(small?"1px 6px":"2px 8px")+'; font-size:'+(small?"10px":"11px")+'; white-space:nowrap;">'+esc(name)+'</span>';
+}
+/* Renames a category or person everywhere it's referenced: the settings
+   list itself, per-category style/group assignment (categories only), any
+   recurring/split rule still generating future items, and every already-
+   logged transaction item across all of history — so a typo like
+   "Restraunts" can be fixed once rather than needing every past entry
+   hand-edited. If the new name already matches an existing entry, this
+   merges into it (old entry dropped, its items reassigned to the existing
+   one) rather than creating a duplicate — handy for consolidating a
+   duplicate/misspelled category into the correct one. Returns true if the
+   rename was actually a merge, so the caller can give clearer feedback. */
+/* Renames a person within a percentage split array (see personSplit below).
+   If the rename causes two entries to collide — e.g. merging "Sarh" into an
+   already-present "Sarah" within the same split — their shares are summed
+   rather than left as two entries for the same person. Returns the same
+   array reference unchanged if the old name isn't present, so callers can
+   cheaply check "did this change" via reference equality. */
+function patchPersonSplit(splitArr, oldName, newName) {
+  if (!splitArr || !splitArr.some(function(ps){ return ps.person === oldName; })) return splitArr;
+  var byName = {}, order = [];
+  splitArr.forEach(function(ps){
+    var nm = ps.person === oldName ? newName : ps.person;
+    if (!(nm in byName)) { byName[nm] = 0; order.push(nm); }
+    byName[nm] += ps.pct;
+  });
+  return order.map(function(nm){ return { person: nm, pct: byName[nm] }; });
+}
+
+function renameTag(kind, oldName, newName) {
+  newName = (newName||"").trim();
+  if (!newName || newName === oldName) return false;
+  var field = kind === "person" ? "person" : "category";
+  var listKey = kind === "person" ? "people" : "categories";
+  var list = state.settings[listKey]||[];
+  var isMerge = list.indexOf(newName) !== -1;
+  var nextList = isMerge
+    ? list.filter(function(x){ return x !== oldName; })
+    : list.map(function(x){ return x === oldName ? newName : x; });
+  var patch = {};
+  patch[listKey] = nextList;
+  if (kind === "category") {
+    var nextStyles = Object.assign({}, state.settings.categoryStyles||{});
+    if (!isMerge && nextStyles[oldName]) nextStyles[newName] = nextStyles[oldName];
+    delete nextStyles[oldName];
+    patch.categoryStyles = nextStyles;
+    var nextGroupOf = Object.assign({}, state.settings.categoryGroupOf||{});
+    if (!isMerge && nextGroupOf[oldName]) nextGroupOf[newName] = nextGroupOf[oldName];
+    delete nextGroupOf[oldName];
+    patch.categoryGroupOf = nextGroupOf;
+  } else {
+    var nextPersonColors = Object.assign({}, state.settings.personColors||{});
+    if (!isMerge && nextPersonColors[oldName]) nextPersonColors[newName] = nextPersonColors[oldName];
+    delete nextPersonColors[oldName];
+    patch.personColors = nextPersonColors;
+    if (state.settings.defaultPerson === oldName) patch.defaultPerson = newName;
+  }
+  patch.recurringRules = (state.settings.recurringRules||[]).map(function(r){
+    var changed = false;
+    var patched = r;
+    if (r[field] === oldName) {
+      var tmp = {}; tmp[field] = newName;
+      patched = Object.assign({}, patched, tmp);
+      changed = true;
+    }
+    if (kind === "person") {
+      var newRuleSplit = patchPersonSplit(r.personSplit, oldName, newName);
+      if (newRuleSplit !== r.personSplit) { patched = Object.assign({}, patched, { personSplit: newRuleSplit }); changed = true; }
+    }
+    return changed ? patched : r;
+  });
+  var nextEntries = {};
+  Object.keys(state.entries).forEach(function(d){
+    var day = state.entries[d];
+    var changedDay = false;
+    var newItems = (day.items||[]).map(function(it){
+      var changed = false;
+      var patchedIt = it;
+      if (it[field] === oldName) {
+        var tmp2 = {}; tmp2[field] = newName;
+        patchedIt = Object.assign({}, patchedIt, tmp2);
+        changed = true;
+      }
+      if (kind === "person") {
+        var newItemSplit = patchPersonSplit(it.personSplit, oldName, newName);
+        if (newItemSplit !== it.personSplit) { patchedIt = Object.assign({}, patchedIt, { personSplit: newItemSplit }); changed = true; }
+      }
+      if (changed) changedDay = true;
+      return patchedIt;
+    });
+    nextEntries[d] = changedDay ? Object.assign({}, day, { items: newItems }) : day;
+  });
+  var nextSettings = Object.assign({}, state.settings, patch);
+  persistAll(nextSettings, nextEntries, kind === "person" ? "your people" : "your categories");
+  return isMerge;
 }
 /* Palette roles follow iOS semantics: a grouped background sits behind cards
    that are one step lighter (dark) or pure white (light), with separators and
@@ -318,7 +479,7 @@ function runRecurringCatchUp() {
       var newItem = {
         id: Date.now()+"-"+Math.random().toString(36).slice(2,7)+"-"+guard,
         amount: ruleOccurrenceAmount(rule, seq),
-        note: rule.note||"", category: rule.category||"",
+        note: rule.note||"", category: rule.category||"", person: rule.person||"", personSplit: rule.personSplit||null,
         recurringId: rule.id, seq: seq+1, seqTotal: rule.occurrencesTotal
       };
       var existingDay = state.entries[due];
@@ -413,6 +574,8 @@ var state = {
   settingsTab: "budget",
   pendingDeleteKey: null,
   txnCategoryFilter: "",
+  txnGroupFilter: "",
+  txnPersonFilter: "",
   txnPeriodMode: "all",
   txnOffset: 0,
   txnPeriodFrom: "",
@@ -424,15 +587,24 @@ var state = {
   analysisReorderMode: false,
   analysisSelectedBucket: null,
   analysisCategoryFilter: "",
+  analysisPersonFilter: "",
+  analysisSelectedGroup: null,
   basis: "budget",
+  forecastCompareMode: "previous",
   incomeDraftMode: null,
   incomeDraftAmount: null,
   categoryStyleEditing: null,
+  groupStyleEditing: null,
+  categoryRenameEditing: null,
+  personRenameEditing: null,
   recurringLimitMode: "ongoing",
   txnSplitMode: "single",
-  showImport: false,
-  importCandidates: null,
-  importParseError: null,
+  txnPersonSplitMode: "single",
+  txnCategoryGroup: null,
+  entrySplitDaysDraft: null,
+  entryPersonSplitDraft: null,
+  entryCategoryDraft: null,
+  entryPersonDraft: null,
 };
 
 /* Rate history: records what the weekly target was over time, so past periods are
@@ -554,6 +726,11 @@ function loadInitial() {
   state.settings.analysisHiddenSections = normalizeHiddenSections(state.settings.analysisHiddenSections);
   state.settings.incomeHistory = normalizeIncomeHistory(state.settings.incomeHistory);
   state.settings.categoryStyles = normalizeCategoryStyles(state.settings.categoryStyles, state.settings.categories);
+  state.settings.categoryGroups = normalizeCategoryGroups(state.settings.categoryGroups);
+  state.settings.categoryGroupOf = normalizeCategoryGroupOf(state.settings.categoryGroupOf, state.settings.categories, state.settings.categoryGroups);
+  state.settings.people = normalizePeople(state.settings.people);
+  state.settings.personColors = normalizePersonColors(state.settings.personColors, state.settings.people);
+  state.settings.defaultPerson = normalizeDefaultPerson(state.settings.defaultPerson, state.settings.people);
   state.settings.recurringRules = normalizeRecurringRules(state.settings.recurringRules);
   if (runRecurringCatchUp()) {
     persistAll(state.settings, state.entries, "recurring payments");
@@ -653,6 +830,23 @@ function overallAvgDailySpend() {
 function effectiveRangeStart(startStr) {
   var tsd = state.settings.trackingStartDate;
   return (tsd && tsd > startStr) ? tsd : startStr;
+}
+
+/* Rows for the period immediately preceding the one currently shown, used
+   for the Forecast chart's "previous period" compare line. week/month/year
+   reuse getPeriodBounds so "previous" means the actual previous calendar
+   week/month/year (handled correctly even when month lengths differ, unlike
+   a naive "N days earlier"); a custom range has no calendar analog, so it
+   falls back to the immediately preceding range of the same length. */
+function previousPeriodRows(mode, offset, startStr, endStr) {
+  if (mode === "custom") {
+    var lenDays = daysBetween(startStr, endStr) + 1;
+    var prevEnd = toStr(addDays(parseD(startStr), -1));
+    var prevStart = toStr(addDays(parseD(prevEnd), -(lenDays-1)));
+    return periodStats(prevStart, prevEnd).rows;
+  }
+  var per = getPeriodBounds(mode, (offset||0) - 1, currentWeeklyTarget(), dailyReference());
+  return periodStats(per.startStr, per.endStr).rows;
 }
 
 function periodStats(startStr, endStrRaw) {
@@ -761,6 +955,25 @@ function renderChart(data, T) {
    pixel of finger movement would destroy the SVG node and feel laggy, so this
    updates the existing elements' attributes directly instead. Re-wired after
    every render() since the chart's DOM is rebuilt each time. */
+/* Positions an absolutely-positioned chart tooltip so it never overflows its
+   container: converts a viewBox-space x-coordinate to actual on-screen
+   pixels (the SVG renders at width:100%, so viewBox units and real pixels
+   scale by a ratio that changes with device width), then clamps the
+   tooltip's left edge so its full rendered width stays within the SVG's
+   bounds. This is what stops the scrub tooltip from running off the right
+   edge of the screen near the last day of a period. Shared by the balance
+   chart and the forecast chart so the two can't drift out of sync. */
+function positionChartTooltip(tip, svg, pxInViewBox, viewBoxWidth) {
+  var rect = svg.getBoundingClientRect();
+  if (!rect.width) return;
+  var xPx = (pxInViewBox / viewBoxWidth) * rect.width;
+  var tipWidth = tip.offsetWidth || 0;
+  var maxLeft = Math.max(0, rect.width - tipWidth);
+  var left = Math.max(0, Math.min(maxLeft, xPx - tipWidth/2));
+  tip.style.left = left + "px";
+  tip.style.transform = "none";
+}
+
 function wireBalanceChart(data) {
   var svg = document.getElementById("balanceChartSvg");
   var hit = document.getElementById("balanceChartHit");
@@ -783,11 +996,11 @@ function wireBalanceChart(data) {
     var px = g.x(idx), py = g.y(d.balance);
     crosshair.setAttribute("x1", px); crosshair.setAttribute("x2", px); crosshair.setAttribute("opacity", "1");
     dot.setAttribute("cx", px); dot.setAttribute("cy", py); dot.setAttribute("opacity", "1");
-    tip.style.left = ((px/g.w)*100) + "%";
-    tip.style.opacity = "1";
     var delta = d.delta || 0;
     var deltaStr = (delta>=0?"+":"−")+fmt(Math.abs(Math.round(delta)),0)+" AED";
     tip.innerHTML = '<span class="muted">'+esc(d.label)+'</span> <span style="color:'+(delta>=0?"var(--positive)":"var(--rust)")+'; font-weight:600;">'+deltaStr+'</span>';
+    positionChartTooltip(tip, svg, px, g.w);
+    tip.style.opacity = "1";
   }
   function hide() {
     crosshair.setAttribute("opacity", "0");
@@ -831,9 +1044,9 @@ var ICONS = {
   eyeOff: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
   pause: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
   play: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>',
+  palette: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
   repeat: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
   repeatNav: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
-  upload: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
 };
 
 /* ---------------- rendering ---------------- */
@@ -903,24 +1116,63 @@ function unlockBodyScroll() {
    native spectrum/slider picker gets real drag gestures instead of having
    them swallowed mid-slide (which was registering as an instant tap-select). */
 var touchLockCard = null, touchLockStartY = null, touchLockStartScrollTop = null;
+var sheetDragging = false, sheetDragAnchorY = null, sheetDragDelta = 0;
+var SHEET_DISMISS_THRESHOLD = 90;
+function closeCurrentModal() {
+  var backdrop = document.querySelector(".modal-backdrop");
+  if (backdrop) backdrop.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+}
 document.addEventListener("touchstart", function(e) {
   if (!bodyScrollLocked) return;
   var card = e.target.closest(".modal-card");
   touchLockCard = card || null;
   touchLockStartY = e.touches[0].clientY;
   touchLockStartScrollTop = card ? card.scrollTop : 0;
+  sheetDragging = false;
+  sheetDragAnchorY = null;
+  sheetDragDelta = 0;
+  if (touchLockCard) touchLockCard.style.transition = "";
 }, { passive: true });
 document.addEventListener("touchmove", function(e) {
   if (!bodyScrollLocked) return;
   if (e.target && (e.target.id === "entryNoteInput" || e.target.type === "color")) return;
   e.preventDefault();
   if (!touchLockCard || touchLockStartY == null) return;
-  var deltaY = touchLockStartY - e.touches[0].clientY;
-  var maxScroll = Math.max(0, touchLockCard.scrollHeight - touchLockCard.clientHeight);
-  touchLockCard.scrollTop = Math.max(0, Math.min(maxScroll, touchLockStartScrollTop + deltaY));
+  var curY = e.touches[0].clientY;
+  if (!sheetDragging) {
+    /* Checked against the LIVE scrollTop, not just the gesture's starting
+       value, so scrolling up to the top and continuing to pull down in one
+       unbroken motion still hands off into a sheet drag — not just a drag
+       that starts from an already-at-top position. */
+    if (curY > touchLockStartY && touchLockCard.scrollTop <= 0) {
+      sheetDragging = true;
+      sheetDragAnchorY = curY; // anchor here so the sheet doesn't jump to account for scrolling that already happened this gesture
+    } else {
+      var deltaY = touchLockStartY - curY;
+      var maxScroll = Math.max(0, touchLockCard.scrollHeight - touchLockCard.clientHeight);
+      touchLockCard.scrollTop = Math.max(0, Math.min(maxScroll, touchLockStartScrollTop + deltaY));
+      return;
+    }
+  }
+  sheetDragDelta = Math.max(0, curY - sheetDragAnchorY);
+  touchLockCard.style.transform = "translateY(" + sheetDragDelta + "px)";
+  var backdrop = touchLockCard.closest(".modal-backdrop");
+  if (backdrop) backdrop.style.background = "rgba(3,7,15," + Math.max(0.15, 0.6 - sheetDragDelta/400) + ")";
 }, { passive: false });
 document.addEventListener("touchend", function() {
+  if (sheetDragging && touchLockCard) {
+    if (sheetDragDelta > SHEET_DISMISS_THRESHOLD) {
+      closeCurrentModal();
+    } else {
+      var card = touchLockCard, backdrop = card.closest(".modal-backdrop");
+      card.style.transition = "transform 0.2s ease";
+      card.style.transform = "";
+      if (backdrop) { backdrop.style.transition = "background 0.2s ease"; backdrop.style.background = ""; }
+      setTimeout(function(){ card.style.transition = ""; if (backdrop) backdrop.style.transition = ""; }, 220);
+    }
+  }
   touchLockCard = null; touchLockStartY = null; touchLockStartScrollTop = null;
+  sheetDragging = false; sheetDragAnchorY = null; sheetDragDelta = 0;
 }, { passive: true });
 
 function render() {
@@ -928,8 +1180,21 @@ function render() {
   var T = effectivePalette();
   applyTheme(T);
 
-  var anyModalOpen = state.showAddTxn || state.showSettings || state.showBackup || state.showResetConfirm || state.showImport;
+  var anyModalOpen = state.showAddTxn || state.showSettings || state.showBackup || state.showResetConfirm;
   if (anyModalOpen) lockBodyScroll(); else unlockBodyScroll();
+
+  /* root.innerHTML = html below destroys and recreates every element on every
+     render, including whichever scrollable container the person is currently
+     scrolled through — so without this, expanding a category's icon editor
+     (or any other in-place UI change) would silently snap them back to the
+     top every single time. Captured here, before the rebuild; restored after
+     it, onto the freshly-created element that takes its place. Modal scroll
+     and page scroll are mutually exclusive: while a modal is open the body is
+     pinned via lockBodyScroll, so only the modal's own scrollTop matters;
+     with no modal open, the page's own scroll position is what matters. */
+  var modalCardEl = document.querySelector(".modal-card");
+  var savedModalScrollTop = modalCardEl ? modalCardEl.scrollTop : 0;
+  var savedPageScrollY = modalCardEl ? 0 : (window.scrollY || window.pageYOffset || 0);
 
   if (state.loading) {
     root.innerHTML = '<div class="row" style="min-height:100vh; align-items:center; justify-content:center;"><div class="muted" style="font-size:14px;">Loading your ledger…</div></div>';
@@ -976,7 +1241,6 @@ function render() {
   if (state.showSettings) {
     html += renderSettingsModal();
   }
-  if (state.showImport) html += renderImportModal();
 
   if (state.showBackup) {
     var backupText = JSON.stringify({settings:state.settings, entries:state.entries}, null, 2);
@@ -1010,7 +1274,13 @@ function render() {
   }
 
   root.innerHTML = html;
-  if (state.page === "home" && lastChartData) wireBalanceChart(lastChartData);
+  var newModalCardEl = document.querySelector(".modal-card");
+  if (newModalCardEl) {
+    if (savedModalScrollTop) newModalCardEl.scrollTop = savedModalScrollTop;
+  } else if (savedPageScrollY) {
+    window.scrollTo(0, savedPageScrollY);
+  }
+  if ((state.page === "home" || state.page === "analysis") && lastChartData) wireBalanceChart(lastChartData);
   if ((state.page === "analysis" || state.page === "home") && lastForecastChartData) wireForecastChart(lastForecastChartData);
 }
 
@@ -1146,7 +1416,7 @@ function renderHomeBody(T, da) {
   if (chartData.length >= 1) {
     h += '<div class="hairline-top" style="padding:12px 8px 12px;">';
     h += '<div id="balanceChartWrap" style="position:relative;">';
-    h += '<div id="balanceChartTip" class="mono footnote" style="position:absolute; top:0; left:50%; transform:translateX(-50%); background:var(--fill); border-radius:8px; padding:4px 9px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:2;"></div>';
+    h += '<div id="balanceChartTip" class="mono footnote" style="position:absolute; top:0; left:0; background:var(--fill); border-radius:8px; padding:4px 9px; max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:2;"></div>';
     h += renderChart(chartData, T);
     h += '</div></div>';
     lastChartData = chartData;
@@ -1160,20 +1430,21 @@ function renderHomeBody(T, da) {
     var periodWordHome = state.view === "week" ? "week" : state.view === "month" ? "month" : "year";
     var chartStartHome = effectiveRangeStart(period.startStr);
     var chartDaysHome = daysBetween(chartStartHome, period.endStr) + 1;
-    h += buildForecastCard(displayed.rows, chartDaysHome, period.target, chartStartHome, T, basisWordCap(), periodWordHome);
+    var compareRowsHome = previousPeriodRows(state.view, state.offset, period.startStr, period.endStr);
+    h += buildForecastCard(displayed.rows, chartDaysHome, period.target, chartStartHome, T, basisWordCap(), periodWordHome, compareRowsHome);
   }
 
   return h;
 }
 
 function renderSettingsModal() {
-  var tabs = [{id:"budget",label:"Budget"},{id:"income",label:"Income"},{id:"tracking",label:"Tracking"},{id:"categories",label:"Categories"},{id:"theme",label:"Theme"}];
+  var tabs = [{id:"budget",label:"Budget"},{id:"income",label:"Income"},{id:"tracking",label:"Tracking"},{id:"categories",label:"Categories"},{id:"people",label:"People"},{id:"theme",label:"Theme"}];
   var h = '<div class="modal-backdrop" data-action="close-settings">';
   h += '<div class="modal-card" data-action="noop">';
   h += '<div class="grabber"></div>';
   h += '<div class="row between" style="margin-bottom:14px;"><div class="display" style="font-size:18px;">Settings</div><button data-action="close-settings" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
 
-  h += '<div class="seg seg-scroll" style="margin-bottom:18px;">';
+  h += '<div class="seg seg-wrap" style="margin-bottom:18px;">';
   tabs.forEach(function(t){
     var active = state.settingsTab === t.id;
     h += '<button class="seg-btn" role="tab" aria-selected="'+active+'" data-action="settings-tab" data-tab="'+t.id+'">'+t.label+'</button>';
@@ -1186,7 +1457,7 @@ function renderSettingsModal() {
     h += '<label class="eyebrow">Weekly budget target</label>';
     h += '<div style="position:relative; margin:6px 0 6px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px;">AED</span>';
     h += '<input id="weeklyDraftInput" type="number" inputmode="decimal" class="field mono" style="padding-left:44px;" value="'+curWeekly+'" /></div>';
-    h += '<div class="muted" style="font-size:12px; margin-bottom:14px;">= '+fmt(curWeekly/7,2)+' AED per day. Choose how far this change should reach:</div>';
+    h += '<div class="muted" id="weeklyPerDayText" style="font-size:12px; margin-bottom:14px;">= '+fmt(curWeekly/7,2)+' AED per day. Choose how far this change should reach:</div>';
     h += '<button data-action="apply-budget" data-scope="future" class="btn-accent" style="width:100%; margin-bottom:8px;">This week onward</button>';
     h += '<div class="muted" style="font-size:11px; margin-bottom:12px;">From '+esc(shortLabel(wkBounds.startStr))+' forward. Earlier weeks keep their old rate — this is usually what you want.</div>';
     h += '<button data-action="apply-budget" data-scope="thisPeriod" class="btn-outline" style="width:100%; margin-bottom:8px;">This week only</button>';
@@ -1262,46 +1533,180 @@ function renderSettingsModal() {
   }
 
   if (state.settingsTab === "categories") {
-    h += '<label class="eyebrow">Categories</label>';
-    h += '<div style="display:flex; flex-direction:column; gap:6px; margin:8px 0 10px;">';
-    var catList = state.settings.categories||[];
-    catList.forEach(function(c,ci){
+    var groupList = state.settings.categoryGroups||[];
+    var catListAll = state.settings.categories||[];
+
+    /* Shared row renderer: identical markup whether a category is nested
+       under a group or listed under Ungrouped, so the two can't drift apart.
+       "siblings" is whichever list this category's up/down arrows should
+       move it within — its group's members, or the ungrouped list — NOT
+       necessarily the full flat categories array, so the arrows always
+       visibly do something relative to what's on screen. */
+    function renderCategoryRow(c, localIdx, siblings) {
       var isEditingStyle = state.categoryStyleEditing === c;
-      h += '<div style="background:var(--raised); border:1px solid var(--hairline); border-radius:8px; overflow:hidden;">';
-      h += '<div class="row between" style="padding:7px 8px 7px 8px;">';
-      h += '<div class="row gap2" style="align-items:center; min-width:0;">';
-      h += '<button data-action="edit-category-style" data-cat="'+esc(c)+'" style="background:none;border:none;padding:0;flex-shrink:0;" aria-label="Change icon and color">'+catIconCircle(c)+'</button>';
-      h += '<span style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(c)+'</span>';
-      h += '</div>';
-      h += '<div class="row gap2" style="flex-shrink:0;">';
-      h += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="-1" style="background:none;border:none;padding:3px;color:'+(ci===0?"var(--hairline)":"var(--text-muted)")+';" '+(ci===0?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+'</button>';
-      h += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="1" style="background:none;border:none;padding:3px;color:'+(ci===catList.length-1?"var(--hairline)":"var(--text-muted)")+';" '+(ci===catList.length-1?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+'</button>';
-      h += '<button data-action="remove-category" data-cat="'+esc(c)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Remove">'+ICONS.trash+'</button>';
-      h += '</div></div>';
+      var isRenaming = state.categoryRenameEditing === c;
+      var atTop = localIdx === 0, atBottom = localIdx === siblings.length-1;
+      var rh = '<div style="background:var(--card); border:1px solid var(--hairline); border-radius:8px; overflow:hidden;">';
+      rh += '<div class="row between" style="padding:7px 8px 7px 8px;">';
+      if (isRenaming) {
+        rh += '<input id="categoryRenameInput" data-cat="'+esc(c)+'" type="text" class="field" style="flex:1; margin-right:8px; font-size:13px; padding:6px 10px;" value="'+esc(c)+'" />';
+        rh += '<div class="row gap2" style="flex-shrink:0;">';
+        rh += '<button data-action="save-category-rename" data-cat="'+esc(c)+'" class="btn-plain" style="font-size:13px;">Save</button>';
+        rh += '<button data-action="cancel-category-rename" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Cancel">'+ICONS.x+'</button>';
+        rh += '</div>';
+      } else {
+        rh += '<div class="row gap2" style="align-items:center; min-width:0;">';
+        rh += '<button data-action="edit-category-style" data-cat="'+esc(c)+'" style="background:none;border:none;padding:0;flex-shrink:0;" aria-label="Change icon and color">'+catIconCircle(c)+'</button>';
+        rh += '<span style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(c)+'</span>';
+        rh += '</div>';
+        rh += '<div class="row gap2" style="flex-shrink:0;">';
+        rh += '<button data-action="edit-category-name" data-cat="'+esc(c)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Rename">'+ICONS.pencil+'</button>';
+        rh += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="-1" style="background:none;border:none;padding:3px;color:'+(atTop?"var(--hairline)":"var(--text-muted)")+';" '+(atTop?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+'</button>';
+        rh += '<button data-action="move-category" data-cat="'+esc(c)+'" data-dir="1" style="background:none;border:none;padding:3px;color:'+(atBottom?"var(--hairline)":"var(--text-muted)")+';" '+(atBottom?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+'</button>';
+        rh += '<button data-action="remove-category" data-cat="'+esc(c)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Remove">'+ICONS.trash+'</button>';
+        rh += '</div>';
+      }
+      rh += '</div>';
+      if (!isRenaming && groupList.length) {
+        rh += '<div style="padding:0 12px 8px;"><select data-role="category-group-select" data-cat="'+esc(c)+'" class="field" style="font-size:12px; padding:6px 10px;">';
+        rh += '<option value=""'+(!categoryGroupOf(c)?' selected':'')+'>No group</option>';
+        groupList.forEach(function(g){
+          rh += '<option value="'+esc(g)+'"'+(categoryGroupOf(c)===g?' selected':'')+'>'+esc(g)+'</option>';
+        });
+        rh += '</select></div>';
+      }
       if (isEditingStyle) {
         var curStyle = categoryStyle(c);
         var hasCustom = !!(state.settings.categoryStyles && state.settings.categoryStyles[c]);
-        h += '<div style="padding:4px 12px 14px;">';
-        h += '<div class="muted caption" style="margin-bottom:8px;">Icon</div>';
-        h += '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">';
+        rh += '<div style="padding:4px 12px 14px;">';
+        rh += '<div class="muted caption" style="margin-bottom:8px;">Icon</div>';
+        rh += '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">';
         CAT_ICON_ORDER.forEach(function(iconKey){
           var isSel = curStyle.icon === iconKey;
-          h += '<button data-action="set-category-icon" data-cat="'+esc(c)+'" data-icon="'+iconKey+'" style="width:36px; height:36px; border-radius:50%; background:'+curStyle.color+'; border:'+(isSel?"2px solid var(--text)":"2px solid transparent")+'; display:flex; align-items:center; justify-content:center; padding:0;" aria-label="'+iconKey+'">'+CAT_ICON_SVGS[iconKey]+'</button>';
+          rh += '<button data-action="set-category-icon" data-cat="'+esc(c)+'" data-icon="'+iconKey+'" style="width:36px; height:36px; border-radius:50%; background:'+curStyle.color+'; border:'+(isSel?"2px solid var(--text)":"2px solid transparent")+'; display:flex; align-items:center; justify-content:center; padding:0;" aria-label="'+iconKey+'">'+CAT_ICON_SVGS[iconKey]+'</button>';
+        });
+        rh += '</div>';
+        rh += '<div class="muted caption" style="margin-bottom:8px;">Color</div>';
+        rh += '<div class="row gap2" style="align-items:center; margin-bottom:12px;">';
+        rh += '<input id="categoryColorInput" data-cat="'+esc(c)+'" type="color" value="'+curStyle.color+'" style="width:44px; height:36px; border:none; border-radius:8px; padding:0; background:none;" />';
+        rh += '<span class="mono subhead">'+curStyle.color.toUpperCase()+'</span>';
+        rh += '</div>';
+        rh += '<button data-action="reset-category-style" data-cat="'+esc(c)+'" class="btn-plain" style="'+(hasCustom?"":"opacity:0.4;")+'" '+(hasCustom?"":"disabled")+'>Reset to default</button>';
+        rh += '</div>';
+      }
+      rh += '</div>';
+      return rh;
+    }
+
+    h += '<label class="eyebrow">Categories</label>';
+    h += '<div class="muted caption" style="margin:4px 0 10px;">Organize related categories under a group — e.g. Restaurants, Food & Dining, and Groceries under "Food & Drinks" — so Analysis can show either level. Tap a category\u2019s icon to customize it, or a group\u2019s palette icon to style everyone in it at once.</div>';
+    h += '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">';
+
+    groupList.forEach(function(g,gi){
+      var members = catListAll.filter(function(c){ return categoryGroupOf(c)===g; });
+      var isStylingGroup = state.groupStyleEditing === g;
+      h += '<div style="background:var(--raised); border:1px solid var(--hairline); border-radius:10px; overflow:hidden;">';
+      h += '<div class="row between" style="padding:8px 8px 8px 12px;">';
+      h += '<div class="row gap2" style="align-items:baseline; min-width:0;"><span style="font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(g)+'</span><span class="muted caption">'+members.length+' categor'+(members.length===1?"y":"ies")+'</span></div>';
+      h += '<div class="row gap2" style="flex-shrink:0;">';
+      h += '<button data-action="edit-group-style" data-group="'+esc(g)+'" style="background:none;border:none;padding:3px;color:'+(isStylingGroup?"var(--accent)":"var(--text-muted)")+';'+(members.length===0?"opacity:0.35;":"")+'" '+(members.length===0?"disabled":"")+' aria-label="Style all categories in this group">'+ICONS.palette+'</button>';
+      h += '<button data-action="move-group" data-group="'+esc(g)+'" data-dir="-1" style="background:none;border:none;padding:3px;color:'+(gi===0?"var(--hairline)":"var(--text-muted)")+';" '+(gi===0?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+'</button>';
+      h += '<button data-action="move-group" data-group="'+esc(g)+'" data-dir="1" style="background:none;border:none;padding:3px;color:'+(gi===groupList.length-1?"var(--hairline)":"var(--text-muted)")+';" '+(gi===groupList.length-1?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+'</button>';
+      h += '<button data-action="remove-group" data-group="'+esc(g)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Remove">'+ICONS.trash+'</button>';
+      h += '</div></div>';
+      if (isStylingGroup) {
+        /* Bulk styling: whatever's picked here is written to every category
+           in the group at once, overwriting their individual styles. The
+           preview swatch uses the first member's current color so the
+           starting point reflects reality rather than an arbitrary default. */
+        var seedStyle = categoryStyle(members[0]);
+        h += '<div style="padding:4px 12px 14px;">';
+        h += '<div class="muted caption" style="margin-bottom:8px;">Apply an icon to all '+members.length+' categor'+(members.length===1?"y":"ies")+' in this group</div>';
+        h += '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">';
+        CAT_ICON_ORDER.forEach(function(iconKey){
+          h += '<button data-action="set-group-icon" data-group="'+esc(g)+'" data-icon="'+iconKey+'" style="width:36px; height:36px; border-radius:50%; background:'+seedStyle.color+'; border:2px solid transparent; display:flex; align-items:center; justify-content:center; padding:0;" aria-label="'+iconKey+'">'+CAT_ICON_SVGS[iconKey]+'</button>';
         });
         h += '</div>';
-        h += '<div class="muted caption" style="margin-bottom:8px;">Color</div>';
-        h += '<div class="row gap2" style="align-items:center; margin-bottom:12px;">';
-        h += '<input id="categoryColorInput" data-cat="'+esc(c)+'" type="color" value="'+curStyle.color+'" style="width:44px; height:36px; border:none; border-radius:8px; padding:0; background:none;" />';
-        h += '<span class="mono subhead">'+curStyle.color.toUpperCase()+'</span>';
-        h += '</div>';
-        h += '<button data-action="reset-category-style" data-cat="'+esc(c)+'" class="btn-plain" style="'+(hasCustom?"":"opacity:0.4;")+'" '+(hasCustom?"":"disabled")+'>Reset to default</button>';
-        h += '</div>';
+        h += '<div class="muted caption" style="margin-bottom:8px;">Apply a color to all of them</div>';
+        h += '<div class="row gap2" style="align-items:center;">';
+        h += '<input id="groupColorInput" data-group="'+esc(g)+'" type="color" value="'+seedStyle.color+'" style="width:44px; height:36px; border:none; border-radius:8px; padding:0; background:none;" />';
+        h += '<span class="muted caption">Changes every category in the group</span>';
+        h += '</div></div>';
+      }
+      if (members.length) {
+        h += '<div style="padding:0 10px 10px 10px;">';
+        h += '<div style="padding-left:14px; border-left:2px solid var(--hairline); display:flex; flex-direction:column; gap:6px;">';
+        members.forEach(function(c,ci){ h += renderCategoryRow(c, ci, members); });
+        h += '</div></div>';
+      } else {
+        h += '<div style="padding:0 12px 10px;"><span class="muted caption">No categories yet \u2014 assign one below.</span></div>';
       }
       h += '</div>';
     });
-    if (!catList.length) h += '<span class="muted" style="font-size:12px;">No categories yet.</span>';
+
+    var ungrouped = catListAll.filter(function(c){ return !categoryGroupOf(c); });
+    if (groupList.length) {
+      if (ungrouped.length) {
+        h += '<div><div class="muted caption" style="padding:2px 2px 6px;">Ungrouped</div>';
+        h += '<div style="display:flex; flex-direction:column; gap:6px;">';
+        ungrouped.forEach(function(c,ci){ h += renderCategoryRow(c, ci, ungrouped); });
+        h += '</div></div>';
+      }
+    } else {
+      h += '<div style="display:flex; flex-direction:column; gap:6px;">';
+      catListAll.forEach(function(c,ci){ h += renderCategoryRow(c, ci, catListAll); });
+      h += '</div>';
+    }
+    if (!catListAll.length) h += '<span class="muted" style="font-size:12px;">No categories yet.</span>';
     h += '</div>';
-    h += '<div class="row gap2"><input id="newCategoryInput" type="text" class="field" placeholder="New category" style="flex:1;" /><button data-action="add-category" class="btn-outline">Add</button></div>';
+
+    h += '<div class="row gap2" style="margin-bottom:10px;"><input id="newGroupInput" type="text" class="field" placeholder="New group" style="flex:1;" /><button data-action="add-group" class="btn-outline">Add group</button></div>';
+    h += '<div class="row gap2"><input id="newCategoryInput" type="text" class="field" placeholder="New category" style="flex:1;" /><button data-action="add-category" class="btn-outline">Add category</button></div>';
+  }
+
+  if (state.settingsTab === "people") {
+    h += '<label class="eyebrow">People</label>';
+    h += '<div class="muted caption" style="margin:4px 0 10px;">Tag transactions with who they were for, then see the breakdown in Analysis.</div>';
+    var peopleListForDefault = state.settings.people||[];
+    if (peopleListForDefault.length) {
+      h += '<label class="eyebrow">Default person</label>';
+      h += '<select id="defaultPersonInput" class="field" style="margin:6px 0 16px;">';
+      h += '<option value=""'+(!state.settings.defaultPerson?" selected":"")+'>None \u2014 leave blank each time</option>';
+      peopleListForDefault.forEach(function(p){
+        h += '<option value="'+esc(p)+'"'+(state.settings.defaultPerson===p?" selected":"")+'>'+esc(p)+'</option>';
+      });
+      h += '</select>';
+      h += '<div class="muted caption" style="margin:-10px 0 16px;">Pre-fills this person on every new transaction \u2014 still changeable per transaction.</div>';
+    }
+    h += '<div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">';
+    var peopleList = state.settings.people||[];
+    peopleList.forEach(function(p,pi){
+      var isRenamingP = state.personRenameEditing === p;
+      h += '<div style="background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:7px 8px 7px 12px;">';
+      h += '<div class="row between">';
+      if (isRenamingP) {
+        h += '<input id="personRenameInput" data-person="'+esc(p)+'" type="text" class="field" style="flex:1; margin-right:8px; font-size:13px; padding:6px 10px;" value="'+esc(p)+'" />';
+        h += '<div class="row gap2" style="flex-shrink:0;">';
+        h += '<button data-action="save-person-rename" data-person="'+esc(p)+'" class="btn-plain" style="font-size:13px;">Save</button>';
+        h += '<button data-action="cancel-person-rename" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Cancel">'+ICONS.x+'</button>';
+        h += '</div>';
+      } else {
+        h += '<div class="row gap2" style="align-items:center; min-width:0;">';
+        h += '<input class="person-color-input" data-person="'+esc(p)+'" type="color" value="'+personColor(p)+'" style="width:30px; height:26px; border:none; border-radius:6px; padding:0; background:none; flex-shrink:0;" aria-label="Label color for '+esc(p)+'" />';
+        h += personChip(p);
+        h += '</div>';
+        h += '<div class="row gap2" style="flex-shrink:0;">';
+        h += '<button data-action="edit-person-name" data-person="'+esc(p)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Rename">'+ICONS.pencil+'</button>';
+        h += '<button data-action="move-person" data-person="'+esc(p)+'" data-dir="-1" style="background:none;border:none;padding:3px;color:'+(pi===0?"var(--hairline)":"var(--text-muted)")+';" '+(pi===0?"disabled":"")+' aria-label="Move up">'+ICONS.chevronUp+'</button>';
+        h += '<button data-action="move-person" data-person="'+esc(p)+'" data-dir="1" style="background:none;border:none;padding:3px;color:'+(pi===peopleList.length-1?"var(--hairline)":"var(--text-muted)")+';" '+(pi===peopleList.length-1?"disabled":"")+' aria-label="Move down">'+ICONS.chevronDown+'</button>';
+        h += '<button data-action="remove-person" data-person="'+esc(p)+'" style="background:none;border:none;padding:3px;color:var(--text-muted);" aria-label="Remove">'+ICONS.trash+'</button>';
+        h += '</div>';
+      }
+      h += '</div></div>';
+    });
+    if (!peopleList.length) h += '<span class="muted" style="font-size:12px;">No people yet.</span>';
+    h += '</div>';
+    h += '<div class="row gap2"><input id="newPersonInput" type="text" class="field" placeholder="New person" style="flex:1;" /><button data-action="add-person" class="btn-outline">Add</button></div>';
   }
 
   h += '</div></div>';
@@ -1331,16 +1736,136 @@ function renderAddTxnModal() {
   }
   h += '<input id="entryDateInput" type="date" class="field mono" style="margin-bottom:8px;" value="'+formDate+'" max="'+todayStr()+'" />';
   h += '<div style="position:relative; margin-bottom:8px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none;">AED</span>';
-  h += '<input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" placeholder="'+(splitMode==="split"&&!editingItem?"Total amount":"Amount")+'" value="'+(editingItem?editingItem.amount:"")+'" /></div>';
-  h += '<select id="entryCategoryInput" class="field" style="margin-bottom:8px;">';
-  h += '<option value="">No category</option>';
-  cats.forEach(function(c){
-    h += '<option value="'+esc(c)+'"'+(editingItem && editingItem.category===c?" selected":"")+'>'+esc(c)+'</option>';
+  h += '<input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" placeholder="'+(splitMode==="split"&&!editingItem?"Total amount":"Amount")+'" value="'+(state.entryAmountDraft != null ? esc(state.entryAmountDraft) : (editingItem?editingItem.amount:""))+'" /></div>';
+  var groupsForTxn = state.settings.categoryGroups||[];
+  var selectedCatForTxn = state.entryCategoryDraft != null ? state.entryCategoryDraft : (editingItem ? (editingItem.category||"") : "");
+  /* How many times each category has actually been logged, all-time — used
+     to rank categories within their group so the most relevant ones surface
+     first instead of whatever order they happen to sit in in Settings. */
+  var catUsageCounts = {};
+  Object.keys(state.entries).forEach(function(d){
+    (state.entries[d].items||[]).forEach(function(it){
+      if (it.category) catUsageCounts[it.category] = (catUsageCounts[it.category]||0) + 1;
+    });
   });
-  h += '</select>';
-  h += '<input id="entryNoteInput" type="text" class="field" style="margin-bottom:12px;" placeholder="What was it for? (optional)" value="'+(editingItem?esc(editingItem.note||""):"")+'" />';
+  function sortCatsByUsage(list) {
+    return list.slice().sort(function(a,b){
+      var diff = (catUsageCounts[b]||0) - (catUsageCounts[a]||0);
+      if (diff !== 0) return diff;
+      return list.indexOf(a) - list.indexOf(b); // stable tiebreak: original relative order
+    });
+  }
+  if (groupsForTxn.length) {
+    /* Cascading picker: choosing a group narrows the category list to just
+       that group's members, so a long flat list never has to be scrolled.
+       "Ungrouped" is offered as its own bucket so categories that aren't in
+       any group are still reachable. The selected group defaults to whatever
+       the editing item's category belongs to, so editing opens on the right
+       list rather than resetting. */
+    var editCatGroup = editingItem && editingItem.category ? (categoryGroupOf(editingItem.category) || "__ungrouped__") : "";
+    var activeTxnGroup = state.txnCategoryGroup != null ? state.txnCategoryGroup : editCatGroup;
+    var ungroupedCats = cats.filter(function(c){ return !categoryGroupOf(c); });
+    h += '<select id="entryGroupInput" class="field" style="margin-bottom:8px;">';
+    h += '<option value=""'+(activeTxnGroup===""?" selected":"")+'>All groups</option>';
+    groupsForTxn.forEach(function(g){
+      h += '<option value="'+esc(g)+'"'+(activeTxnGroup===g?" selected":"")+'>'+esc(g)+'</option>';
+    });
+    if (ungroupedCats.length) h += '<option value="__ungrouped__"'+(activeTxnGroup==="__ungrouped__"?" selected":"")+'>Ungrouped</option>';
+    h += '</select>';
+    h += '<select id="entryCategoryInput" class="field" style="margin-bottom:8px;">';
+    h += '<option value="">No category</option>';
+    if (!activeTxnGroup) {
+      /* "All groups": organize by group (in the user's own established group
+         order from Settings), most-used category first within each, then an
+         Ungrouped bucket at the end — instead of one flat, unsorted list. */
+      groupsForTxn.forEach(function(g){
+        var members = sortCatsByUsage(cats.filter(function(c){ return categoryGroupOf(c)===g; }));
+        if (!members.length) return;
+        h += '<optgroup label="'+esc(g)+'">';
+        members.forEach(function(c){
+          h += '<option value="'+esc(c)+'"'+(selectedCatForTxn===c?" selected":"")+'>'+esc(c)+'</option>';
+        });
+        h += '</optgroup>';
+      });
+      var sortedUngrouped = sortCatsByUsage(ungroupedCats);
+      if (sortedUngrouped.length) {
+        h += '<optgroup label="Ungrouped">';
+        sortedUngrouped.forEach(function(c){
+          h += '<option value="'+esc(c)+'"'+(selectedCatForTxn===c?" selected":"")+'>'+esc(c)+'</option>';
+        });
+        h += '</optgroup>';
+      }
+    } else {
+      var visibleCats = activeTxnGroup === "__ungrouped__" ? ungroupedCats : cats.filter(function(c){ return categoryGroupOf(c)===activeTxnGroup; });
+      sortCatsByUsage(visibleCats).forEach(function(c){
+        h += '<option value="'+esc(c)+'"'+(selectedCatForTxn===c?" selected":"")+'>'+esc(c)+'</option>';
+      });
+    }
+    h += '</select>';
+  } else {
+    h += '<select id="entryCategoryInput" class="field" style="margin-bottom:8px;">';
+    h += '<option value="">No category</option>';
+    sortCatsByUsage(cats).forEach(function(c){
+      h += '<option value="'+esc(c)+'"'+(selectedCatForTxn===c?" selected":"")+'>'+esc(c)+'</option>';
+    });
+    h += '</select>';
+  }
+  var peopleForTxn = state.settings.people||[];
+  if (peopleForTxn.length) {
+    var personSplitMode = peopleForTxn.length >= 2 ? (state.txnPersonSplitMode||"single") : "single";
+    if (peopleForTxn.length >= 2) {
+      h += '<div class="seg" style="margin-bottom:8px;">';
+      h += '<button class="seg-btn" role="tab" aria-selected="'+(personSplitMode==="single")+'" data-action="set-txn-person-split-mode" data-mode="single">Single person</button>';
+      h += '<button class="seg-btn" role="tab" aria-selected="'+(personSplitMode==="split")+'" data-action="set-txn-person-split-mode" data-mode="split">Split between people</button>';
+      h += '</div>';
+    }
+    if (personSplitMode === "single") {
+      var preselectedPerson = state.entryPersonDraft != null ? state.entryPersonDraft : (editingItem ? (editingItem.person||"") : (state.settings.defaultPerson||""));
+      h += '<select id="entryPersonInput" class="field" style="margin-bottom:8px;">';
+      h += '<option value=""'+(preselectedPerson===""?" selected":"")+'>Who\u2019s this for? (optional)</option>';
+      peopleForTxn.forEach(function(p){
+        h += '<option value="'+esc(p)+'"'+(preselectedPerson===p?" selected":"")+'>'+esc(p)+'</option>';
+      });
+      h += '</select>';
+    } else {
+      /* Percentages, not fixed amounts: the split stays correct even if the
+         total amount is edited afterward, and 10% increments keep the
+         picker to a plain native <select> (no free-text math to get wrong). */
+      var existingSplit = {};
+      if (state.entryPersonSplitDraft) {
+        Object.keys(state.entryPersonSplitDraft).forEach(function(p){
+          existingSplit[p] = parseInt(state.entryPersonSplitDraft[p], 10) || 0;
+        });
+      } else if (editingItem && editingItem.personSplit) {
+        editingItem.personSplit.forEach(function(ps){ existingSplit[ps.person] = ps.pct; });
+      }
+      var splitInitTotal = 0;
+      h += '<div class="card" style="padding:10px 12px; margin-bottom:8px;">';
+      peopleForTxn.forEach(function(p){
+        var curPct = existingSplit[p] || 0;
+        splitInitTotal += curPct;
+        h += '<div class="row between" style="padding:5px 0;">';
+        h += '<span style="font-size:13px;">'+esc(p)+'</span>';
+        h += '<select class="split-person-pct field mono" data-person="'+esc(p)+'" style="width:84px; padding:6px 8px; font-size:13px;">';
+        var pctOptions = [];
+        for (var pctOpt=0; pctOpt<=100; pctOpt+=10) pctOptions.push(pctOpt);
+        if (curPct % 10 !== 0 && pctOptions.indexOf(curPct) === -1) pctOptions.push(curPct);
+        pctOptions.sort(function(a,b){ return a-b; });
+        pctOptions.forEach(function(opt){
+          h += '<option value="'+opt+'"'+(curPct===opt?' selected':'')+'>'+opt+'%</option>';
+        });
+        h += '</select></div>';
+      });
+      var splitTotalColor = splitInitTotal===100 ? "var(--positive)" : (splitInitTotal===0 ? "var(--text-muted)" : "var(--rust)");
+      h += '<div class="row between hairline-top" style="padding-top:8px; margin-top:2px;">';
+      h += '<span class="muted caption">Total</span>';
+      h += '<span id="splitPersonTotal" class="mono caption" style="font-weight:600; color:'+splitTotalColor+';">'+splitInitTotal+'%</span>';
+      h += '</div></div>';
+    }
+  }
+  h += '<input id="entryNoteInput" type="text" class="field" style="margin-bottom:12px;" placeholder="What was it for? (optional)" value="'+(state.entryNoteDraft != null ? esc(state.entryNoteDraft) : (editingItem?esc(editingItem.note||""):""))+'" />';
   if (!editingItem && splitMode === "split") {
-    h += '<input id="splitDaysInput" type="number" inputmode="numeric" min="2" step="1" class="field" style="margin-bottom:8px;" placeholder="Number of days" />';
+    h += '<input id="splitDaysInput" type="number" inputmode="numeric" min="2" step="1" class="field" style="margin-bottom:8px;" placeholder="Number of days" value="'+(state.entrySplitDaysDraft != null ? esc(state.entrySplitDaysDraft) : "")+'" />';
     h += '<div class="muted caption" style="margin-bottom:12px;">Spreads the total evenly starting from the date above, one share per day. Days still to come are logged as they arrive \u2014 track progress under Plans.</div>';
   }
   h += '<button id="addTxnBtn" data-action="add-transaction" class="btn-accent row gap2" style="width:100%; justify-content:center; align-items:center;">'+(editingItem?ICONS.check+" Save":ICONS.plus+" Add")+'</button>';
@@ -1353,250 +1878,6 @@ function renderFab() {
   return '<button data-action="open-add-txn" aria-label="Add transaction" style="position:fixed; right:calc(env(safe-area-inset-right,0px) + 18px); bottom:calc(var(--vvb, 0px) + env(safe-area-inset-bottom,0px) + 78px); width:52px; height:52px; border-radius:999px; background:var(--accent); color:var(--accent-ink); border:none; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.35); z-index:45;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
 }
 
-var MONTH_NAMES_MAP = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-/* Parses a date string in whatever format it shows up in: ISO, numeric with
-   separators (with day/month disambiguation — if either number is >12 the
-   ambiguity resolves itself; otherwise defaults to day-first, matching the
-   en-GB formatting used everywhere else in this app), or a month name in
-   either word order. Returns null if nothing recognizable is found. */
-function parseFlexibleDate(str) {
-  str = (str||"").trim();
-  if (!str) return null;
-  var iso = str.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (iso) {
-    var y=+iso[1], mo=+iso[2], d=+iso[3];
-    if (mo>=1&&mo<=12&&d>=1&&d<=31) return toStr(new Date(y,mo-1,d));
-  }
-  var numeric = str.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
-  if (numeric) {
-    var a=+numeric[1], b=+numeric[2], y2=+numeric[3];
-    if (y2<100) y2 += (y2<70?2000:1900);
-    var day,month;
-    if (a>12) { day=a; month=b; } else if (b>12) { day=b; month=a; } else { day=a; month=b; }
-    if (month>=1&&month<=12&&day>=1&&day<=31) return toStr(new Date(y2,month-1,day));
-  }
-  var dmy = str.match(/(\d{1,2})\s+([A-Za-z]{3,9})[,\s]*(\d{2,4})?/);
-  if (dmy) {
-    var mi = MONTH_NAMES_MAP[dmy[2].slice(0,3).toLowerCase()];
-    if (mi != null) {
-      var yy = dmy[3] ? +dmy[3] : new Date().getFullYear();
-      if (yy<100) yy += (yy<70?2000:1900);
-      return toStr(new Date(yy, mi, +dmy[1]));
-    }
-  }
-  var mdy = str.match(/([A-Za-z]{3,9})\s+(\d{1,2})(?:,)?\s*(\d{2,4})?/);
-  if (mdy) {
-    var mi2 = MONTH_NAMES_MAP[mdy[1].slice(0,3).toLowerCase()];
-    if (mi2 != null) {
-      var yy2 = mdy[3] ? +mdy[3] : new Date().getFullYear();
-      if (yy2<100) yy2 += (yy2<70?2000:1900);
-      return toStr(new Date(yy2, mi2, +mdy[2]));
-    }
-  }
-  return null;
-}
-/* Splits one CSV line respecting double-quoted fields (so a quoted merchant
-   name containing the delimiter, e.g. "SPAR, Dubai Marina", doesn't get
-   split apart), and unescapes doubled quotes within a quoted field. */
-function splitCsvLine(line, delim) {
-  var out = [], cur = "", inQuotes = false;
-  for (var i=0;i<line.length;i++) {
-    var ch = line[i];
-    if (ch === '"') {
-      if (inQuotes && line[i+1] === '"') { cur += '"'; i++; }
-      else inQuotes = !inQuotes;
-    } else if (ch === delim && !inQuotes) {
-      out.push(cur); cur = "";
-    } else {
-      cur += ch;
-    }
-  }
-  out.push(cur);
-  return out.map(function(s){ return s.trim(); });
-}
-var CSV_HEADER_SYNONYMS = {
-  date: ["date","transaction date","posted date","trans date","value date"],
-  description: ["description","merchant","narrative","details","transaction","payee","particulars"],
-  amount: ["amount","value"],
-  debit: ["debit","withdrawal","money out","spent","debit amount"],
-  credit: ["credit","deposit","money in","credit amount","payment"]
-};
-function matchHeaderCol(headerCells, synonymList) {
-  for (var i=0;i<headerCells.length;i++) {
-    if (synonymList.indexOf(headerCells[i]) !== -1) return i;
-  }
-  return -1;
-}
-/* Attempts a structured CSV parse. Returns null (not an array) if the first
-   line doesn't look like a recognizable header at all — that's the signal to
-   fall back to free-text line parsing instead of forcing a bad CSV read. */
-function tryParseCSV(lines) {
-  var delim = ",";
-  var commaCount = (lines[0].match(/,/g)||[]).length;
-  var semiCount = (lines[0].match(/;/g)||[]).length;
-  var tabCount = (lines[0].match(/\t/g)||[]).length;
-  if (tabCount > commaCount && tabCount > semiCount) delim = "\t";
-  else if (semiCount > commaCount) delim = ";";
-
-  var header = splitCsvLine(lines[0], delim).map(function(s){ return s.toLowerCase(); });
-  if (header.length < 2) return null;
-  var dateCol = matchHeaderCol(header, CSV_HEADER_SYNONYMS.date);
-  var descCol = matchHeaderCol(header, CSV_HEADER_SYNONYMS.description);
-  var amountCol = matchHeaderCol(header, CSV_HEADER_SYNONYMS.amount);
-  var debitCol = matchHeaderCol(header, CSV_HEADER_SYNONYMS.debit);
-  var creditCol = matchHeaderCol(header, CSV_HEADER_SYNONYMS.credit);
-  if (dateCol === -1 || (amountCol === -1 && debitCol === -1 && creditCol === -1)) return null;
-
-  var results = [];
-  for (var i=1;i<lines.length;i++) {
-    var cells = splitCsvLine(lines[i], delim);
-    if (cells.length < 2) continue;
-    var parsedDate = parseFlexibleDate(cells[dateCol]||"");
-    if (!parsedDate) continue;
-    var amount = null, include = true, signSource = "unambiguous";
-    if (amountCol !== -1) {
-      var rawA = (cells[amountCol]||"").replace(/[^0-9.\-]/g,"");
-      var numA = parseFloat(rawA);
-      if (isNaN(numA)) continue;
-      amount = Math.abs(round2(numA));
-      signSource = "inferred";
-      include = numA < 0; // default assumption: negative = spend (typical bank-account convention); flippable in review
-    } else {
-      var rawDebit = debitCol!==-1 ? (cells[debitCol]||"").replace(/[^0-9.\-]/g,"") : "";
-      var rawCredit = creditCol!==-1 ? (cells[creditCol]||"").replace(/[^0-9.\-]/g,"") : "";
-      var numDebit = parseFloat(rawDebit), numCredit = parseFloat(rawCredit);
-      if (!isNaN(numDebit) && numDebit > 0) { amount = round2(numDebit); include = true; }
-      else if (!isNaN(numCredit) && numCredit > 0) { amount = round2(numCredit); include = false; }
-      else continue;
-    }
-    var desc = descCol !== -1 ? (cells[descCol]||"").trim() : "";
-    results.push({ date: parsedDate, amount: amount, note: desc.slice(0,60), category: "", include: include, signSource: signSource });
-  }
-  return results;
-}
-var FREE_TEXT_DATE_PATTERNS = [
-  /\d{4}-\d{1,2}-\d{1,2}/,
-  /\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/,
-  /\d{1,2}\s+[A-Za-z]{3,9}[,\s]*\d{0,4}/,
-  /[A-Za-z]{3,9}\s+\d{1,2}(?:,)?\s*\d{0,4}/
-];
-/* Fallback for pasted statement text that isn't clean CSV (e.g. copied out of
-   a PDF). Looks for a recognizable date and a currency-formatted number on
-   each line; a line with neither is assumed to be a header/footer/summary
-   line and is skipped rather than guessed at. */
-function parseFreeTextLines(lines) {
-  var results = [];
-  lines.forEach(function(line){
-    var dateStr = null;
-    for (var i=0;i<FREE_TEXT_DATE_PATTERNS.length;i++) {
-      var m = line.match(FREE_TEXT_DATE_PATTERNS[i]);
-      if (m) { dateStr = m[0]; break; }
-    }
-    if (!dateStr) return;
-    var parsedDate = parseFlexibleDate(dateStr);
-    if (!parsedDate) return;
-    var withoutDate = line.replace(dateStr, " ");
-    var amountMatches = withoutDate.match(/-?\(?\d{1,3}(?:,\d{3})*\.\d{2}\)?/g);
-    if (!amountMatches || !amountMatches.length) return;
-    var rawAmount = amountMatches[0];
-    var isNegative = /^-|^\(/.test(rawAmount);
-    var numeric = parseFloat(rawAmount.replace(/[(),]/g,"").replace(/^-/,""));
-    if (isNaN(numeric)) return;
-    var description = withoutDate.replace(rawAmount, "").replace(/\s{2,}/g," ").trim();
-    description = description.replace(/^[\s,\-:|]+|[\s,\-:|]+$/g, "");
-    results.push({ date: parsedDate, amount: round2(numeric), note: description.slice(0,60), category: "", include: !isNegative, signSource: "inferred" });
-  });
-  return results;
-}
-/* Matches lines like:
-   "15/06/2026 14/06/2026 57180083 DELIVEROO, AE 123.95"
-   i.e. Posting Date, Transaction Date, Ref No., Description, Amount — a
-   layout used by several UAE bank statement exports. Anchored end-to-end so
-   the ref number (a bare run of digits) can never be mistaken for an amount,
-   and the SECOND date (transaction date) is what's used, not the first
-   (posting date) — posting date is administrative, not when the money moved. */
-var DUAL_DATE_LINE_RE = /^(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\s+(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\s+(\d{3,15})\s+(.+?)\s+(-?\(?[\d,]*\d\.\d{2}\)?)$/;
-function parseDualDateLines(lines) {
-  var results = [];
-  var matchCount = 0;
-  lines.forEach(function(line){
-    var m = line.trim().match(DUAL_DATE_LINE_RE);
-    if (!m) return;
-    matchCount++;
-    var parsedDate = parseFlexibleDate(m[2]);
-    if (!parsedDate) return;
-    var rawAmount = m[5];
-    var isNegative = /^-|^\(/.test(rawAmount);
-    var numeric = parseFloat(rawAmount.replace(/[(),]/g,"").replace(/^-/,""));
-    if (isNaN(numeric)) return;
-    var description = m[4].trim().replace(/,\s*AE$/i, "").trim();
-    results.push({ date: parsedDate, amount: round2(numeric), note: description.slice(0,60), category: "", include: !isNegative, signSource: "inferred" });
-  });
-  if (!lines.length || matchCount/lines.length < 0.5) return null;
-  return results;
-}
-function parseStatementText(text) {
-  var lines = text.split(/\r\n|\r|\n/).filter(function(l){ return l.trim().length>0; });
-  if (!lines.length) return [];
-  var csvResult = tryParseCSV(lines);
-  if (csvResult && csvResult.length) return csvResult;
-  var dualDateResult = parseDualDateLines(lines);
-  if (dualDateResult && dualDateResult.length) return dualDateResult;
-  return parseFreeTextLines(lines);
-}
-
-function renderImportModal() {
-  var h = '<div class="modal-backdrop" data-action="close-import">';
-  h += '<div class="modal-card" data-action="noop">';
-  h += '<div class="grabber"></div>';
-  h += '<div class="row between" style="margin-bottom:14px;"><div class="display" style="font-size:18px;">Import transactions</div><button data-action="close-import" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
-
-  var candidates = state.importCandidates;
-  if (!candidates) {
-    h += '<div class="muted caption" style="margin-bottom:10px;">Paste a CSV export or copied statement text \u2014 you\u2019ll review everything before anything is added.</div>';
-    h += '<textarea id="importPasteInput" class="field mono" style="height:170px; font-size:12px; resize:none; margin-bottom:10px;" placeholder="Date,Description,Amount&#10;17/08/2026,Carrefour,-125.50&#10;16/08/2026,Netflix,-45.00"></textarea>';
-    if (state.importParseError) h += '<div style="color:var(--rust); font-size:12px; margin-bottom:10px;">'+esc(state.importParseError)+'</div>';
-    h += '<button data-action="parse-import" class="btn-accent" style="width:100%;">Parse</button>';
-  } else {
-    var hasInferredRows = candidates.some(function(c){ return c.signSource === "inferred"; });
-    h += '<div class="muted caption" style="margin-bottom:10px;">Found '+candidates.length+' row'+(candidates.length===1?"":"s")+'. Uncheck anything that isn\u2019t spending, fix any details that look off, then import.</div>';
-    if (hasInferredRows) {
-      h += '<div class="row between" style="background:var(--fill); border-radius:8px; padding:8px 10px; margin-bottom:10px; align-items:center;">';
-      h += '<span class="caption" style="flex:1;">Checked/unchecked rows look backwards?</span>';
-      h += '<button data-action="flip-import-sign" class="btn-outline" style="padding:5px 10px; font-size:11px; flex-shrink:0;">Flip</button>';
-      h += '</div>';
-    }
-    h += '<div class="row gap2" style="margin-bottom:12px;">';
-    h += '<select id="importBulkCategory" class="field" style="flex:1; font-size:12px;"><option value="">Set category for all\u2026</option>';
-    (state.settings.categories||[]).forEach(function(c){ h += '<option value="'+esc(c)+'">'+esc(c)+'</option>'; });
-    h += '</select>';
-    h += '<button data-action="apply-import-bulk-category" class="btn-outline" style="font-size:12px; padding:8px 12px; flex-shrink:0;">Apply</button>';
-    h += '</div>';
-
-    candidates.forEach(function(c, i){
-      h += '<div style="background:var(--raised); border:1px solid var(--hairline); border-radius:8px; padding:10px; margin-bottom:8px;'+(!c.include?"opacity:0.6;":"")+'">';
-      h += '<div class="row gap2" style="align-items:center; margin-bottom:6px;">';
-      h += '<input type="checkbox" id="importInclude_'+i+'" data-inferred="'+(c.signSource==="inferred")+'" '+(c.include?"checked":"")+' style="width:18px; height:18px; flex-shrink:0;" />';
-      h += '<input id="importDate_'+i+'" type="date" class="field mono" style="flex:1.1; font-size:12px; padding:6px 8px;" value="'+c.date+'" max="'+todayStr()+'" />';
-      h += '<div style="position:relative; flex:1;"><span class="muted" style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:10px;">AED</span><input id="importAmount_'+i+'" type="number" step="0.01" min="0" inputmode="decimal" class="field mono" style="padding-left:30px; font-size:12px; padding-top:6px; padding-bottom:6px;" value="'+c.amount+'" /></div>';
-      h += '</div>';
-      h += '<div class="row gap2">';
-      h += '<select id="importCategory_'+i+'" class="field" style="flex:1; font-size:12px; padding:6px 8px;"><option value="">No category</option>';
-      (state.settings.categories||[]).forEach(function(cat){ h += '<option value="'+esc(cat)+'"'+(c.category===cat?" selected":"")+'>'+esc(cat)+'</option>'; });
-      h += '</select>';
-      h += '<input id="importNote_'+i+'" type="text" class="field" style="flex:1; font-size:12px; padding:6px 8px;" value="'+esc(c.note||"")+'" placeholder="Note" />';
-      h += '</div></div>';
-    });
-
-    h += '<div class="row gap2" style="margin-top:4px;">';
-    h += '<button data-action="back-to-paste-import" class="btn-outline" style="flex:1;">Back</button>';
-    h += '<button data-action="commit-import" class="btn-accent" style="flex:2;">Import selected</button>';
-    h += '</div>';
-  }
-  h += '</div></div>';
-  return h;
-}
-
 function renderTransactionsBody() {
   var entryDates = Object.keys(state.entries).sort();
   var cumAnchor = state.settings.trackingStartDate || (entryDates.length ? entryDates[0] : todayStr());
@@ -1605,33 +1886,64 @@ function renderTransactionsBody() {
   var balanceMap = {};
   cs.rows.forEach(function(r){ acc = round2(acc + (r.allowance-r.spent)); balanceMap[r.date] = acc; });
 
+  var groupFilter = state.txnGroupFilter || "";
   var categoryFilter = state.txnCategoryFilter || "";
+  var personFilter = state.txnPersonFilter || "";
   var periodMode = state.txnPeriodMode || "all";
   var periodFrom = state.txnPeriodFrom || "";
   var periodTo = state.txnPeriodTo || "";
   var info = getTxnPeriodInfo();
   function itemCat(it){ return it.category || "Uncategorised"; }
   function inPeriod(d) { return d >= info.start && d <= info.end; }
+  function itemMatchesGroup(it) {
+    if (!groupFilter) return true;
+    if (groupFilter === "__ungrouped__") return !categoryGroupOf(it.category);
+    return categoryGroupOf(it.category) === groupFilter;
+  }
+  /* A person filter matches either the single-person field or, for a
+     percentage split, anyone included in that split — being included at
+     any share still means the transaction was at least partly for them. */
+  function itemMatchesPerson(it) { return itemMatchesPersonFilter(it, personFilter); }
+  function itemMatchesFilters(it) {
+    return (!categoryFilter || itemCat(it) === categoryFilter) && itemMatchesGroup(it) && itemMatchesPerson(it);
+  }
   var periodActive = periodMode !== "all";
-  var anyFilterActive = !!categoryFilter || periodActive;
+  var anyItemFilterActive = !!categoryFilter || !!groupFilter || !!personFilter;
+  var anyFilterActive = anyItemFilterActive || periodActive;
 
-  var filterOptions = (state.settings.categories||[]).slice();
-  filterOptions.push("Uncategorised");
+  var groupListForFilter = state.settings.categoryGroups||[];
+  var ungroupedCatsExist = (state.settings.categories||[]).some(function(c){ return !categoryGroupOf(c); });
+  /* Cascading, same pattern as the add-transaction modal: picking a group
+     narrows the category list to just its members, so a long flat list
+     never has to be scrolled just to filter down to one bucket. */
+  var filterOptions = !groupFilter
+    ? (state.settings.categories||[]).slice()
+    : (groupFilter === "__ungrouped__"
+        ? (state.settings.categories||[]).filter(function(c){ return !categoryGroupOf(c); })
+        : (state.settings.categories||[]).filter(function(c){ return categoryGroupOf(c)===groupFilter; }));
+  if (!groupFilter || groupFilter === "__ungrouped__") filterOptions.push("Uncategorised");
 
   var filterCount = 0, filterSum = 0;
   entryDates.forEach(function(d){
     if (!inPeriod(d)) return;
     state.entries[d].items.forEach(function(it){
-      if (!categoryFilter || itemCat(it) === categoryFilter) { filterCount++; filterSum += it.amount; }
+      if (itemMatchesFilters(it)) { filterCount++; filterSum += it.amount; }
     });
   });
 
   var h = '<div class="card" style="overflow:hidden; margin-bottom:16px;">';
-  h += '<div class="row between" style="padding:16px 16px 4px; align-items:flex-start;">';
-  h += '<div class="eyebrow">All transactions</div>';
-  h += '<button data-action="open-import" class="row gap2" style="background:none; border:none; padding:0; color:var(--accent); font-size:12px; font-weight:600; align-items:center;">'+ICONS.upload+' Import</button>';
-  h += '</div>';
+  h += '<div class="eyebrow" style="padding:16px 16px 4px;">All transactions</div>';
   h += '<div class="muted" style="font-size:11px; padding:0 16px 12px;">Balance is a running total — days between entries you didn\'t log still count, assumed fully saved.</div>';
+
+  if (groupListForFilter.length) {
+    h += '<div style="padding:0 16px 8px;"><select id="txnGroupFilterSelect" class="field" style="font-size:13px;">';
+    h += '<option value=""'+(groupFilter===""?" selected":"")+'>All groups</option>';
+    groupListForFilter.forEach(function(g){
+      h += '<option value="'+esc(g)+'"'+(groupFilter===g?" selected":"")+'>'+esc(g)+'</option>';
+    });
+    if (ungroupedCatsExist) h += '<option value="__ungrouped__"'+(groupFilter==="__ungrouped__"?" selected":"")+'>Ungrouped</option>';
+    h += '</select></div>';
+  }
 
   h += '<div style="padding:0 16px 8px;"><select id="txnCategoryFilterSelect" class="field" style="font-size:13px;">';
   h += '<option value=""'+(categoryFilter===""?" selected":"")+'>All categories</option>';
@@ -1639,6 +1951,17 @@ function renderTransactionsBody() {
     h += '<option value="'+esc(c)+'"'+(categoryFilter===c?" selected":"")+'>'+esc(c)+'</option>';
   });
   h += '</select></div>';
+
+  var peopleListForFilter = state.settings.people||[];
+  if (peopleListForFilter.length) {
+    h += '<div style="padding:0 16px 8px;"><select id="txnPersonFilterSelect" class="field" style="font-size:13px;">';
+    h += '<option value=""'+(personFilter===""?" selected":"")+'>All people</option>';
+    peopleListForFilter.forEach(function(p){
+      h += '<option value="'+esc(p)+'"'+(personFilter===p?" selected":"")+'>'+esc(p)+'</option>';
+    });
+    h += '<option value="__unassigned__"'+(personFilter==="__unassigned__"?" selected":"")+'>Unassigned</option>';
+    h += '</select></div>';
+  }
 
   h += '<div style="padding:0 16px 8px;"><div class="seg">';
   [["all","All"],["week","Week"],["month","Month"],["year","Year"],["custom","Custom"]].forEach(function(opt){
@@ -1663,7 +1986,9 @@ function renderTransactionsBody() {
 
   if (anyFilterActive) {
     var descParts = [];
+    if (groupFilter) descParts.push("in "+(groupFilter==="__ungrouped__"?"Ungrouped":groupFilter));
     if (categoryFilter) descParts.push("in "+categoryFilter);
+    if (personFilter) descParts.push("for "+(personFilter==="__unassigned__"?"Unassigned":personFilter));
     if (periodMode === "week") descParts.push("week of "+shortLabel(info.start));
     if (periodMode === "month") descParts.push(parseD(info.start).toLocaleDateString("en-GB",{month:"long",year:"numeric"}));
     if (periodMode === "year") descParts.push(info.title);
@@ -1674,7 +1999,7 @@ function renderTransactionsBody() {
   var datesDesc = entryDates.slice().reverse();
   var dates = datesDesc.filter(function(d){
     if (!inPeriod(d)) return false;
-    if (categoryFilter) return state.entries[d].items.some(function(it){ return itemCat(it) === categoryFilter; });
+    if (anyItemFilterActive) return state.entries[d].items.some(itemMatchesFilters);
     return true;
   });
 
@@ -1687,15 +2012,15 @@ function renderTransactionsBody() {
       var dayRef = referenceForDate(date);
       var delta = dayRef - spent;
       var bal = balanceMap[date];
-      var displayItems = categoryFilter ? day.items.filter(function(it){ return itemCat(it) === categoryFilter; }) : day.items;
+      var displayItems = anyItemFilterActive ? day.items.filter(itemMatchesFilters) : day.items;
       var dayFilteredSpent = displayItems.reduce(function(s,it){ return s+it.amount; }, 0);
       h += '<div style="padding:12px 16px;'+(i===0?"":"border-top:1px solid var(--hairline);")+'">';
       h += '<div class="row between">';
       h += '<div><div style="font-size:14px;">'+esc(dayLabel(date))+'</div>';
-      h += '<div class="mono muted" style="font-size:11px; margin-top:2px;">'+day.items.length+' txn'+(day.items.length===1?"":"s")+' · spent '+fmt(spent,2)+' of '+fmt(dayRef,2)+(categoryFilter?' · '+displayItems.length+' match'+(displayItems.length===1?"":"es"):"")+'</div></div>';
-      if (categoryFilter) {
+      h += '<div class="mono muted" style="font-size:11px; margin-top:2px;">'+day.items.length+' txn'+(day.items.length===1?"":"s")+' · spent '+fmt(spent,2)+' of '+fmt(dayRef,2)+(anyItemFilterActive?' · '+displayItems.length+' match'+(displayItems.length===1?"":"es"):"")+'</div></div>';
+      if (anyItemFilterActive) {
         h += '<div style="text-align:right;"><div class="mono" style="font-size:12px; color:var(--rust);">−'+fmt(dayFilteredSpent,2)+'</div>';
-        h += '<div class="mono muted" style="font-size:10px;">in '+esc(categoryFilter)+'</div></div>';
+        h += '<div class="mono muted" style="font-size:10px;">filtered</div></div>';
       } else {
         h += '<div style="text-align:right;"><div class="mono" style="font-size:12px; color:'+(delta>=0?"var(--positive)":"var(--rust)")+';">'+(delta>=0?"+":"−")+fmt(Math.abs(delta),2)+'</div>';
         h += '<div class="mono muted" style="font-size:10px;">bal '+fmt(bal,0)+'</div></div>';
@@ -1746,6 +2071,15 @@ function renderTxnRow(date, it) {
   }
   h += '<div style="font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px;">'+(it.category?esc(it.category):"Spent")+seqBadge+'</div>';
   if (it.note) h += '<div class="muted" style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(it.note)+'</div>';
+  var chipHtml = "";
+  if (it.personSplit && it.personSplit.length) {
+    chipHtml = it.personSplit.map(function(ps){
+      return personChip(ps.person, "small")+'<span class="muted" style="font-size:10px; margin-left:3px;">'+ps.pct+'%</span>';
+    }).join('<span style="display:inline-block; width:6px;"></span>');
+  } else if (it.person) {
+    chipHtml = personChip(it.person, "small");
+  }
+  if (chipHtml) h += '<div style="margin-top:3px; display:flex; align-items:center; flex-wrap:wrap; gap:2px;">'+chipHtml+'</div>';
   h += '</span></button>';
   h += '<div class="mono" style="font-size:13px; font-weight:600; color:var(--rust); flex-shrink:0;">−'+fmt(it.amount,2)+' AED</div>';
   h += '<button data-action="ask-delete-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:none;border:none;padding:4px;color:var(--text-muted);flex-shrink:0;" aria-label="Delete">'+ICONS.trash+'</button>';
@@ -1860,9 +2194,27 @@ var CAT_ICON_SVGS = {
   gift: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C9 2 12 7 12 7z"/></svg>',
   book: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
   plane: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>',
+  fuel: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="15" y2="22"/><line x1="4" y1="9" x2="14" y2="9"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v3a1.5 1.5 0 0 0 3 0V9.5a1.5 1.5 0 0 0-.44-1.06L18 6"/><circle cx="7" cy="5.5" r="1"/></svg>',
+  parking: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 16V8h4a2.5 2.5 0 0 1 0 5H9"/></svg>',
+  sparkles: '<svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8z"/><path d="M19 14l.9 2.6L22.5 17.5l-2.6.9L19 21l-.9-2.6L15.5 17.5l2.6-.9z"/></svg>',
+  wrench: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L2.3 18.7a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l6.8-6.8a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2z"/></svg>',
+  bucket: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16l-1.5 11a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2z"/><path d="M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/><path d="M4 8a8 3 0 0 0 16 0"/></svg>',
+  spray: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="9" height="13" rx="2"/><path d="M10 9V5h3v4"/><path d="M13 5h4"/><path d="M17 3l2 2-2 2"/></svg>',
+  chefhat: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18v-6a6 6 0 0 1 12 0v6"/><path d="M4 18h16v3H4z"/><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="6" r="2.5"/><circle cx="12" cy="5" r="2.5"/></svg>',
+  apple: '<svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 6c-.5-2-2-3-3.5-3-.3 1 .2 2 1 2.5-2 0-4 1.8-4 5 0 4 2.5 8.5 5 8.5 1 0 1.3-.5 2-.5s1 .5 2 .5c2.5 0 5-4.5 5-8.5 0-2.7-1.5-4.5-3.3-4.8.3-1 1-1.7 2-2-1.7-.5-3.5.5-4.2 2.3z"/></svg>',
+  phone: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+  shirt: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2 12 5 9 2 3 5v6h3v11h12V11h3V5z"/></svg>',
+  cart: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.55L21 7H6"/></svg>',
+  cross: '<svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z"/></svg>',
+  leaf: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>',
+  music: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  coffee: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>',
+  pill: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5-7-7a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7z"/><path d="m8.5 8.5 7 7"/></svg>',
+  dumbbell: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M3 9v5M17.5 6.5v11M21 9v5M6.5 12h11"/></svg>',
+  ticket: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a2 2 0 0 0 0 4v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a2 2 0 0 0 0-4z"/><path d="M13 5v14"/></svg>',
   tag: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.83 0L2.6 13.4a2 2 0 0 1 0-2.83l8-8A2 2 0 0 1 12 2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-.4 1.2Z"/><circle cx="16.5" cy="7.5" r="1"/></svg>',
 };
-var CAT_ICON_ORDER = ["tag","fork","basket","bag","house","car","bolt","heart","film","book","gift","plane"];
+var CAT_ICON_ORDER = ["tag","fork","chefhat","coffee","basket","apple","cart","bag","phone","shirt","house","wrench","sparkles","bucket","spray","car","fuel","parking","bolt","heart","cross","pill","dumbbell","leaf","film","music","ticket","book","gift","plane"];
 var CATEGORY_STYLES = {
   "Food & Dining": { icon:"fork", color:"#D4614A" },
   "Groceries": { icon:"basket", color:"#5EA05E" },
@@ -1887,7 +2239,7 @@ function catIconCircle(categoryName) {
   return '<span style="width:32px; height:32px; border-radius:50%; background:'+st.color+'; display:flex; align-items:center; justify-content:center; flex-shrink:0;">'+CAT_ICON_SVGS[st.icon]+'</span>';
 }
 
-function renderPieChart(slices, T, selectedLabel, centerLabel, centerValue) {
+function renderPieChart(slices, T, selectedLabel, centerLabel, centerValue, tapAction, tapDataKey) {
   var size = 240, rOuter = 104, rInner = rOuter*0.55, cx = size/2, cy = size/2;
   var total = slices.reduce(function(s,x){ return s+x.value; }, 0);
   if (total <= 0) return "";
@@ -1897,10 +2249,10 @@ function renderPieChart(slices, T, selectedLabel, centerLabel, centerValue) {
     var frac = sl.value/total;
     var sweep = frac * Math.PI * 2;
     var end = angle + sweep;
-    var color = PIE_COLORS[i % PIE_COLORS.length];
+    var color = sl.color || PIE_COLORS[i % PIE_COLORS.length];
     var isSel = selectedLabel != null && sl.label === selectedLabel;
     var op = (selectedLabel != null && !isSel) ? ' opacity="0.3"' : '';
-    var tap = ' class="chart-hit" data-action="filter-analysis-category" data-cat="'+esc(sl.label)+'"';
+    var tap = (tapAction === "none") ? '' : (' class="chart-hit" data-action="'+(tapAction||"filter-analysis-category")+'" data-'+(tapDataKey||"cat")+'="'+esc(sl.label)+'"');
     var d;
     if (frac >= 0.9999) {
       // A single category holding 100%: draw the ring as outer circle minus
@@ -2030,19 +2382,29 @@ function renderDailyBarChart(buckets, getValue, getColor, T, refLine, selectedKe
 
 /* Shared by renderForecastChart and wireForecastChart, mirroring
    balanceChartGeom's role for the Home page chart. */
-function forecastChartGeom(rows, totalDays, target, projectedSpend) {
+function forecastChartGeom(rows, totalDays, target, projectedSpend, compareValues, pastDays) {
   var w=340, h=190, padL=44, padR=8, padT=24, padB=20;
   var plotW=w-padL-padR, plotH=h-padT-padB;
   var n = Math.max(totalDays, 2);
   function xAt(i){ return padL + (i/(n-1))*plotW; }
   var actualVals = []; var acc = 0;
   rows.forEach(function(r){ acc += r.spent; actualVals.push(acc); });
-  var maxY = Math.max(target, projectedSpend, actualVals.length ? Math.max.apply(null, actualVals) : 0, 1);
+  var compareMax = (compareValues && compareValues.length) ? Math.max.apply(null, compareValues) : 0;
+  var maxY = Math.max(target, projectedSpend, actualVals.length ? Math.max.apply(null, actualVals) : 0, compareMax, 1);
   function yAt(v){ return padT + plotH - (v/maxY)*plotH; }
   var lastIdx = actualVals.length - 1;
   var lastVal = actualVals.length ? actualVals[actualVals.length-1] : 0;
+  /* knownIdx/knownVal mark the last FULLY COMPLETE day — where the dotted
+     projection actually starts from, since today (if it's the last row)
+     isn't complete yet and shouldn't be treated as a settled point. On a
+     period's first day there is no complete day yet, so this anchors to
+     the very start of the chart at 0. */
+  var pd = pastDays || 0;
+  var knownIdx = pd > 0 ? pd - 1 : 0;
+  var knownVal = pd > 0 ? actualVals[pd-1] : 0;
   return { w:w, h:h, padL:padL, padR:padR, padT:padT, padB:padB, plotW:plotW, plotH:plotH,
-           n:n, xAt:xAt, yAt:yAt, maxY:maxY, actualVals:actualVals, lastIdx:lastIdx, lastVal:lastVal };
+           n:n, xAt:xAt, yAt:yAt, maxY:maxY, actualVals:actualVals, lastIdx:lastIdx, lastVal:lastVal,
+           knownIdx:knownIdx, knownVal:knownVal };
 }
 /* Cumulative value at any index along the chart, actual portion or
    interpolated along the straight projected segment beyond it — lets the
@@ -2050,9 +2412,9 @@ function forecastChartGeom(rows, totalDays, target, projectedSpend) {
    finger lands. */
 function forecastValueAt(g, idx, projectedSpend) {
   if (idx <= g.lastIdx && g.actualVals.length) return g.actualVals[Math.max(0,idx)];
-  if (g.n-1 === g.lastIdx) return g.lastVal;
-  var frac = (idx - g.lastIdx) / ((g.n-1) - g.lastIdx);
-  return g.lastVal + (projectedSpend - g.lastVal) * frac;
+  if (g.n-1 === g.knownIdx) return g.knownVal;
+  var frac = (idx - g.knownIdx) / ((g.n-1) - g.knownIdx);
+  return g.knownVal + (projectedSpend - g.knownVal) * frac;
 }
 
 /* Cumulative spend for the elapsed portion of a period (smooth green curve),
@@ -2062,8 +2424,8 @@ function forecastValueAt(g, idx, projectedSpend) {
    projection (as some budget apps show) would imply spending stops entirely;
    a straight line to the real forecast total is the honest version of the
    same picture. */
-function renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabel) {
-  var g = forecastChartGeom(rows, totalDays, target, projectedSpend);
+function renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabel, compareValues, pastDays, hasForecast) {
+  var g = forecastChartGeom(rows, totalDays, target, projectedSpend, compareValues, pastDays);
   var w=g.w, h=g.h, padL=g.padL, padR=g.padR, padT=g.padT, padB=g.padB, plotW=g.plotW, plotH=g.plotH, n=g.n;
   var xAt=g.xAt, yAt=g.yAt, maxY=g.maxY, actualVals=g.actualVals, lastIdx=g.lastIdx, lastVal=g.lastVal;
 
@@ -2073,10 +2435,31 @@ function renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabe
 
   var forecastD = "";
   var todayMarker = "";
-  if (rows.length > 0 && rows.length < totalDays) {
-    forecastD = 'M '+xAt(lastIdx)+','+yAt(lastVal)+' L '+xAt(n-1)+','+yAt(projectedSpend);
+  var daysToEstimateLocal = totalDays - (pastDays||0);
+  if (rows.length > 0 && daysToEstimateLocal > 0) {
+    /* The dotted projection starts from the last FULLY COMPLETE day, not
+       today — today is one of the days being estimated, since it isn't
+       over yet, so its actual-so-far number shouldn't be mistaken for its
+       final one. That's why the dotted line visibly diverges from the
+       solid "actual" curve one step before "Today" rather than exactly at
+       it — the gap between them at Today's x-position is precisely the
+       difference between what's really happened today and what the pace
+       expects for the day as a whole. */
+    if (hasForecast) forecastD = 'M '+xAt(g.knownIdx)+','+yAt(g.knownVal)+' L '+xAt(n-1)+','+yAt(projectedSpend);
     todayMarker = '<line x1="'+xAt(lastIdx)+'" x2="'+xAt(lastIdx)+'" y1="'+padT+'" y2="'+(h-padB)+'" stroke="'+T.hairline+'" stroke-dasharray="2,2"/>'
       + '<text x="'+xAt(lastIdx)+'" y="'+(h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="middle">Today</text>';
+  }
+
+  /* Compare line: a secondary, visually-muted reference curve (previous
+     period's actual pace, or a flat "average pace" line) drawn UNDER the
+     real actual/projected lines so it reads as background context rather
+     than competing with the primary data. */
+  var compareD = "";
+  if (compareValues && compareValues.length >= 2) {
+    var comparePts = compareValues.map(function(v,i){ return [xAt(i), yAt(v)]; });
+    compareD = smoothPathD(comparePts);
+  } else if (compareValues && compareValues.length === 1) {
+    compareD = "M "+xAt(0)+","+yAt(compareValues[0]);
   }
 
   var budgetY = yAt(target);
@@ -2089,7 +2472,8 @@ function renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabe
   return '<svg id="forecastChartSvg" viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'">'
     + tickSvg
     + '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+budgetY+'" y2="'+budgetY+'" stroke="'+T.text+'" stroke-width="1.5" stroke-dasharray="4,3"/>'
-    + '<text x="'+padL+'" y="'+(budgetY-5)+'" font-size="9" font-weight="600" fill="'+T.text+'">'+esc(refLabel||"Budget")+'</text>'
+    + '<text x="'+padL+'" y="'+(budgetY-5)+'" font-size="9" font-weight="600" fill="'+T.text+'">'+esc(refLabel||"Budget")+' – '+fmt(target,0)+' AED</text>'
+    + (compareD ? '<path d="'+compareD+'" fill="none" stroke="'+T.textMuted+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,4"/>' : "")
     + (areaD ? '<path d="'+areaD+'" fill="'+T.positive+'" fill-opacity="0.16" stroke="none"/>' : "")
     + (curveD ? '<path d="'+curveD+'" fill="none" stroke="'+T.positive+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' : "")
     + (forecastD ? '<path d="'+forecastD+'" fill="none" stroke="'+T.accent+'" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1,5"/>' : "")
@@ -2112,7 +2496,7 @@ function wireForecastChart(data) {
   var dot = document.getElementById("forecastChartDot");
   var tip = document.getElementById("forecastChartTip");
   if (!svg || !hit || !crosshair || !dot || !tip || !data) return;
-  var g = forecastChartGeom(data.rows, data.totalDays, data.target, data.projectedSpend);
+  var g = forecastChartGeom(data.rows, data.totalDays, data.target, data.projectedSpend, data.compareValues, data.pastDays);
   if (g.n < 2) return;
 
   function indexAt(clientX) {
@@ -2128,11 +2512,16 @@ function wireForecastChart(data) {
     var px = g.xAt(idx), py = g.yAt(val);
     crosshair.setAttribute("x1", px); crosshair.setAttribute("x2", px); crosshair.setAttribute("opacity", "1");
     dot.setAttribute("cx", px); dot.setAttribute("cy", py); dot.setAttribute("opacity", "1");
-    tip.style.left = ((px/g.w)*100) + "%";
-    tip.style.opacity = "1";
     var dateStr = shortLabel(toStr(addDays(parseD(data.start), idx)));
     var isProjected = idx > g.lastIdx;
-    tip.innerHTML = '<span class="muted">'+esc(dateStr)+(isProjected?" (projected)":"")+'</span> <span style="color:var(--text); font-weight:600;">'+fmt(Math.round(val),0)+' AED</span>';
+    var lineStyle = 'white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+    var tipHtml = '<div style="'+lineStyle+'"><span class="muted">'+esc(dateStr)+(isProjected?" (projected)":"")+'</span> <span style="color:var(--text); font-weight:600;">'+fmt(Math.round(val),0)+' AED</span></div>';
+    if (data.compareValues && data.compareValues.length > idx) {
+      tipHtml += '<div style="'+lineStyle+' margin-top:2px;"><span class="muted">'+esc(data.compareLabel||"Compare")+' </span><span style="color:var(--text-muted); font-weight:600;">'+fmt(Math.round(data.compareValues[idx]),0)+' AED</span></div>';
+    }
+    tip.innerHTML = tipHtml;
+    positionChartTooltip(tip, svg, px, g.w);
+    tip.style.opacity = "1";
   }
   function hide() {
     crosshair.setAttribute("opacity", "0");
@@ -2151,6 +2540,47 @@ function wireForecastChart(data) {
   hit.addEventListener("mouseup", hide);
 }
 
+/* Single source of truth for the forecast's pace/projection math — shared
+   by the Forecasted Spend card and the Spend Trend chart's current-period
+   classification, so the two can never disagree about whether today is
+   genuinely trending over budget. Today is treated as a day still being
+   estimated, not a completed one: its spend-so-far isn't mistaken for its
+   final number, so a period's first day (no completed local days yet) is
+   projected purely from historical pace rather than a raw, unblended,
+   small-sample average of whatever's happened so far this period. */
+function computeForecastNumbers(rows, totalDays, periodStart) {
+  if (!rows.length) return null;
+  var today = todayStr();
+  var todayIncluded = rows[rows.length-1].date === today;
+  var todayRow = todayIncluded ? rows[rows.length-1] : null;
+  var pastRows = todayIncluded ? rows.slice(0, rows.length-1) : rows.slice();
+  var pastDays = pastRows.length;
+  var pastSpent = pastRows.reduce(function(s,r){ return s+r.spent; }, 0);
+  var pastDiscretionary = discretionarySpentInRows(pastRows);
+  var todayScheduledSpent = todayRow ? (todayRow.items||[]).reduce(function(s,it){ return it.recurringId ? s+it.amount : s; }, 0) : 0;
+  var actualSpentSoFar = pastSpent + (todayRow ? todayRow.spent : 0);
+  var knownSpent = pastSpent + todayScheduledSpent;
+  var historicalAvg = overallAvgDailySpend();
+  var BLEND_K = historicalAvg !== null ? 3 : 0;
+  var blendDenom = pastDays + BLEND_K;
+  var avgSpentPerDay = blendDenom > 0 ? ((pastDiscretionary + (historicalAvg !== null ? historicalAvg*BLEND_K : 0)) / blendDenom) : null;
+  var stillBlending = historicalAvg !== null && pastDays < BLEND_K;
+  var daysToEstimate = Math.max(0, totalDays - pastDays);
+  var periodEnd = toStr(addDays(parseD(periodStart), totalDays-1));
+  var scheduledUpcoming = daysToEstimate > 0 ? scheduledAmountInRange(toStr(addDays(parseD(today), -1)), periodEnd) : 0;
+  var hasForecast = daysToEstimate > 0 && (avgSpentPerDay !== null || scheduledUpcoming > 0);
+  var projectedSpend = hasForecast
+    ? (knownSpent + (avgSpentPerDay || 0) * daysToEstimate + scheduledUpcoming)
+    : actualSpentSoFar;
+  return {
+    todayIncluded: todayIncluded, pastDays: pastDays, pastSpent: pastSpent,
+    pastDiscretionary: pastDiscretionary, actualSpentSoFar: actualSpentSoFar,
+    knownSpent: knownSpent, avgSpentPerDay: avgSpentPerDay, stillBlending: stillBlending,
+    daysToEstimate: daysToEstimate, scheduledUpcoming: scheduledUpcoming,
+    hasForecast: hasForecast, projectedSpend: projectedSpend
+  };
+}
+
 /* Builds the entire Forecasted Spend card — header, badge, chart, and any
    footnote — shared by Home and Analysis so the two can't drift apart or
    disagree on a number. Pace blends this period's own elapsed days with the
@@ -2160,32 +2590,40 @@ function wireForecastChart(data) {
    and once local days reach K the historical average barely matters anymore.
    This avoids both a flat, useless day-1 projection AND an abrupt full
    switchover the moment a single local day exists. */
-function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, periodWord) {
+function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, periodWord, compareRows) {
   if (!rows.length) return "";
-  var today = todayStr();
-  var elapsedDays = rows.length;
-  var spentSoFar = rows.reduce(function(s,r){ return s+r.spent; }, 0);
-  /* Pace is discretionary-only: scheduled plan amounts are added back below
-     on their actual due dates, so including them here too would count a
-     monthly rent both as "typical daily spending" and as a future payment. */
-  var pastRows = rows.filter(function(r){ return r.date !== today; });
-  var pastDays = pastRows.length;
-  var pastDiscretionary = discretionarySpentInRows(pastRows);
-  var historicalAvg = overallAvgDailySpend();
-  var BLEND_K = historicalAvg !== null ? 3 : 0;
-  var blendDenom = pastDays + BLEND_K;
-  var avgSpentPerDay = blendDenom > 0 ? ((pastDiscretionary + (historicalAvg !== null ? historicalAvg*BLEND_K : 0)) / blendDenom) : null;
-  var stillBlending = historicalAvg !== null && pastDays < BLEND_K;
-  var daysLeftFC = Math.max(0, totalDays - elapsedDays);
-  var periodEnd = toStr(addDays(parseD(periodStart), totalDays-1));
-  var scheduledUpcoming = daysLeftFC > 0 ? scheduledAmountInRange(today, periodEnd) : 0;
-  var hasForecast = daysLeftFC > 0 && (avgSpentPerDay !== null || scheduledUpcoming > 0);
-  var projectedSpend = hasForecast
-    ? (spentSoFar + (avgSpentPerDay || 0) * daysLeftFC + scheduledUpcoming)
-    : spentSoFar;
+  var fc = computeForecastNumbers(rows, totalDays, periodStart);
+  var todayIncluded = fc.todayIncluded, pastDays = fc.pastDays, pastDiscretionary = fc.pastDiscretionary,
+      avgSpentPerDay = fc.avgSpentPerDay, stillBlending = fc.stillBlending, daysToEstimate = fc.daysToEstimate,
+      scheduledUpcoming = fc.scheduledUpcoming, hasForecast = fc.hasForecast, projectedSpend = fc.projectedSpend;
   var projectedSaved = target - projectedSpend;
   var favorable = projectedSaved >= 0;
   var vsBudgetPct = target > 0 ? Math.round(((projectedSpend-target)/target)*100) : 0;
+
+  /* Compare line: an optional second curve on the chart, toggled between
+     the previous period's actual day-by-day pace and a flat "average pace"
+     reference. "Average" reuses avgSpentPerDay as-is — the exact same pace
+     already driving the projection above — so the reference line and the
+     dotted projection can never imply two different averages. Indexed by
+     day-offset (not calendar date) so it lines up with the current period's
+     x-axis regardless of the two periods' actual dates. */
+  var compareMode = state.forecastCompareMode === "average" ? "average" : "previous";
+  var compareLabel = compareMode === "average" ? "Average pace" : (periodWord === "period" ? "Previous period" : ("Last "+periodWord));
+  var compareValues = null;
+  var compareUnavailableNote = null;
+  if (compareMode === "previous") {
+    if (compareRows && compareRows.length) {
+      var cAcc = 0;
+      compareValues = compareRows.slice(0, totalDays).map(function(r){ cAcc += r.spent; return cAcc; });
+    } else {
+      compareUnavailableNote = "No " + compareLabel.toLowerCase() + " logged yet to compare against.";
+    }
+  } else if (avgSpentPerDay !== null) {
+    compareValues = [];
+    for (var ci=0; ci<totalDays; ci++) compareValues.push(avgSpentPerDay * ci);
+  } else {
+    compareUnavailableNote = "Not enough history yet to show an average pace.";
+  }
 
   var s = '<div class="card card-pad" style="margin-bottom:16px;">';
   s += '<div class="eyebrow" style="margin-bottom:10px;">Forecasted spend</div>';
@@ -2195,20 +2633,35 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
   s += '<div class="chip" style="margin-top:4px; background:'+(favorable?"var(--positive)":"var(--rust)")+'; color:#fff; font-weight:700;">'+(vsBudgetPct>=0?"+":"")+vsBudgetPct+'%</div>';
   s += '<div class="mono footnote" style="margin-top:4px; color:'+(favorable?"var(--positive)":"var(--rust)")+';">'+(projectedSaved>=0?"+":"−")+fmt(Math.abs(projectedSaved),0)+' AED</div>';
   s += '</div></div>';
-  s += '<div id="forecastChartWrap" style="position:relative;">';
-  s += '<div id="forecastChartTip" class="mono footnote" style="position:absolute; top:0; left:50%; transform:translateX(-50%); background:var(--fill); border-radius:8px; padding:4px 9px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:2;"></div>';
-  s += renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabel);
+  s += '<div class="seg" style="margin-bottom:12px;">';
+  [["previous", periodWord === "period" ? "vs Previous period" : ("vs Last "+periodWord)], ["average","vs Average pace"]].forEach(function(opt){
+    var active = compareMode === opt[0];
+    s += '<button class="seg-btn" role="tab" aria-selected="'+active+'" data-action="set-forecast-compare" data-mode="'+opt[0]+'">'+opt[1]+'</button>';
+  });
   s += '</div>';
+  s += '<div id="forecastChartWrap" style="position:relative;">';
+  s += '<div id="forecastChartTip" class="mono footnote" style="position:absolute; top:0; left:0; background:var(--fill); border-radius:8px; padding:4px 9px; max-width:250px; opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:2;"></div>';
+  s += renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabel, compareValues, pastDays, hasForecast);
+  s += '</div>';
+  if (compareValues) {
+    s += '<div class="row gap2" style="margin-top:10px; flex-wrap:wrap;">';
+    s += legendSwatch(T.positive, "Actual");
+    s += legendSwatch(T.accent, "Projected");
+    s += legendSwatch(T.textMuted, compareLabel);
+    s += '</div>';
+  }
   var notes = [];
+  if (compareUnavailableNote) notes.push(compareUnavailableNote);
   if (!hasForecast) {
-    notes.push(daysLeftFC<=0 ? "Period is complete — nothing left to forecast." : "Log a full day to start forecasting.");
+    notes.push(daysToEstimate<=0 ? "Period is complete — nothing left to forecast." : "Log a few days to start forecasting.");
   } else {
+    if (todayIncluded) notes.push("Today isn't finished yet, so it's estimated from your pace rather than today's spend so far.");
     if (scheduledUpcoming > 0) notes.push("Includes "+fmt(scheduledUpcoming,0)+" AED of scheduled payments still to come.");
     if (stillBlending) notes.push(pastDiscretionary>0 ? "Day-to-day pace is blended with your overall average for now." : "No day-to-day spending logged yet this "+periodWord+" — pace blended from your overall average.");
   }
   notes.forEach(function(n){ s += '<div class="muted caption" style="margin-top:8px;">'+esc(n)+'</div>'; });
   s += '</div>';
-  lastForecastChartData = { rows: rows, totalDays: totalDays, target: target, projectedSpend: projectedSpend, start: periodStart };
+  lastForecastChartData = { rows: rows, totalDays: totalDays, target: target, projectedSpend: projectedSpend, start: periodStart, compareValues: compareValues, compareLabel: compareLabel, pastDays: pastDays };
   return s;
 }
 
@@ -2256,7 +2709,17 @@ function getTxnPeriodInfo() {
   var entryDatesAll = Object.keys(state.entries).sort();
   var naturalStart = state.settings.trackingStartDate || (entryDatesAll.length ? entryDatesAll[0] : today);
   if (mode === "all") {
-    return { start: naturalStart, end: today, title: "All time", sub: "", isCurrent: true, mode: mode };
+    /* "All time" must mean all of it: if any logged entry falls after today
+       (e.g. a recurring/split plan that caught up while the device clock was
+       ahead, or any other edge case), the upper bound has to stretch to
+       cover it too — otherwise this view silently drops entries that Week/
+       Month (which use real calendar bounds, not an artificial "up to
+       today" cap) would still show, which is exactly the inconsistency that
+       made deleted-but-orphaned split entries "disappear" from All while
+       still appearing under Week. */
+    var latestEntryDate = entryDatesAll.length ? entryDatesAll[entryDatesAll.length-1] : today;
+    var endAll = latestEntryDate > today ? latestEntryDate : today;
+    return { start: naturalStart, end: endAll, title: "All time", sub: "", isCurrent: true, mode: mode };
   }
   if (mode === "custom") {
     var from = state.txnPeriodFrom || naturalStart;
@@ -2295,10 +2758,44 @@ function analysisGranularity(info) {
 /* Collapses periodStats rows into chart buckets at the chosen granularity.
    Monthly buckets sum both spend and allowance, so a bucket's own target stays
    correct even when months differ in length. */
-function buildAnalysisBuckets(rows, granularity, catFilter) {
-  function keep(it){ return !catFilter || (it.category || "Uncategorised") === catFilter; }
+/* Whether a transaction item counts as belonging to a given person filter
+   value — matches either the single-person field or, for a percentage
+   split, anyone included in it (even at a partial share). Shared by the
+   Transactions page filter and Analysis's person breakdown so the two
+   pages can't define "belongs to this person" differently. Accepts either
+   sentinel spelling for the "no one assigned" bucket, since Transactions'
+   dropdown uses "__unassigned__" while Analysis's pie slice is labelled
+   "Unassigned". */
+function itemMatchesPersonFilter(it, filterValue) {
+  if (!filterValue) return true;
+  if (filterValue === "__unassigned__" || filterValue === "Unassigned") {
+    return !it.person && (!it.personSplit || !it.personSplit.length);
+  }
+  if (it.personSplit && it.personSplit.length) return it.personSplit.some(function(ps){ return ps.person===filterValue; });
+  return it.person === filterValue;
+}
+
+/* Whether an item falls within the current category-level scope: a specific
+   leaf category filter wins if set (most specific); otherwise a drilled-into
+   group applies (browsing "Food & Drinks" without having picked one of its
+   categories yet still narrows to that group); otherwise unscoped. Shared by
+   every section that reads the page's "current category scope" — the bar
+   charts, day-of-week, biggest transactions, and the person breakdown's own
+   aggregation — so drilling into a group filters the whole page the same
+   way picking a specific category already does, not just the category
+   section's own pie. */
+function itemMatchesCategoryScope(it, catFilter, groupFilter) {
+  if (catFilter) return (it.category || "Uncategorised") === catFilter;
+  if (groupFilter) return categoryGroupOf(it.category) === groupFilter;
+  return true;
+}
+
+function buildAnalysisBuckets(rows, granularity, catFilter, personFilter, groupFilter) {
+  function keep(it){
+    return itemMatchesCategoryScope(it, catFilter, groupFilter) && itemMatchesPersonFilter(it, personFilter);
+  }
   function spentOf(r){
-    if (!catFilter) return r.spent;
+    if (!catFilter && !personFilter && !groupFilter) return r.spent;
     return (r.items||[]).reduce(function(t,it){ return keep(it) ? t+it.amount : t; }, 0);
   }
   if (granularity !== "month") {
@@ -2327,6 +2824,7 @@ function buildAnalysisBuckets(rows, granularity, catFilter) {
 
 function renderAnalysisBody(T) {
   lastForecastChartData = null;
+  lastChartData = null;
   var da = dailyReference();
   var today = todayStr();
   var periodMode = state.analysisPeriodMode || "month";
@@ -2380,22 +2878,41 @@ function renderAnalysisBody(T) {
   }
 
   var catFilter = state.analysisCategoryFilter || "";
+  var personFilter = state.analysisPersonFilter || "";
+  var groupFilter = state.analysisSelectedGroup || "";
   var selKey = state.analysisSelectedBucket;
-  var buckets = buildAnalysisBuckets(cs.rows, granularity, catFilter);
+  var buckets = buildAnalysisBuckets(cs.rows, granularity, catFilter, personFilter, groupFilter);
   function itemCatOf(it){ return it.category || "Uncategorised"; }
-  function keepItem(it){ return !catFilter || itemCatOf(it) === catFilter; }
-  /* Spend restricted to the active category filter — the whole page reads from
-     this so tapping a pie slice re-scopes every section at once. */
+  /* Three variants because the category and person sections each control
+     their OWN dimension and shouldn't filter themselves by it (the category
+     pie should show all categories WITHIN the current person filter, not
+     just the currently-selected category; symmetric for the person pie) —
+     while every other section (bar charts, day-of-week, biggest
+     transactions, summary) should respect both at once. Category scope
+     includes a drilled-into group, not just a specific leaf category, so
+     browsing "Food & Drinks" filters the rest of the page exactly like
+     picking "Restaurants" would, not just the category pie's own display. */
+  function keepItemPerson(it){ return itemMatchesPersonFilter(it, personFilter); }
+  function keepItemCategoryOnly(it){ return itemMatchesCategoryScope(it, catFilter, groupFilter); }
+  function keepItem(it){ return keepItemCategoryOnly(it) && keepItemPerson(it); }
+  /* Spend restricted to the active filters — the whole page reads from this
+     so tapping a pie slice (category or person) re-scopes every section at
+     once. */
   function filteredSpent(){
     return cs.rows.reduce(function(t,r){
       return t + (r.items||[]).reduce(function(u,it){ return keepItem(it) ? u+it.amount : u; }, 0);
     }, 0);
   }
 
-  if (catFilter) {
-    h += '<div class="row between" style="margin-bottom:12px; align-items:center;">';
-    h += '<span class="chip chip-accent">'+esc(catFilter)+'</span>';
-    h += '<button class="btn-plain" data-action="clear-analysis-category">Clear filter</button>';
+  var showGroupChip = groupFilter && !catFilter;
+  if (catFilter || personFilter || showGroupChip) {
+    h += '<div class="row gap2" style="margin-bottom:12px; align-items:center; flex-wrap:wrap;">';
+    if (showGroupChip) h += '<span class="chip chip-accent">'+esc(groupFilter)+'</span>';
+    if (catFilter) h += '<span class="chip chip-accent">'+esc(catFilter)+'</span>';
+    if (personFilter) h += '<span class="chip" style="background:'+(personFilter==="Unassigned"?"#8595B5":personColor(personFilter))+'; color:#fff; font-weight:600;">'+esc(personFilter)+'</span>';
+    if (showGroupChip) h += '<button class="btn-plain" data-action="clear-analysis-group">Clear group</button>';
+    if (catFilter) h += '<button class="btn-plain" data-action="clear-analysis-category">Clear category</button>';
+    if (personFilter) h += '<button class="btn-plain" data-action="clear-analysis-person">Clear person</button>';
     h += '</div>';
   }
 
@@ -2404,11 +2921,15 @@ function renderAnalysisBody(T) {
   sectionHtml.summary = function(){
     var s = '<div class="card card-pad" style="margin-bottom:16px;">';
     s += '<div class="stat-grid">';
-    if (catFilter) {
+    if (catFilter || personFilter) {
+      var filterLabelParts = [];
+      if (catFilter) filterLabelParts.push(catFilter);
+      if (personFilter) filterLabelParts.push(personFilter);
+      var filterLabel = filterLabelParts.join(" \u00b7 ");
       var catSpent = filteredSpent();
       var pctOfAll = cs.spent > 0 ? (catSpent/cs.spent*100) : 0;
       var txnCount = cs.rows.reduce(function(t,r){ return t + (r.items||[]).filter(keepItem).length; }, 0);
-      s += statBlock("Spent on "+catFilter, fmt(catSpent,0)+" AED", "var(--text)");
+      s += statBlock("Spent on "+filterLabel, fmt(catSpent,0)+" AED", "var(--text)");
       s += statBlock("Share of all spend", pctOfAll.toFixed(0)+"%", "var(--text)");
       s += statBlock("Avg per day", fmt(cs.elapsedDays>0?catSpent/cs.elapsedDays:0,0)+" AED", "var(--text)");
       s += statBlock("Transactions", String(txnCount), "var(--text)");
@@ -2473,20 +2994,22 @@ function renderAnalysisBody(T) {
     var refSpend = granularity === "month"
       ? (buckets.length ? buckets.reduce(function(t,b){ return t+b.allowance; },0)/buckets.length : null)
       : da;
-    if (catFilter) refSpend = null;
+    if (catFilter || personFilter) refSpend = null;
     var s = '<div class="card card-pad" style="margin-bottom:16px;">';
     s += '<div class="row between" style="margin-bottom:8px; align-items:baseline;">';
     s += '<span class="eyebrow">Spend per '+perLabel+'</span>';
     s += '<span class="muted caption">Tap a column</span></div>';
-    s += renderDailyBarChart(buckets, function(b){ return b.spent; }, function(b,v){ return (!catFilter && v>b.allowance) ? T.rust : T.positive; }, T, refSpend, selKey, "spend");
+    s += renderDailyBarChart(buckets, function(b){ return b.spent; }, function(b,v){ return (!catFilter && !personFilter && v>b.allowance) ? T.rust : T.positive; }, T, refSpend, selKey, "spend");
     s += bucketDetail("spend");
     s += '</div>';
     return s;
   };
 
   sectionHtml.dailySaving = function(){
-    /* Saving is a whole-day figure, so it can't be scoped to one category. */
-    if (catFilter) return "";
+    /* Saving is a whole-day, whole-household figure — the daily allowance
+       it's compared against isn't per-category or per-person, so it can't
+       be scoped to either filter. */
+    if (catFilter || personFilter) return "";
     var s = '<div class="card card-pad" style="margin-bottom:16px;">';
     s += '<div class="row between" style="margin-bottom:8px; align-items:baseline;">';
     s += '<span class="eyebrow">Saved per '+perLabel+'</span>';
@@ -2497,19 +3020,51 @@ function renderAnalysisBody(T) {
     return s;
   };
 
+  /* Running balance from the period's start through today (or the period's
+     end if it's already closed) — the same cumulative curve Home shows for
+     the current week, but available for whichever period Analysis is
+     browsing. Reuses Home's own chart component (renderChart/
+     wireBalanceChart) rather than a separate implementation, so drag-scrub
+     and visual style can never drift apart between the two pages. */
+  sectionHtml.cumulativeSaving = function(){
+    if (catFilter || personFilter || !cs.rows.length) return "";
+    var acc = 0;
+    var chartData = cs.rows.map(function(r){
+      var delta = round2(r.allowance - r.spent);
+      acc = round2(acc + delta);
+      return { label: shortLabel(r.date), date: r.date, balance: acc, delta: delta };
+    });
+    var lastRowDate = cs.rows[cs.rows.length-1].date;
+    var netColor = acc >= 0 ? "var(--positive)" : "var(--rust)";
+    var s = '<div class="card card-pad" style="margin-bottom:16px;">';
+    s += '<div class="row between" style="margin-bottom:2px; align-items:baseline;">';
+    s += '<span class="eyebrow">Cumulative saving</span>';
+    s += '<span class="mono footnote" style="color:'+netColor+'; font-weight:600;">'+(acc>=0?"+":"−")+fmt(Math.abs(acc),0)+' AED</span>';
+    s += '</div>';
+    s += '<div class="muted caption" style="margin-bottom:10px;">Running total from '+esc(shortLabel(info.start))+' through '+(lastRowDate===today?"today":esc(shortLabel(lastRowDate)))+'.</div>';
+    s += '<div id="analysisSavingChartWrap" style="position:relative;">';
+    s += '<div id="balanceChartTip" class="mono footnote" style="position:absolute; top:0; left:0; background:var(--fill); border-radius:8px; padding:4px 9px; max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:2;"></div>';
+    s += renderChart(chartData, T);
+    s += '</div></div>';
+    lastChartData = chartData;
+    return s;
+  };
+
   sectionHtml.forecastedSpend = function(){
-    if (catFilter || !cs.rows.length) return "";
+    if (catFilter || personFilter || !cs.rows.length) return "";
     var periodTarget = fullPeriodTarget(info.start, info.end);
     var periodWord = info.mode === "week" ? "week" : info.mode === "month" ? "month" : info.mode === "year" ? "year" : "period";
     var chartStart = effectiveRangeStart(info.start);
     var chartDays = daysBetween(chartStart, info.end) + 1;
-    return buildForecastCard(cs.rows, chartDays, periodTarget, chartStart, T, basisWordCap(), periodWord);
+    var compareRowsA = previousPeriodRows(info.mode, state.analysisOffset, info.start, info.end);
+    return buildForecastCard(cs.rows, chartDays, periodTarget, chartStart, T, basisWordCap(), periodWord, compareRowsA);
   };
 
   sectionHtml.spendTrend = function(){
-    if (catFilter || periodMode === "custom") return "";
+    if (catFilter || personFilter || periodMode === "custom") return "";
     var N = 5;
     var bars = [];
+    var currentElapsedDays = null, currentPeriodDays = null;
     for (var trendOff = -(N-1); trendOff <= 0; trendOff++) {
       var pb = getPeriodBounds(periodMode, trendOff, currentWeeklyTarget(), da);
       var ps = periodStats(pb.startStr, pb.endStr);
@@ -2518,18 +3073,20 @@ function renderAnalysisBody(T) {
       var spentB = ps.spent;
       var projB = spentB;
       if (isCurBar) {
-        var todayInclB = ps.rows.length>0 && ps.rows[ps.rows.length-1].date===today;
-        var todaySpentB = todayInclB ? ps.rows[ps.rows.length-1].spent : 0;
-        var pastDaysB = todayInclB ? ps.elapsedDays-1 : ps.elapsedDays;
-        var pastSpentB = ps.spent - todaySpentB;
-        var avgB = pastDaysB>0 ? pastSpentB/pastDaysB : null;
-        var daysLeftB = Math.max(0, pb.days - ps.calendarElapsedDays);
-        if (avgB!=null && daysLeftB>0) projB = ps.spent + avgB*daysLeftB;
+        currentElapsedDays = ps.calendarElapsedDays;
+        currentPeriodDays = pb.days;
+        var fcB = computeForecastNumbers(ps.rows, pb.days, pb.startStr);
+        if (fcB && fcB.hasForecast) projB = fcB.projectedSpend;
       }
+      /* Red is reserved for money that has ACTUALLY already been spent past
+         budget — a settled fact. A still-open period that merely paces
+         toward going over gets amber ("trending over") instead, since a
+         forecast is an estimate and could still change; only a closed
+         period (or real spend-so-far, once it's genuinely over) earns red. */
       var status = "positive";
       if (targetB > 0) {
         if (isCurBar) {
-          if (projB > targetB*1.15) status = "rust";
+          if (spentB > targetB) status = "rust";
           else if (projB > targetB) status = "amber";
         } else {
           status = spentB > targetB ? "rust" : "positive";
@@ -2539,7 +3096,25 @@ function renderAnalysisBody(T) {
       bars.push({ label: lbl, spent: spentB, target: targetB, status: status });
     }
     var lastBar = bars[bars.length-1], prevBar = bars[bars.length-2];
-    var vsPrevPct = (prevBar && prevBar.spent>0) ? Math.round(((lastBar.spent-prevBar.spent)/prevBar.spent)*100) : null;
+    /* If the current period is still in progress, comparing its partial
+       total against a fully-closed previous period is comparing a few days
+       of spend to a whole period's worth — always looks artificially low.
+       Instead compare like-for-like: the previous period's spend through
+       that SAME number of elapsed days. A fully-closed lastBar (browsing a
+       past period) needs no such adjustment — two complete periods are
+       already comparable. */
+    var vsPrevPct = null, comparedSameSpan = false;
+    if (prevBar) {
+      var prevComparisonSpend = prevBar.spent;
+      if (currentElapsedDays != null && currentPeriodDays != null && currentElapsedDays > 0 && currentElapsedDays < currentPeriodDays) {
+        var pbPrevSpan = getPeriodBounds(periodMode, -1, currentWeeklyTarget(), da);
+        var prevSpanEnd = toStr(addDays(parseD(pbPrevSpan.startStr), currentElapsedDays-1));
+        if (prevSpanEnd > pbPrevSpan.endStr) prevSpanEnd = pbPrevSpan.endStr;
+        prevComparisonSpend = periodStats(pbPrevSpan.startStr, prevSpanEnd).spent;
+        comparedSameSpan = true;
+      }
+      vsPrevPct = prevComparisonSpend > 0 ? Math.round(((lastBar.spent-prevComparisonSpend)/prevComparisonSpend)*100) : null;
+    }
     var s = '<div class="card card-pad" style="margin-bottom:16px;">';
     s += '<div class="eyebrow" style="margin-bottom:10px;">Spend trend</div>';
     s += '<div class="row between" style="align-items:flex-start; margin-bottom:14px;">';
@@ -2555,6 +3130,7 @@ function renderAnalysisBody(T) {
     s += legendSwatch("var(--amber)", "Trending over");
     s += legendSwatch("var(--rust)", "Over budget");
     s += '</div>';
+    if (comparedSameSpan) s += '<div class="muted caption" style="margin-top:8px;">Compared through the same number of days as this '+periodMode+' so far.</div>';
     s += '</div>';
     return s;
   };
@@ -2563,24 +3139,116 @@ function renderAnalysisBody(T) {
     var catTotals = {};
     cs.rows.forEach(function(r){
       r.items.forEach(function(it){
+        if (!keepItemPerson(it)) return;
         var key = itemCatOf(it);
         catTotals[key] = (catTotals[key] || 0) + it.amount;
       });
     });
-    var catSlices = Object.keys(catTotals).map(function(k){ return { label:k, value:catTotals[k] }; })
+    if (!Object.keys(catTotals).length) return "";
+
+    var groupList = state.settings.categoryGroups||[];
+    var selectedGroup = state.analysisSelectedGroup;
+    var showingGroups = groupList.length > 0 && !selectedGroup && !catFilter;
+
+    var s = '<div class="card card-pad" style="margin-bottom:16px;">';
+
+    if (showingGroups) {
+      var groupTotals = {};
+      Object.keys(catTotals).forEach(function(catName){
+        var g = categoryGroupOf(catName) || "Ungrouped";
+        groupTotals[g] = (groupTotals[g]||0) + catTotals[catName];
+      });
+      var groupSlices = Object.keys(groupTotals).map(function(g){ return { label:g, value:groupTotals[g] }; })
+        .sort(function(a,b){ return b.value - a.value; });
+      var groupTotal = groupSlices.reduce(function(t,x){ return t+x.value; }, 0);
+      s += '<div class="row between" style="margin-bottom:10px; align-items:baseline;">';
+      s += '<span class="eyebrow">Spend by category</span>';
+      s += '<span class="muted caption">Tap to drill in</span></div>';
+      s += '<div style="display:flex; justify-content:center; margin-bottom:12px;">'+renderPieChart(groupSlices, T, null, "All", groupTotal, "drill-analysis-group", "group")+'</div>';
+      groupSlices.forEach(function(sl,i){
+        var pct = groupTotal>0 ? (sl.value/groupTotal*100) : 0;
+        var swatch = sl.label === "Ungrouped" ? "var(--text-muted)" : PIE_COLORS[i % PIE_COLORS.length];
+        s += '<button data-action="drill-analysis-group" data-group="'+esc(sl.label)+'" class="row between" style="width:100%; text-align:left; background:none; border:none; padding:8px 0;'+(i>0?"border-top:1px solid var(--sep);":"")+'">';
+        s += '<span class="row" style="align-items:center; gap:9px; min-width:0;"><span style="width:11px;height:11px;border-radius:3px;flex-shrink:0;background:'+swatch+';"></span><span class="subhead">'+esc(sl.label)+'</span></span>';
+        s += '<span class="row" style="align-items:baseline; gap:8px;"><span class="mono subhead">'+fmt(sl.value,0)+'</span><span class="muted mono caption" style="width:32px; text-align:right;">'+pct.toFixed(0)+'%</span><span class="muted" style="display:flex;">'+ICONS.chevronRight+'</span></span>';
+        s += '</button>';
+      });
+    } else {
+      var visibleCatNames = selectedGroup
+        ? Object.keys(catTotals).filter(function(c){ return (categoryGroupOf(c)||"Ungrouped") === selectedGroup; })
+        : Object.keys(catTotals);
+      var catSlices = visibleCatNames.map(function(k){ return { label:k, value:catTotals[k] }; })
+        .sort(function(a,b){ return b.value - a.value; });
+      var catTotal = catSlices.reduce(function(t,x){ return t+x.value; }, 0);
+      s += '<div class="row between" style="margin-bottom:10px; align-items:baseline;">';
+      if (selectedGroup) {
+        s += '<button data-action="clear-analysis-group" class="row gap2" style="background:none;border:none;padding:0;align-items:center;">'+ICONS.chevronLeft+'<span class="eyebrow">'+esc(selectedGroup)+'</span></button>';
+      } else {
+        s += '<span class="eyebrow">Spend by category</span>';
+      }
+      s += '<span class="muted caption">'+(catFilter?"Tap to clear":"Tap to filter")+'</span></div>';
+      if (!catSlices.length) {
+        s += '<div class="muted subhead">Nothing in '+esc(selectedGroup||"")+' this period.</div>';
+      } else {
+        s += '<div style="display:flex; justify-content:center; margin-bottom:12px;">'+renderPieChart(catSlices, T, catFilter||null, "All", catTotal)+'</div>';
+        catSlices.forEach(function(sl,i){
+          var pct = catTotal>0 ? (sl.value/catTotal*100) : 0;
+          var isSel = catFilter === sl.label;
+          s += '<button data-action="filter-analysis-category" data-cat="'+esc(sl.label)+'" class="row between" style="width:100%; text-align:left; background:none; border:none; padding:8px 0;'+(i>0?"border-top:1px solid var(--sep);":"")+(catFilter&&!isSel?"opacity:0.45;":"")+'">';
+          s += '<span class="row" style="align-items:center; gap:9px; min-width:0;"><span style="width:11px;height:11px;border-radius:3px;flex-shrink:0;background:'+PIE_COLORS[i % PIE_COLORS.length]+';"></span><span class="subhead"'+(isSel?' style="font-weight:600;"':'')+'>'+esc(sl.label)+'</span></span>';
+          s += '<span class="row" style="align-items:baseline; gap:10px;"><span class="mono subhead">'+fmt(sl.value,0)+'</span><span class="muted mono caption" style="width:36px; text-align:right;">'+pct.toFixed(0)+'%</span></span>';
+          s += '</button>';
+        });
+      }
+    }
+    s += '</div>';
+    return s;
+  };
+
+  /* Read-only for now — no tap-to-filter interaction, since combining a
+     person filter with the existing category filter would need real thought
+     about how the two should interact. Hidden entirely if no people have
+     been configured, so nobody sees an empty "Unassigned: 100%" chart just
+     for using the app without this feature. */
+  sectionHtml.person = function(){
+    if (!(state.settings.people||[]).length) return "";
+    var personTotals = {};
+    cs.rows.forEach(function(r){
+      (r.items||[]).forEach(function(it){
+        if (!keepItemCategoryOnly(it)) return;
+        if (it.personSplit && it.personSplit.length) {
+          it.personSplit.forEach(function(ps){
+            var share = round2(it.amount * ps.pct / 100);
+            personTotals[ps.person] = (personTotals[ps.person] || 0) + share;
+          });
+        } else {
+          var key = it.person || "Unassigned";
+          personTotals[key] = (personTotals[key] || 0) + it.amount;
+        }
+      });
+    });
+    var slices = Object.keys(personTotals).map(function(k){ return { label:k, value:personTotals[k] }; })
       .sort(function(a,b){ return b.value - a.value; });
-    var catTotal = catSlices.reduce(function(t,x){ return t+x.value; }, 0);
-    if (!catSlices.length) return "";
+    var total = slices.reduce(function(t,x){ return t+x.value; }, 0);
+    if (!slices.length) return "";
+    /* Each slice carries the person's own configured label color, so the pie,
+       the list below it, the transaction rows, and Settings all show the
+       same color for the same person. */
+    slices.forEach(function(sl){
+      sl.color = sl.label === "Unassigned" ? "#8595B5" : personColor(sl.label);
+    });
     var s = '<div class="card card-pad" style="margin-bottom:16px;">';
     s += '<div class="row between" style="margin-bottom:10px; align-items:baseline;">';
-    s += '<span class="eyebrow">Spend by category</span>';
-    s += '<span class="muted caption">'+(catFilter?"Tap to clear":"Tap to filter")+'</span></div>';
-    s += '<div style="display:flex; justify-content:center; margin-bottom:12px;">'+renderPieChart(catSlices, T, catFilter||null, "All", catTotal)+'</div>';
-    catSlices.forEach(function(sl,i){
-      var pct = catTotal>0 ? (sl.value/catTotal*100) : 0;
-      var isSel = catFilter === sl.label;
-      s += '<button data-action="filter-analysis-category" data-cat="'+esc(sl.label)+'" class="row between" style="width:100%; text-align:left; background:none; border:none; padding:8px 0;'+(i>0?"border-top:1px solid var(--sep);":"")+(catFilter&&!isSel?"opacity:0.45;":"")+'">';
-      s += '<span class="row" style="align-items:center; gap:9px; min-width:0;"><span style="width:11px;height:11px;border-radius:3px;flex-shrink:0;background:'+PIE_COLORS[i % PIE_COLORS.length]+';"></span><span class="subhead"'+(isSel?' style="font-weight:600;"':'')+'>'+esc(sl.label)+'</span></span>';
+    s += '<span class="eyebrow">Spend by person</span>';
+    s += '<span class="muted caption">'+(personFilter?"Tap to clear":"Tap to filter")+'</span></div>';
+    s += '<div style="display:flex; justify-content:center; margin-bottom:12px;">'+renderPieChart(slices, T, personFilter||null, "All", total, "filter-analysis-person", "person")+'</div>';
+    slices.forEach(function(sl,i){
+      var pct = total>0 ? (sl.value/total*100) : 0;
+      var isSel = personFilter === sl.label;
+      s += '<button data-action="filter-analysis-person" data-person="'+esc(sl.label)+'" class="row between" style="width:100%; text-align:left; background:none; border:none; padding:8px 0;'+(i>0?"border-top:1px solid var(--sep);":"")+(personFilter&&!isSel?"opacity:0.45;":"")+'">';
+      s += '<span class="row" style="align-items:center; gap:9px; min-width:0;">'+(sl.label==="Unassigned"
+        ? '<span style="width:11px;height:11px;border-radius:3px;flex-shrink:0;background:#8595B5;"></span><span class="subhead">Unassigned</span>'
+        : personChip(sl.label))+'</span>';
       s += '<span class="row" style="align-items:baseline; gap:10px;"><span class="mono subhead">'+fmt(sl.value,0)+'</span><span class="muted mono caption" style="width:36px; text-align:right;">'+pct.toFixed(0)+'%</span></span>';
       s += '</button>';
     });
@@ -2603,7 +3271,7 @@ function renderAnalysisBody(T) {
     s += '<div class="eyebrow" style="margin-bottom:12px;">Average spend by day of week</div>';
     dowLabels.forEach(function(lbl,i){
       var pct = maxDow>0 ? Math.round((dowAvg[i]/maxDow)*100) : 0;
-      var over = !catFilter && dowAvg[i] > da;
+      var over = !catFilter && !personFilter && dowAvg[i] > da;
       s += '<div class="row" style="align-items:center; gap:10px; margin-bottom:8px;">';
       s += '<span class="muted footnote" style="width:30px;">'+lbl+'</span>';
       s += '<div style="flex:1; background:var(--fill); border-radius:5px; height:9px; overflow:hidden;"><div style="width:'+pct+'%; height:100%; border-radius:5px; background:'+(over?"var(--rust)":"var(--positive)")+';"></div></div>';
@@ -2753,6 +3421,12 @@ function renderPlansBody() {
   h += '<select id="recurringCategoryInput" class="field" style="margin-bottom:8px;"><option value="">No category</option>';
   (state.settings.categories||[]).forEach(function(c){ h += '<option value="'+esc(c)+'">'+esc(c)+'</option>'; });
   h += '</select>';
+  if ((state.settings.people||[]).length) {
+    var recDefaultPerson = state.settings.defaultPerson||"";
+    h += '<select id="recurringPersonInput" class="field" style="margin-bottom:8px;"><option value=""'+(recDefaultPerson===""?" selected":"")+'>Who\u2019s this for? (optional)</option>';
+    (state.settings.people||[]).forEach(function(p){ h += '<option value="'+esc(p)+'"'+(recDefaultPerson===p?" selected":"")+'>'+esc(p)+'</option>'; });
+    h += '</select>';
+  }
   h += '<input id="recurringNoteInput" type="text" class="field" style="margin-bottom:8px;" placeholder="What\u2019s it for? (e.g. Rent)" />';
   h += '<div class="row gap2" style="margin-bottom:8px;">';
   h += '<select id="recurringFrequencyInput" class="field" style="flex:1;"><option value="weekly">Every week</option><option value="monthly">Every month</option></select>';
@@ -2808,13 +3482,33 @@ function handleAddTransaction() {
   if (isNaN(amt) || amt < 0 || !date) return;
   var note = noteEl ? noteEl.value.trim() : "";
   var category = catEl ? catEl.value : "";
+
+  var person = "";
+  var personSplit = null;
+  var peopleForSave = state.settings.people||[];
+  var personSplitModeActive = peopleForSave.length >= 2 && state.txnPersonSplitMode === "split";
+  if (personSplitModeActive) {
+    var pctSelects = document.querySelectorAll(".split-person-pct");
+    var splitEntries = [];
+    var totalPct = 0;
+    pctSelects.forEach(function(s){
+      var pct = parseInt(s.value,10)||0;
+      totalPct += pct;
+      if (pct > 0) splitEntries.push({ person: s.dataset.person, pct: pct });
+    });
+    if (totalPct !== 100) { showToast("Split must add up to 100%"); return; }
+    personSplit = splitEntries;
+  } else {
+    var personEl = document.getElementById("entryPersonInput");
+    person = personEl ? personEl.value : "";
+  }
   var wasEditing = !!(state.editingItemId && state.editingOriginalDate);
 
   if (!wasEditing && state.txnSplitMode === "split") {
     var splitDaysEl = document.getElementById("splitDaysInput");
     var splitDays = parseInt(splitDaysEl ? splitDaysEl.value : "", 10);
     if (isNaN(splitDays) || splitDays < 2) return;
-    handleAddSplitTransaction(date, amt, category, note, splitDays);
+    handleAddSplitTransaction(date, amt, category, note, splitDays, person, personSplit);
     return;
   }
 
@@ -2829,7 +3523,7 @@ function handleAddTransaction() {
       if (remaining.length === 0) delete nextEntries[origDate];
       else nextEntries[origDate] = Object.assign({}, origDay, { items: remaining });
     }
-    var updatedItem = { id: state.editingItemId, amount: amt, note: note, category: category };
+    var updatedItem = { id: state.editingItemId, amount: amt, note: note, category: category, person: person, personSplit: personSplit };
     var destDay = nextEntries[date];
     var nextDest = destDay ? Object.assign({}, destDay, { items: destDay.items.concat([updatedItem]) }) : { allowance: carriedAllowance, items: [updatedItem] };
     nextEntries[date] = nextDest;
@@ -2838,7 +3532,7 @@ function handleAddTransaction() {
     state.showAddTxn = false;
   } else {
     var existing = nextEntries[date];
-    var newItem = { id: Date.now()+"-"+Math.random().toString(36).slice(2,7), amount: amt, note: note, category: category };
+    var newItem = { id: Date.now()+"-"+Math.random().toString(36).slice(2,7), amount: amt, note: note, category: category, person: person, personSplit: personSplit };
     nextEntries[date] = existing ? Object.assign({}, existing, { items: existing.items.concat([newItem]) }) : { allowance: dailyAllowance(), items: [newItem] };
     state.showAddTxn = false;
   }
@@ -2856,7 +3550,7 @@ function handleAddTransaction() {
    much is left / what's coming up" answerable at all. Per-day share is
    floor-rounded with the final day absorbing the leftover cents, so the days
    read evenly while the total stays exact. */
-function handleAddSplitTransaction(startDate, totalAmount, category, note, splitDays) {
+function handleAddSplitTransaction(startDate, totalAmount, category, note, splitDays, person, personSplit) {
   var perDayFloor = Math.floor((totalAmount/splitDays)*100)/100;
   var newRule = {
     id: Date.now()+"-"+Math.random().toString(36).slice(2,7),
@@ -2865,6 +3559,8 @@ function handleAddSplitTransaction(startDate, totalAmount, category, note, split
     splitTotal: totalAmount,
     category: category,
     note: note,
+    person: person||"",
+    personSplit: personSplit||null,
     frequency: "daily",
     startDate: startDate,
     endDate: null,
@@ -2879,39 +3575,6 @@ function handleAddSplitTransaction(startDate, totalAmount, category, note, split
   state.txnSplitMode = "single";
   persistAll(state.settings, state.entries, "your entries");
   showToast("Spread across "+splitDays+" days");
-  render();
-}
-
-/* Commits the import review screen: reads every row straight from the DOM
-   (matching the rest of the app's read-at-submit convention, and the only
-   way to know the person's final edits without a live-bound state model for
-   a variable-length list). Unchecked, dateless, future-dated, or invalid
-   rows are silently skipped rather than blocking the whole import. Uses
-   allowanceForDate per row since imported data is inherently historical. */
-function handleCommitImport() {
-  var candidates = state.importCandidates || [];
-  var today = todayStr();
-  var nextEntries = Object.assign({}, state.entries);
-  var addedCount = 0, skippedCount = 0;
-  for (var i=0; i<candidates.length; i++) {
-    var includeEl = document.getElementById("importInclude_"+i);
-    if (!includeEl || !includeEl.checked) continue;
-    var dateEl = document.getElementById("importDate_"+i);
-    var amountEl = document.getElementById("importAmount_"+i);
-    var categoryEl = document.getElementById("importCategory_"+i);
-    var noteEl = document.getElementById("importNote_"+i);
-    var ds = dateEl ? dateEl.value : "";
-    var amt = amountEl ? parseFloat(amountEl.value) : NaN;
-    if (!ds || ds > today || isNaN(amt) || amt < 0) { skippedCount++; continue; }
-    var newItem = { id: Date.now()+"-"+Math.random().toString(36).slice(2,7)+"-"+i, amount: round2(amt), note: noteEl?noteEl.value.trim():"", category: categoryEl?categoryEl.value:"" };
-    var existingDay = nextEntries[ds];
-    nextEntries[ds] = existingDay ? Object.assign({}, existingDay, { items: existingDay.items.concat([newItem]) }) : { allowance: allowanceForDate(ds), items: [newItem] };
-    addedCount++;
-  }
-  state.showImport = false;
-  state.importCandidates = null;
-  persistAll(state.settings, nextEntries, "imported transactions");
-  showToast(addedCount+" transaction"+(addedCount===1?"":"s")+" imported"+(skippedCount?(" \u00b7 "+skippedCount+" skipped"):""));
   render();
 }
 
@@ -3031,6 +3694,16 @@ function handleEditTxn(date, id) {
   state.showAddTxn = true;
   state.pendingDeleteKey = null;
   state.txnSplitMode = "single";
+  state.txnCategoryGroup = null;
+  state.entryAmountDraft = null;
+  state.entryNoteDraft = null;
+  state.entrySplitDaysDraft = null;
+  state.entryPersonSplitDraft = null;
+  state.entryCategoryDraft = null;
+  state.entryPersonDraft = null;
+  var editDay = state.entries[date];
+  var editItem = editDay ? editDay.items.find(function(i){ return i.id === id; }) : null;
+  state.txnPersonSplitMode = (editItem && editItem.personSplit && editItem.personSplit.length) ? "split" : "single";
   render();
   focusAmountInput();
 }
@@ -3050,6 +3723,32 @@ function handleDeleteTxn(date, id) {
   if (state.editingItemId === id) { state.editingItemId = null; state.editingOriginalDate = null; }
   persistAll(state.settings, nextEntries, "your entry");
   render();
+}
+
+/* render() rebuilds the whole DOM from scratch on every call, including
+   whatever's currently on screen in the Add Transaction sheet — so any
+   in-place toggle within that sheet (day-split mode, person-split mode,
+   category group) needs to stash the sheet's current values into state
+   first, or they'd silently reset the moment the toggle re-renders it.
+   Called at the top of every such toggle handler, before it touches other
+   state and calls render(). */
+function preserveTxnFormDraft() {
+  var amtEl = document.getElementById("entryAmountInput");
+  var noteEl = document.getElementById("entryNoteInput");
+  var daysEl = document.getElementById("splitDaysInput");
+  var catEl = document.getElementById("entryCategoryInput");
+  var personEl = document.getElementById("entryPersonInput");
+  if (amtEl) state.entryAmountDraft = amtEl.value;
+  if (noteEl) state.entryNoteDraft = noteEl.value;
+  if (daysEl) state.entrySplitDaysDraft = daysEl.value;
+  if (catEl) state.entryCategoryDraft = catEl.value;
+  if (personEl) state.entryPersonDraft = personEl.value;
+  var pctSelects = document.querySelectorAll(".split-person-pct");
+  if (pctSelects.length) {
+    var draft = {};
+    pctSelects.forEach(function(s){ draft[s.dataset.person] = s.value; });
+    state.entryPersonSplitDraft = draft;
+  }
 }
 
 function handleQuickDate(date) {
@@ -3085,6 +3784,11 @@ function handleRestore() {
     nextSettings.analysisHiddenSections = normalizeHiddenSections(nextSettings.analysisHiddenSections);
     nextSettings.incomeHistory = normalizeIncomeHistory(nextSettings.incomeHistory);
     nextSettings.categoryStyles = normalizeCategoryStyles(nextSettings.categoryStyles, nextSettings.categories);
+    nextSettings.categoryGroups = normalizeCategoryGroups(nextSettings.categoryGroups);
+    nextSettings.categoryGroupOf = normalizeCategoryGroupOf(nextSettings.categoryGroupOf, nextSettings.categories, nextSettings.categoryGroups);
+    nextSettings.people = normalizePeople(nextSettings.people);
+    nextSettings.personColors = normalizePersonColors(nextSettings.personColors, nextSettings.people);
+    nextSettings.defaultPerson = normalizeDefaultPerson(nextSettings.defaultPerson, nextSettings.people);
     nextSettings.recurringRules = normalizeRecurringRules(nextSettings.recurringRules);
     var nextEntries = migrateEntries(parsed.entries||{}, nextSettings.weeklyTarget/7);
     state.settings = nextSettings;
@@ -3138,7 +3842,13 @@ document.addEventListener("click", function(e) {
     case "edit-txn": handleEditTxn(el.dataset.date, el.dataset.id); break;
     case "cancel-edit": handleCancelEdit(); break;
     case "set-txn-split-mode":
+      preserveTxnFormDraft();
       state.txnSplitMode = el.dataset.mode;
+      render();
+      break;
+    case "set-txn-person-split-mode":
+      preserveTxnFormDraft();
+      state.txnPersonSplitMode = el.dataset.mode;
       render();
       break;
     case "open-add-txn":
@@ -3148,6 +3858,14 @@ document.addEventListener("click", function(e) {
       state.showAddTxn = true;
       state.pendingDeleteKey = null;
       state.txnSplitMode = "single";
+      state.txnPersonSplitMode = "single";
+      state.txnCategoryGroup = null;
+      state.entryAmountDraft = null;
+      state.entryNoteDraft = null;
+      state.entrySplitDaysDraft = null;
+      state.entryPersonSplitDraft = null;
+      state.entryCategoryDraft = null;
+      state.entryPersonDraft = null;
       render();
       focusAmountInput();
       break;
@@ -3156,46 +3874,15 @@ document.addEventListener("click", function(e) {
       state.editingItemId = null;
       state.editingOriginalDate = null;
       state.txnSplitMode = "single";
+      state.txnPersonSplitMode = "single";
+      state.txnCategoryGroup = null;
+      state.entryAmountDraft = null;
+      state.entryNoteDraft = null;
+      state.entrySplitDaysDraft = null;
+      state.entryPersonSplitDraft = null;
+      state.entryCategoryDraft = null;
+      state.entryPersonDraft = null;
       render();
-      break;
-    case "open-import":
-      state.showImport = true;
-      state.importCandidates = null;
-      state.importParseError = null;
-      render();
-      break;
-    case "close-import":
-      state.showImport = false;
-      state.importCandidates = null;
-      state.importParseError = null;
-      render();
-      break;
-    case "parse-import":
-      var pasteEl = document.getElementById("importPasteInput");
-      var pasteText = pasteEl ? pasteEl.value : "";
-      if (!pasteText.trim()) { state.importParseError = "Paste something first."; render(); break; }
-      var parsedRows = parseStatementText(pasteText);
-      if (!parsedRows.length) { state.importParseError = "Couldn\u2019t find any transactions in that text \u2014 check the format and try again."; render(); break; }
-      state.importCandidates = parsedRows;
-      state.importParseError = null;
-      render();
-      break;
-    case "back-to-paste-import":
-      state.importCandidates = null;
-      render();
-      break;
-    case "flip-import-sign":
-      // Pure DOM mutation, no render() — a re-render would reset any manual
-      // edits already made to other rows' dates, amounts, or categories.
-      document.querySelectorAll('input[id^="importInclude_"][data-inferred="true"]').forEach(function(cb){ cb.checked = !cb.checked; });
-      break;
-    case "apply-import-bulk-category":
-      var bulkCatEl = document.getElementById("importBulkCategory");
-      var bulkVal = bulkCatEl ? bulkCatEl.value : "";
-      if (bulkVal) document.querySelectorAll('select[id^="importCategory_"]').forEach(function(sel){ sel.value = bulkVal; });
-      break;
-    case "commit-import":
-      handleCommitImport();
       break;
     case "go-page":
       state.editingItemId = null;
@@ -3266,6 +3953,7 @@ document.addEventListener("click", function(e) {
         if (!recEndDate || recEndDate < recStart) break;
       }
       var recCategoryEl = document.getElementById("recurringCategoryInput");
+      var recPersonEl = document.getElementById("recurringPersonInput");
       var recNoteEl = document.getElementById("recurringNoteInput");
       var recFreqEl = document.getElementById("recurringFrequencyInput");
       var newRule = {
@@ -3274,6 +3962,7 @@ document.addEventListener("click", function(e) {
         amount: recAmount,
         splitTotal: null,
         category: recCategoryEl ? recCategoryEl.value : "",
+        person: recPersonEl ? recPersonEl.value : "",
         note: recNoteEl ? recNoteEl.value.trim() : "",
         frequency: (recFreqEl && recFreqEl.value === "monthly") ? "monthly" : "weekly",
         startDate: recStart,
@@ -3301,7 +3990,23 @@ document.addEventListener("click", function(e) {
     case "delete-recurring":
       var deleteId = el.dataset.id;
       var remainingRules = (state.settings.recurringRules||[]).filter(function(r){ return r.id !== deleteId; });
-      persistAll(Object.assign({}, state.settings, { recurringRules: remainingRules }), state.entries, "your settings");
+      /* Deleting a plan undoes everything it already logged, not just the
+         rule itself — otherwise every day it already wrote to `entries`
+         (each tagged with this recurringId) lingers behind forever, still
+         showing up on Home/Transactions/Calendar/Analysis even though the
+         plan that "owns" it is gone. A day that ends up with zero items
+         after stripping is removed entirely, same as a normal delete. */
+      var entriesAfterDelete = Object.assign({}, state.entries);
+      Object.keys(entriesAfterDelete).forEach(function(d){
+        var day = entriesAfterDelete[d];
+        if (!day || !Array.isArray(day.items)) return;
+        var stripped = day.items.filter(function(it){ return it.recurringId !== deleteId; });
+        if (stripped.length !== day.items.length) {
+          if (stripped.length === 0) delete entriesAfterDelete[d];
+          else entriesAfterDelete[d] = Object.assign({}, day, { items: stripped });
+        }
+      });
+      persistAll(Object.assign({}, state.settings, { recurringRules: remainingRules }), entriesAfterDelete, "your settings");
       render();
       break;
     case "remove-category":
@@ -3309,13 +4014,142 @@ document.addEventListener("click", function(e) {
       var nextCatsAfterRemove = (state.settings.categories||[]).filter(function(c){ return c !== catToRemove; });
       var stylesAfterRemove = Object.assign({}, state.settings.categoryStyles||{});
       delete stylesAfterRemove[catToRemove];
-      var withoutCat = Object.assign({}, state.settings, { categories: nextCatsAfterRemove, categoryStyles: stylesAfterRemove });
+      var groupOfAfterRemoveCat = Object.assign({}, state.settings.categoryGroupOf||{});
+      delete groupOfAfterRemoveCat[catToRemove];
+      var withoutCat = Object.assign({}, state.settings, { categories: nextCatsAfterRemove, categoryStyles: stylesAfterRemove, categoryGroupOf: groupOfAfterRemoveCat });
       if (state.categoryStyleEditing === catToRemove) state.categoryStyleEditing = null;
+      if (state.categoryRenameEditing === catToRemove) state.categoryRenameEditing = null;
       persistAll(withoutCat, state.entries, "your settings");
+      render();
+      break;
+    case "add-group":
+      var newGroupEl = document.getElementById("newGroupInput");
+      var newGroup = newGroupEl ? newGroupEl.value.trim() : "";
+      if (newGroup && (state.settings.categoryGroups||[]).indexOf(newGroup) === -1) {
+        var withGroup = Object.assign({}, state.settings, { categoryGroups: (state.settings.categoryGroups||[]).concat([newGroup]) });
+        persistAll(withGroup, state.entries, "your settings");
+        render();
+      }
+      break;
+    case "remove-group":
+      var groupToRemove = el.dataset.group;
+      var nextGroups = (state.settings.categoryGroups||[]).filter(function(g){ return g !== groupToRemove; });
+      var groupOfAfterRemoveGroup = Object.assign({}, state.settings.categoryGroupOf||{});
+      Object.keys(groupOfAfterRemoveGroup).forEach(function(c){
+        if (groupOfAfterRemoveGroup[c] === groupToRemove) delete groupOfAfterRemoveGroup[c];
+      });
+      persistAll(Object.assign({}, state.settings, { categoryGroups: nextGroups, categoryGroupOf: groupOfAfterRemoveGroup }), state.entries, "your settings");
+      if (state.analysisSelectedGroup === groupToRemove) state.analysisSelectedGroup = null;
+      render();
+      break;
+    case "move-group":
+      var dirG = parseInt(el.dataset.dir,10);
+      var groups2 = (state.settings.categoryGroups||[]).slice();
+      var idxG = groups2.indexOf(el.dataset.group);
+      var swapIdxG = idxG + dirG;
+      if (idxG >= 0 && swapIdxG >= 0 && swapIdxG < groups2.length) {
+        var tmpG = groups2[idxG]; groups2[idxG] = groups2[swapIdxG]; groups2[swapIdxG] = tmpG;
+        persistAll(Object.assign({}, state.settings, { categoryGroups: groups2 }), state.entries, "your settings");
+        render();
+      }
+      break;
+    case "add-person":
+      var newPersonEl = document.getElementById("newPersonInput");
+      var newPerson = newPersonEl ? newPersonEl.value.trim() : "";
+      if (newPerson && (state.settings.people||[]).indexOf(newPerson) === -1) {
+        persistAll(Object.assign({}, state.settings, { people: (state.settings.people||[]).concat([newPerson]) }), state.entries, "your settings");
+        render();
+      }
+      break;
+    case "remove-person":
+      var personToRemove = el.dataset.person;
+      var nextPeople = (state.settings.people||[]).filter(function(p){ return p !== personToRemove; });
+      if (state.personRenameEditing === personToRemove) state.personRenameEditing = null;
+      var nextDefaultPerson = state.settings.defaultPerson === personToRemove ? null : state.settings.defaultPerson;
+      persistAll(Object.assign({}, state.settings, { people: nextPeople, defaultPerson: nextDefaultPerson }), state.entries, "your settings");
+      render();
+      break;
+    case "move-person":
+      var dirP = parseInt(el.dataset.dir,10);
+      var people2 = (state.settings.people||[]).slice();
+      var idxP = people2.indexOf(el.dataset.person);
+      var swapIdxP = idxP + dirP;
+      if (idxP >= 0 && swapIdxP >= 0 && swapIdxP < people2.length) {
+        var tmpP = people2[idxP]; people2[idxP] = people2[swapIdxP]; people2[swapIdxP] = tmpP;
+        persistAll(Object.assign({}, state.settings, { people: people2 }), state.entries, "your settings");
+        render();
+      }
+      break;
+    case "edit-person-name":
+      state.personRenameEditing = (state.personRenameEditing === el.dataset.person) ? null : el.dataset.person;
+      render();
+      break;
+    case "cancel-person-rename":
+      state.personRenameEditing = null;
+      render();
+      break;
+    case "save-person-rename":
+      var personRenameInput = document.getElementById("personRenameInput");
+      var newPersonName = personRenameInput ? personRenameInput.value.trim() : "";
+      var oldPersonName = el.dataset.person;
+      if (newPersonName && newPersonName !== oldPersonName) {
+        var personWasMerge = renameTag("person", oldPersonName, newPersonName);
+        showToast(personWasMerge ? "Merged into "+newPersonName : "Renamed to "+newPersonName);
+      }
+      state.personRenameEditing = null;
+      render();
+      break;
+    case "drill-analysis-group":
+      state.analysisSelectedGroup = el.dataset.group;
+      state.analysisSelectedBucket = null;
+      render();
+      break;
+    case "clear-analysis-group":
+      state.analysisSelectedGroup = null;
+      render();
+      break;
+    case "edit-group-style":
+      state.groupStyleEditing = (state.groupStyleEditing === el.dataset.group) ? null : el.dataset.group;
+      state.categoryStyleEditing = null;
+      state.categoryRenameEditing = null;
+      render();
+      break;
+    case "set-group-icon":
+      var groupI = el.dataset.group;
+      var iconI = el.dataset.icon;
+      var membersI = (state.settings.categories||[]).filter(function(c){ return categoryGroupOf(c)===groupI; });
+      var stylesGI = Object.assign({}, state.settings.categoryStyles||{});
+      membersI.forEach(function(c){
+        var cur = categoryStyle(c);
+        stylesGI[c] = { icon: iconI, color: cur.color };
+      });
+      persistAll(Object.assign({}, state.settings, { categoryStyles: stylesGI }), state.entries, "your settings");
+      showToast("Icon applied to "+membersI.length+" categor"+(membersI.length===1?"y":"ies"));
       render();
       break;
     case "edit-category-style":
       state.categoryStyleEditing = (state.categoryStyleEditing === el.dataset.cat) ? null : el.dataset.cat;
+      state.categoryRenameEditing = null;
+      render();
+      break;
+    case "edit-category-name":
+      state.categoryRenameEditing = (state.categoryRenameEditing === el.dataset.cat) ? null : el.dataset.cat;
+      state.categoryStyleEditing = null;
+      render();
+      break;
+    case "cancel-category-rename":
+      state.categoryRenameEditing = null;
+      render();
+      break;
+    case "save-category-rename":
+      var catRenameInput = document.getElementById("categoryRenameInput");
+      var newCatNameVal = catRenameInput ? catRenameInput.value.trim() : "";
+      var oldCatNameVal = el.dataset.cat;
+      if (newCatNameVal && newCatNameVal !== oldCatNameVal) {
+        var catWasMerge = renameTag("category", oldCatNameVal, newCatNameVal);
+        showToast(catWasMerge ? "Merged into "+newCatNameVal : "Renamed to "+newCatNameVal);
+      }
+      state.categoryRenameEditing = null;
       render();
       break;
     case "set-category-icon":
@@ -3335,10 +4169,16 @@ document.addEventListener("click", function(e) {
       break;
     case "move-category":
       var dir = parseInt(el.dataset.dir,10);
+      var catToMove = el.dataset.cat;
       var cats2 = (state.settings.categories||[]).slice();
-      var idx = cats2.indexOf(el.dataset.cat);
-      var swapIdx = idx + dir;
-      if (idx >= 0 && swapIdx >= 0 && swapIdx < cats2.length) {
+      var myGroupForMove = categoryGroupOf(catToMove);
+      var siblingsForMove = cats2.filter(function(c){ return categoryGroupOf(c) === myGroupForMove; });
+      var sibIdx = siblingsForMove.indexOf(catToMove);
+      var sibSwapIdx = sibIdx + dir;
+      if (sibIdx >= 0 && sibSwapIdx >= 0 && sibSwapIdx < siblingsForMove.length) {
+        var neighborCat = siblingsForMove[sibSwapIdx];
+        var idx = cats2.indexOf(catToMove);
+        var swapIdx = cats2.indexOf(neighborCat);
         var tmp = cats2[idx]; cats2[idx] = cats2[swapIdx]; cats2[swapIdx] = tmp;
         var movedSettings = Object.assign({}, state.settings, { categories: cats2 });
         persistAll(movedSettings, state.entries, "your settings");
@@ -3353,6 +4193,7 @@ document.addEventListener("click", function(e) {
       state.analysisPeriodMode = el.dataset.mode;
       state.analysisOffset = 0;
       state.analysisSelectedBucket = null;
+      state.analysisSelectedGroup = null;
       render();
       break;
     case "select-bucket":
@@ -3373,9 +4214,23 @@ document.addEventListener("click", function(e) {
       state.analysisSelectedBucket = null;
       render();
       break;
+    case "filter-analysis-person":
+      state.analysisPersonFilter = (state.analysisPersonFilter === el.dataset.person) ? "" : el.dataset.person;
+      state.analysisSelectedBucket = null;
+      render();
+      break;
+    case "clear-analysis-person":
+      state.analysisPersonFilter = "";
+      state.analysisSelectedBucket = null;
+      render();
+      break;
     case "set-basis":
       state.basis = el.dataset.basis;
       state.analysisSelectedBucket = null;
+      render();
+      break;
+    case "set-forecast-compare":
+      state.forecastCompareMode = el.dataset.mode;
       render();
       break;
     case "open-income-settings":
@@ -3458,6 +4313,14 @@ document.addEventListener("click", function(e) {
    a color is picked, without waiting for Apply or a full re-render (which
    would rebuild the sheet mid-pick and could interrupt the native picker). */
 document.addEventListener("input", function(e) {
+  if (e.target && e.target.id === "weeklyDraftInput") {
+    var v = parseFloat(e.target.value);
+    var perDayEl = document.getElementById("weeklyPerDayText");
+    if (perDayEl) {
+      var perDay = (!isNaN(v) && v >= 0) ? v/7 : 0;
+      perDayEl.textContent = "= " + fmt(perDay, 2) + " AED per day. Choose how far this change should reach:";
+    }
+  }
   if (e.target && e.target.id === "customBgInput") {
     var tones = deriveDarkTones(e.target.value);
     var r = document.documentElement.style;
@@ -3478,12 +4341,87 @@ document.addEventListener("input", function(e) {
 });
 
 document.addEventListener("change", function(e) {
+  if (e.target && e.target.id === "defaultPersonInput") {
+    persistAll(Object.assign({}, state.settings, { defaultPerson: e.target.value||null }), state.entries, "your settings");
+    render();
+    return;
+  }
+  if (e.target && e.target.id === "entryGroupInput") {
+    /* render() rebuilds the sheet from scratch, which would wipe whatever's
+       already been entered — so stash it all into state first and let the
+       re-render restore it. */
+    preserveTxnFormDraft();
+    state.txnCategoryGroup = e.target.value;
+    render();
+    return;
+  }
+  if (e.target && e.target.classList && e.target.classList.contains("split-person-pct")) {
+    var pctSelects = document.querySelectorAll(".split-person-pct");
+    var totalPct = 0;
+    pctSelects.forEach(function(s){ totalPct += parseInt(s.value,10)||0; });
+    var totalEl = document.getElementById("splitPersonTotal");
+    if (totalEl) {
+      totalEl.textContent = totalPct + "%";
+      totalEl.style.color = totalPct===100 ? "var(--positive)" : (totalPct===0 ? "var(--text-muted)" : "var(--rust)");
+    }
+    return;
+  }
+  if (e.target && e.target.dataset && e.target.dataset.role === "category-group-select") {
+    var catG = e.target.dataset.cat;
+    var newGroupVal = e.target.value;
+    var nextGroupOf = Object.assign({}, state.settings.categoryGroupOf||{});
+    if (newGroupVal) nextGroupOf[catG] = newGroupVal; else delete nextGroupOf[catG];
+    persistAll(Object.assign({}, state.settings, { categoryGroupOf: nextGroupOf }), state.entries, "your settings");
+    render();
+    return;
+  }
   if (e.target && e.target.id === "entryDateInput") handleQuickDate(e.target.value);
+  if (e.target && e.target.id === "txnGroupFilterSelect") {
+    var newTxnGroup = e.target.value;
+    var curTxnCat = state.txnCategoryFilter;
+    if (curTxnCat) {
+      var stillBelongs = curTxnCat === "Uncategorised"
+        ? (!newTxnGroup || newTxnGroup === "__ungrouped__")
+        : (!newTxnGroup ? true : (newTxnGroup === "__ungrouped__" ? !categoryGroupOf(curTxnCat) : categoryGroupOf(curTxnCat) === newTxnGroup));
+      if (!stillBelongs) state.txnCategoryFilter = "";
+    }
+    state.txnGroupFilter = newTxnGroup;
+    render();
+    return;
+  }
+  if (e.target && e.target.id === "txnPersonFilterSelect") { state.txnPersonFilter = e.target.value; render(); }
   if (e.target && e.target.id === "txnCategoryFilterSelect") { state.txnCategoryFilter = e.target.value; render(); }
   if (e.target && e.target.id === "txnPeriodFromInput") { state.txnPeriodFrom = e.target.value; render(); }
   if (e.target && e.target.id === "txnPeriodToInput") { state.txnPeriodTo = e.target.value; render(); }
   if (e.target && e.target.id === "analysisPeriodFromInput") { state.analysisPeriodFrom = e.target.value; render(); }
   if (e.target && e.target.id === "analysisPeriodToInput") { state.analysisPeriodTo = e.target.value; render(); }
+  if (e.target && e.target.id === "groupColorInput") {
+    var groupC = e.target.dataset.group;
+    var newGroupColor = e.target.value;
+    // Same deferred rationale as categoryColorInput below.
+    setTimeout(function() {
+      var membersC = (state.settings.categories||[]).filter(function(c){ return categoryGroupOf(c)===groupC; });
+      var stylesGC = Object.assign({}, state.settings.categoryStyles||{});
+      membersC.forEach(function(c){
+        var cur = categoryStyle(c);
+        stylesGC[c] = { icon: cur.icon, color: newGroupColor };
+      });
+      persistAll(Object.assign({}, state.settings, { categoryStyles: stylesGC }), state.entries, "your settings");
+      showToast("Color applied to "+membersC.length+" categor"+(membersC.length===1?"y":"ies"));
+      render();
+    }, 300);
+  }
+  if (e.target && e.target.classList && e.target.classList.contains("person-color-input")) {
+    var personC = e.target.dataset.person;
+    var newPersonColor = e.target.value;
+    // Same deferred rationale as categoryColorInput below.
+    setTimeout(function() {
+      var nextPersonColors = Object.assign({}, state.settings.personColors||{});
+      nextPersonColors[personC] = newPersonColor;
+      persistAll(Object.assign({}, state.settings, { personColors: nextPersonColors }), state.entries, "your settings");
+      render();
+    }, 300);
+  }
   if (e.target && e.target.id === "categoryColorInput") {
     var catC = e.target.dataset.cat;
     var newColorC = e.target.value;
