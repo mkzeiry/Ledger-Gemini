@@ -115,11 +115,17 @@
   .modal-card {
     width:100%; max-width:460px; max-height:88vh; max-height:min(88vh, calc(var(--vvh, 100dvh) - 24px)); overflow-y:auto; -webkit-overflow-scrolling: touch;
     background:var(--card); border:none; border-radius:16px 16px 0 0; padding:8px 20px 24px;
-    overscroll-behavior: contain;
+    overscroll-behavior: contain; transition: max-height 0.15s ease;
   }
   @media (min-width: 480px) { .modal-card { border-radius:16px; padding-top:20px; } }
   .grabber { width:36px; height:5px; border-radius:999px; background:var(--hairline); margin:0 auto 12px; }
   @media (min-width: 480px) { .grabber { display:none; } }
+  .modal-sticky-header {
+    position:sticky; top:0; z-index:5; background:var(--card);
+    margin:-8px -20px 0; padding:8px 20px 12px; border-bottom:1px solid var(--hairline);
+    border-radius:16px 16px 0 0;
+  }
+  @media (min-width: 480px) { .modal-sticky-header { margin-top:-20px; padding-top:20px; } }
 
   /* Translucent tab bar */
   .tabbar {
@@ -157,9 +163,9 @@
 /* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
 var TEST_KEY = "ledger-selftest";
-var DEFAULT_SETTINGS = { weeklyTarget: 0, theme: "dark", trackingStartDate: null, categories: ["Food & Dining","Groceries","Transport","Shopping","Bills & Utilities","Health","Entertainment","Other"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, categoryStyles: null, recurringRules: null, categoryGroups: null, categoryGroupOf: null, people: null, personColors: null, defaultPerson: null };
-var DEFAULT_ANALYSIS_ORDER = ["summary","forecastedSpend","spendTrend","dailySpend","dailySaving","cumulativeSaving","category","person","dow","topTransactions"];
-var ANALYSIS_SECTION_LABELS = { summary:"Summary", forecastedSpend:"Forecasted spend", spendTrend:"Spend trend", dailySpend:"Spend per day", dailySaving:"Saved per day", cumulativeSaving:"Cumulative saving", category:"Spend by category", person:"Spend by person", dow:"Average by day of week", topTransactions:"Biggest transactions" };
+var DEFAULT_SETTINGS = { weeklyTarget: 1800, theme: "dark", trackingStartDate: null, categories: ["Food & Dining","Groceries","Transport","Shopping","Bills & Utilities","Health","Entertainment","Other"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, categoryStyles: null, recurringRules: null, categoryGroups: null, categoryGroupOf: null, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: null };
+var DEFAULT_ANALYSIS_ORDER = ["summary","cashFlow","forecastedSpend","spendTrend","dailySpend","dailySaving","cumulativeSaving","category","person","dow","topTransactions"];
+var ANALYSIS_SECTION_LABELS = { summary:"Summary", cashFlow:"Cash flow", forecastedSpend:"Forecasted spend", spendTrend:"Spend trend", dailySpend:"Spend per day", dailySaving:"Saved per day", cumulativeSaving:"Cumulative saving", category:"Spend by category", person:"Spend by person", dow:"Average by day of week", topTransactions:"Biggest transactions" };
 function normalizeAnalysisOrder(order) {
   var out = (order||[]).filter(function(id){ return DEFAULT_ANALYSIS_ORDER.indexOf(id) !== -1; });
   DEFAULT_ANALYSIS_ORDER.forEach(function(id){ if (out.indexOf(id)===-1) out.push(id); });
@@ -289,6 +295,10 @@ function renameTag(kind, oldName, newName) {
     if (!isMerge && nextGroupOf[oldName]) nextGroupOf[newName] = nextGroupOf[oldName];
     delete nextGroupOf[oldName];
     patch.categoryGroupOf = nextGroupOf;
+    var nextExclude = Object.assign({}, state.settings.categoryExcludeFromBudget||{});
+    if (!isMerge && nextExclude[oldName]) nextExclude[newName] = true;
+    delete nextExclude[oldName];
+    patch.categoryExcludeFromBudget = nextExclude;
   } else {
     var nextPersonColors = Object.assign({}, state.settings.personColors||{});
     if (!isMerge && nextPersonColors[oldName]) nextPersonColors[newName] = nextPersonColors[oldName];
@@ -480,7 +490,8 @@ function runRecurringCatchUp() {
         id: Date.now()+"-"+Math.random().toString(36).slice(2,7)+"-"+guard,
         amount: ruleOccurrenceAmount(rule, seq),
         note: rule.note||"", category: rule.category||"", person: rule.person||"", personSplit: rule.personSplit||null,
-        recurringId: rule.id, seq: seq+1, seqTotal: rule.occurrencesTotal
+        recurringId: rule.id, seq: seq+1, seqTotal: rule.occurrencesTotal,
+        kind: rule.entryKind === "income" ? "income" : undefined
       };
       var existingDay = state.entries[due];
       if (existingDay) state.entries[due] = Object.assign({}, existingDay, { items: existingDay.items.concat([newItem]) });
@@ -496,7 +507,47 @@ function fmt(n, dp){ dp = dp || 0; return (Number(n)||0).toLocaleString("en-US",
 function dayLabel(s){ return parseD(s).toLocaleDateString("en-GB",{weekday:"short", day:"numeric", month:"short"}); }
 function shortLabel(s){ return parseD(s).toLocaleDateString("en-GB",{day:"numeric", month:"short"}); }
 function weekdayLong(s){ return parseD(s).toLocaleDateString("en-GB",{weekday:"long"}); }
-function sumSpent(e){ return (e && Array.isArray(e.items)) ? e.items.reduce(function(s,i){ return s+i.amount; },0) : 0; }
+/* A transaction is an expense unless explicitly tagged otherwise. Income
+   transactions live in the same entries[date].items array as expenses (so
+   they show up in Transactions/Calendar like any other logged entry) but
+   must never be counted as spending anywhere. */
+function isExpenseItem(it){ return !it || it.kind !== "income"; }
+function isIncomeItem(it){ return !!it && it.kind === "income"; }
+function sumSpent(e){ return (e && Array.isArray(e.items)) ? e.items.reduce(function(s,i){ return isExpenseItem(i) ? s+i.amount : s; },0) : 0; }
+function sumIncome(e){ return (e && Array.isArray(e.items)) ? e.items.reduce(function(s,i){ return isIncomeItem(i) ? s+i.amount : s; },0) : 0; }
+/* A category can be marked as sitting outside the daily budget — rent, a
+   mortgage, anything that's a real expense but isn't discretionary
+   day-to-day spending you're pacing against an allowance. Default is
+   included, so nothing changes for anyone who never touches this. */
+function categoryExcludedFromBudget(catName) {
+  if (!catName) return false;
+  var map = state.settings.categoryExcludeFromBudget;
+  return !!(map && map[catName]);
+}
+function itemCountsTowardBudget(it) { return !categoryExcludedFromBudget(it && it.category); }
+function normalizeCategoryExcludeFromBudget(map, categories) {
+  var out = {};
+  var valid = categories || [];
+  Object.keys(map||{}).forEach(function(c){
+    if (valid.indexOf(c) !== -1 && map[c]) out[c] = true;
+  });
+  return out;
+}
+/* The spend figure the CURRENT basis cares about. Budget basis omits
+   excluded categories so they never eat into the daily allowance; income
+   basis counts every dirham that left the account, because cash flow is
+   about total outgoings vs total income. Every budget number in the app
+   flows from periodStats, which reads this — so the exclusion propagates
+   everywhere (headline saved, forecast, trend, calendar, "left to spend")
+   without each of those needing to know the rule. */
+function sumSpentForBasis(e) {
+  if (!e || !Array.isArray(e.items)) return 0;
+  if (state.basis === "income") return sumSpent(e);
+  return e.items.reduce(function(s,i){ return (isExpenseItem(i) && itemCountsTowardBudget(i)) ? s+i.amount : s; }, 0);
+}
+/* Total outgoings regardless of basis — used by the cash-flow view, which
+   always wants the true full picture even while the budget basis is active. */
+function sumSpentAll(e) { return sumSpent(e); }
 function itemTimeKey(it){ var n = parseInt(String(it.id).split("-")[0], 10); return isNaN(n) ? 0 : n; }
 function newestFirst(items){ return items.slice().sort(function(a,b){ return itemTimeKey(b) - itemTimeKey(a); }); }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
@@ -598,7 +649,17 @@ var state = {
   categoryRenameEditing: null,
   personRenameEditing: null,
   recurringLimitMode: "ongoing",
+  recurringKindDraft: "expense",
+  recurringAmountDraft: null,
+  recurringCategoryDraft: null,
+  recurringPersonDraft: null,
+  recurringNoteDraft: null,
+  recurringFrequencyDraft: null,
+  recurringStartDateDraft: null,
+  recurringCountDraft: null,
+  recurringEndDateDraft: null,
   txnSplitMode: "single",
+  txnKind: null,
   txnPersonSplitMode: "single",
   txnCategoryGroup: null,
   entrySplitDaysDraft: null,
@@ -649,11 +710,15 @@ function incomeForDate(ds) {
   if (!hist || !hist.length) {
     return { mode: state.settings.incomeMode || "monthly", amount: Number(state.settings.incomeAmount) || 0 };
   }
-  var cur = hist[0];
+  /* A history record only applies on/after its own start date. Starting with
+     hist[0] would make the first future-dated income leak backwards into all
+     earlier periods. If no record was active yet, income was not configured
+     for that date, so use zero rather than rewriting history. */
+  var cur = null;
   for (var i=0;i<hist.length;i++) {
     if (hist[i].from <= ds) cur = hist[i]; else break;
   }
-  return cur;
+  return cur || { mode: "monthly", amount: 0 };
 }
 function dailyIncomeForDate(ds) {
   var inc = incomeForDate(ds);
@@ -670,7 +735,20 @@ function monthlyIncomeForDate(ds) {
   return amt;
 }
 function incomeIsSet() {
-  return dailyIncomeForDate(todayStr()) > 0;
+  if (dailyIncomeForDate(todayStr()) > 0) return true;
+  return Object.keys(state.entries).some(function(d){
+    return (state.entries[d].items||[]).some(function(it){ return isIncomeItem(it); });
+  });
+}
+/* Plain-language breakdown of what a monthly income figure works out to per
+   day and per week, using the current month's real length. Shown live in
+   Settings so the derived Week/Year views aren't a black box. */
+function incomeDerivedSummary(monthlyAmt) {
+  var amt = Number(monthlyAmt) || 0;
+  if (amt <= 0) return "Set a monthly figure to see the weekly and daily equivalents.";
+  var dim = daysInMonth(new Date());
+  var perDay = amt / dim;
+  return "= " + fmt(perDay, 2) + " AED a day \u00b7 " + fmt(perDay*7, 0) + " AED a week.";
 }
 function normalizeIncomeHistory(hist) {
   var out = (hist||[]).slice().sort(function(a,b){ return a.from < b.from ? -1 : a.from > b.from ? 1 : 0; });
@@ -730,6 +808,7 @@ function loadInitial() {
   state.settings.categoryGroupOf = normalizeCategoryGroupOf(state.settings.categoryGroupOf, state.settings.categories, state.settings.categoryGroups);
   state.settings.people = normalizePeople(state.settings.people);
   state.settings.personColors = normalizePersonColors(state.settings.personColors, state.settings.people);
+  state.settings.categoryExcludeFromBudget = normalizeCategoryExcludeFromBudget(state.settings.categoryExcludeFromBudget, state.settings.categories);
   state.settings.defaultPerson = normalizeDefaultPerson(state.settings.defaultPerson, state.settings.people);
   state.settings.recurringRules = normalizeRecurringRules(state.settings.recurringRules);
   if (runRecurringCatchUp()) {
@@ -772,11 +851,15 @@ function fullPeriodTarget(startStr, endStr) {
 /* Spend excluding anything generated by a recurring/spread plan. The forecast
    adds scheduled amounts back in explicitly, on their real due dates, so any
    pace average it blends must be discretionary-only — otherwise a big monthly
-   rent would inflate the daily pace AND get counted again as a future payment. */
+   rent would inflate the daily pace AND get counted again as a future payment.
+   Budget-excluded categories are skipped for the same reason: they're not
+   part of the allowance being paced against, so they mustn't shape the pace. */
 function discretionarySpentInRows(rows) {
   var sum = 0;
   (rows||[]).forEach(function(r){
-    (r.items||[]).forEach(function(it){ if (!it.recurringId) sum += it.amount; });
+    (r.items||[]).forEach(function(it){
+      if (isExpenseItem(it) && !it.recurringId && (state.basis === "income" || itemCountsTowardBudget(it))) sum += it.amount;
+    });
   });
   return sum;
 }
@@ -790,6 +873,10 @@ function scheduledAmountInRange(afterStr, throughStr) {
   var total = 0;
   rules.forEach(function(rule){
     if (!rule.active) return;
+    /* Forecasted spend must never include recurring income. In budget mode it
+       must also obey the same category exclusions as every other budget total. */
+    if (rule.entryKind === "income") return;
+    if (state.basis === "budget" && categoryExcludedFromBudget(rule.category)) return;
     var n = rule.occurrencesLogged || 0;
     var guard = 0;
     while (guard < 500) {
@@ -862,7 +949,7 @@ function periodStats(startStr, endStrRaw) {
     while (toStr(cur) <= endStr) {
       var ds = toStr(cur);
       var e = state.entries[ds];
-      rows.push({ date: ds, logged: !!e, items: e ? e.items : [], spent: e ? sumSpent(e) : 0, allowance: referenceForDate(ds) });
+      rows.push({ date: ds, logged: !!e, items: e ? e.items : [], spent: e ? sumSpentForBasis(e) : 0, spentAll: e ? sumSpentAll(e) : 0, allowance: referenceForDate(ds) });
       cur = addDays(cur, 1);
     }
   }
@@ -870,7 +957,8 @@ function periodStats(startStr, endStrRaw) {
   var closing = round2(opening+net);
   var calendarElapsedDays = (startStr <= endStr) ? (daysBetween(startStr, endStr) + 1) : 0;
   return { opening:opening, net:net, closing:closing, rows:rows, elapsedDays: rows.length, calendarElapsedDays: calendarElapsedDays,
-    loggedCount: rows.filter(function(r){return r.logged;}).length, spent: rows.reduce(function(s,r){return s+r.spent;},0) };
+    loggedCount: rows.filter(function(r){return r.logged;}).length, spent: rows.reduce(function(s,r){return s+r.spent;},0),
+    spentAll: rows.reduce(function(s,r){return s+r.spentAll;},0) };
 }
 
 /* Daily budget left for the CURRENT (live) instance of a given view type,
@@ -1118,6 +1206,31 @@ function unlockBodyScroll() {
 var touchLockCard = null, touchLockStartY = null, touchLockStartScrollTop = null;
 var sheetDragging = false, sheetDragAnchorY = null, sheetDragDelta = 0;
 var SHEET_DISMISS_THRESHOLD = 90;
+var momentumHandle = null;
+var scrollVelSamples = [];
+var raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : function(cb){ return setTimeout(function(){ cb(Date.now()); }, 16); };
+var caf = window.cancelAnimationFrame ? window.cancelAnimationFrame.bind(window) : function(id){ clearTimeout(id); };
+function stopMomentum() {
+  if (momentumHandle != null) { caf(momentumHandle); momentumHandle = null; }
+}
+function runMomentum(card, v0) {
+  var v = v0; // scrollTop px per ms
+  var last = null;
+  function step(now) {
+    if (last == null) { last = now; momentumHandle = raf(step); return; }
+    var dt = Math.min(now - last, 48);
+    last = now;
+    var maxScroll = Math.max(0, card.scrollHeight - card.clientHeight);
+    var next = card.scrollTop + v*dt;
+    v *= Math.pow(0.94, dt/16.67);
+    if (next <= 0) { card.scrollTop = 0; momentumHandle = null; return; }
+    if (next >= maxScroll) { card.scrollTop = maxScroll; momentumHandle = null; return; }
+    card.scrollTop = next;
+    if (Math.abs(v) < 0.02) { momentumHandle = null; return; }
+    momentumHandle = raf(step);
+  }
+  momentumHandle = raf(step);
+}
 function closeCurrentModal() {
   var backdrop = document.querySelector(".modal-backdrop");
   if (backdrop) backdrop.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -1125,12 +1238,14 @@ function closeCurrentModal() {
 document.addEventListener("touchstart", function(e) {
   if (!bodyScrollLocked) return;
   var card = e.target.closest(".modal-card");
+  if (card) stopMomentum(); // grabbing a still-gliding scroll stops it, like a native scroll view
   touchLockCard = card || null;
   touchLockStartY = e.touches[0].clientY;
   touchLockStartScrollTop = card ? card.scrollTop : 0;
   sheetDragging = false;
   sheetDragAnchorY = null;
   sheetDragDelta = 0;
+  scrollVelSamples = card ? [{ st: card.scrollTop, t: Date.now() }] : [];
   if (touchLockCard) touchLockCard.style.transition = "";
 }, { passive: true });
 document.addEventListener("touchmove", function(e) {
@@ -1151,6 +1266,8 @@ document.addEventListener("touchmove", function(e) {
       var deltaY = touchLockStartY - curY;
       var maxScroll = Math.max(0, touchLockCard.scrollHeight - touchLockCard.clientHeight);
       touchLockCard.scrollTop = Math.max(0, Math.min(maxScroll, touchLockStartScrollTop + deltaY));
+      scrollVelSamples.push({ st: touchLockCard.scrollTop, t: Date.now() });
+      if (scrollVelSamples.length > 8) scrollVelSamples.shift();
       return;
     }
   }
@@ -1170,9 +1287,25 @@ document.addEventListener("touchend", function() {
       if (backdrop) { backdrop.style.transition = "background 0.2s ease"; backdrop.style.background = ""; }
       setTimeout(function(){ card.style.transition = ""; if (backdrop) backdrop.style.transition = ""; }, 220);
     }
+  } else if (touchLockCard && scrollVelSamples.length >= 2) {
+    var lastS = scrollVelSamples[scrollVelSamples.length-1];
+    var recentCutoff = lastS.t - 100;
+    var refSample = null;
+    for (var si=scrollVelSamples.length-2; si>=0; si--) {
+      if (scrollVelSamples[si].t >= recentCutoff) refSample = scrollVelSamples[si];
+      else break;
+    }
+    if (refSample) {
+      var dt = lastS.t - refSample.t;
+      if (dt > 0) {
+        var v = (lastS.st - refSample.st) / dt;
+        if (Math.abs(v) > 0.05) runMomentum(touchLockCard, v);
+      }
+    }
   }
   touchLockCard = null; touchLockStartY = null; touchLockStartScrollTop = null;
   sheetDragging = false; sheetDragAnchorY = null; sheetDragDelta = 0;
+  scrollVelSamples = [];
 }, { passive: true });
 
 function render() {
@@ -1246,9 +1379,9 @@ function render() {
     var backupText = JSON.stringify({settings:state.settings, entries:state.entries}, null, 2);
     html += '<div class="modal-backdrop" data-action="close-backup">';
     html += '<div class="modal-card" data-action="noop">';
-    html += '<div class="grabber"></div>';
-    html += '<div class="row between" style="margin-bottom:12px;"><div class="display" style="font-size:18px;">Backup & restore</div><button data-action="close-backup" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
-    html += '<div class="muted" style="font-size:12px; margin-bottom:8px;">Use this to move data to another device, or as a safety net.</div>';
+    html += '<div class="modal-sticky-header"><div class="grabber"></div>';
+    html += '<div class="row between">'+'<div class="display" style="font-size:18px;">Backup & restore</div><button data-action="close-backup" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div></div>';
+    html += '<div class="muted" style="font-size:12px; margin-bottom:8px; margin-top:14px;">Use this to move data to another device, or as a safety net.</div>';
     html += '<textarea readonly class="field mono" style="height:120px; font-size:11px; margin-bottom:8px; resize:none;" onfocus="this.select()">'+esc(backupText)+'</textarea>';
     html += '<button id="copyBackupBtn" data-action="copy-backup" class="btn-accent" style="width:100%; margin-bottom:20px;">Copy backup</button>';
     html += '<div class="muted" style="font-size:12px; margin-bottom:8px;">Restore from a backup:</div>';
@@ -1311,7 +1444,13 @@ function renderHomeBody(T, da) {
   var cumColor = cumulative.net >= 0 ? "var(--positive)" : "var(--rust)";
   var cumLabel = "Saved since " + parseD(cumAnchor).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
   var todayEntryForCard = state.entries[todayStr()];
-  var spentToday = todayEntryForCard ? sumSpent(todayEntryForCard) : 0;
+  var spentToday = todayEntryForCard ? sumSpentForBasis(todayEntryForCard) : 0;
+  /* Keep a separate budget-only figure for the two spending-cap cards below.
+     `spentToday` follows the selected basis, so in income mode it intentionally
+     includes every expense; the budget cap must still exclude opted-out cats. */
+  var spentTodayBudget = withBudgetBasis(function(){
+    return todayEntryForCard ? sumSpentForBasis(todayEntryForCard) : 0;
+  });
   var spentTodayColor = spentToday > da ? "var(--rust)" : "var(--text)";
   var todayAllowanceForCard = referenceForDate(todayStr());
 
@@ -1321,19 +1460,19 @@ function renderHomeBody(T, da) {
      computed against budget, never income — see withBudgetBasis above. */
   var leftToday = withBudgetBasis(function(){
     var todayBudgetAllowance = allowanceForDate(todayStr());
-    var weekDBL = computeDailyBudgetLeft("week", spentToday);
-    var monthDBL = computeDailyBudgetLeft("month", spentToday);
+    var weekDBL = computeDailyBudgetLeft("week", spentTodayBudget);
+    var monthDBL = computeDailyBudgetLeft("month", spentTodayBudget);
     var capCandidates = [todayBudgetAllowance];
     if (weekDBL) capCandidates.push(weekDBL.value);
     if (monthDBL) capCandidates.push(monthDBL.value);
-    return Math.min.apply(null, capCandidates) - spentToday;
+    return Math.min.apply(null, capCandidates) - spentTodayBudget;
   });
   var leftTodayColor = leftToday < 0 ? "var(--rust)" : "var(--positive)";
 
   /* Left to spend today (budget): the plain, uncapped daily rate minus what's
      been spent today — unlike "Left to spend today" above, this ignores the
      week/month pace horizons entirely, so it always reads today's own target. */
-  var leftTodayBudget = todayAllowanceForCard - spentToday;
+  var leftTodayBudget = allowanceForDate(todayStr()) - spentTodayBudget;
   var leftTodayBudgetColor = leftTodayBudget < 0 ? "var(--rust)" : "var(--positive)";
 
   var h = "";
@@ -1441,10 +1580,10 @@ function renderSettingsModal() {
   var tabs = [{id:"budget",label:"Budget"},{id:"income",label:"Income"},{id:"tracking",label:"Tracking"},{id:"categories",label:"Categories"},{id:"people",label:"People"},{id:"theme",label:"Theme"}];
   var h = '<div class="modal-backdrop" data-action="close-settings">';
   h += '<div class="modal-card" data-action="noop">';
-  h += '<div class="grabber"></div>';
-  h += '<div class="row between" style="margin-bottom:14px;"><div class="display" style="font-size:18px;">Settings</div><button data-action="close-settings" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
+  h += '<div class="modal-sticky-header"><div class="grabber"></div>';
+  h += '<div class="row between">'+'<div class="display" style="font-size:18px;">Settings</div><button data-action="close-settings" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div></div>';
 
-  h += '<div class="seg seg-wrap" style="margin-bottom:18px;">';
+  h += '<div class="seg seg-wrap" style="margin-bottom:18px; margin-top:14px;">';
   tabs.forEach(function(t){
     var active = state.settingsTab === t.id;
     h += '<button class="seg-btn" role="tab" aria-selected="'+active+'" data-action="settings-tab" data-tab="'+t.id+'">'+t.label+'</button>';
@@ -1480,30 +1619,18 @@ function renderSettingsModal() {
 
   if (state.settingsTab === "income") {
     var curInc = incomeForDate(todayStr());
-    var draftMode = state.incomeDraftMode || curInc.mode || "monthly";
     var curAmt = Number(curInc.amount) || 0;
     var dim = daysInMonth(new Date());
     var monthName = new Date().toLocaleDateString("en-GB",{month:"long"});
     var mBounds = getPeriodBounds("month", 0, currentWeeklyTarget(), dailyReference());
-    h += '<label class="eyebrow">How do you want to enter it?</label>';
-    h += '<div class="seg" style="margin:6px 0 12px;">';
-    [["monthly","Monthly"],["daily","Daily"]].forEach(function(opt){
-      var act = draftMode === opt[0];
-      h += '<button class="seg-btn" role="tab" aria-selected="'+act+'" data-action="income-mode" data-mode="'+opt[0]+'">'+opt[1]+'</button>';
-    });
-    h += '</div>';
-    h += '<label class="eyebrow">'+(draftMode==="monthly"?"Monthly income":"Daily income")+'</label>';
+    h += '<label class="eyebrow">Monthly income</label>';
     h += '<div style="position:relative; margin:6px 0 6px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px;">AED</span>';
     var shownAmt = (state.incomeDraftAmount != null) ? state.incomeDraftAmount : (curAmt || "");
     h += '<input id="incomeDraftInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" value="'+esc(shownAmt)+'" /></div>';
-    if (curAmt > 0) {
-      var perDayNow = dailyIncomeForDate(todayStr());
-      var perMonthNow = monthlyIncomeForDate(todayStr());
-      h += '<div class="muted" style="font-size:12px; margin-bottom:6px;">Currently '+fmt(perMonthNow,0)+' AED in '+esc(monthName)+' · '+fmt(perDayNow,2)+' AED a day.</div>';
-    }
-    h += '<div class="muted" style="font-size:11px; margin-bottom:14px;">'+(draftMode==="monthly"
-      ? ("A monthly figure is divided across that month's real length ("+dim+" days in "+esc(monthName)+"), so it accrues to exactly the full amount by month end.")
-      : "A daily figure stays flat, so a month's total varies with its length.")+'</div>';
+    /* Everything else derives from this one number, so show the derived
+       figures outright rather than making them guess the arithmetic. */
+    h += '<div class="muted" id="incomeDerivedText" style="font-size:12px; margin-bottom:6px;">'+incomeDerivedSummary(curAmt)+'</div>';
+    h += '<div class="muted" style="font-size:11px; margin-bottom:14px;">Enter what you actually earn in a month. The monthly figure is spread across that month\u2019s real length ('+dim+' days in '+esc(monthName)+'), so Week and Year views derive from it automatically \u2014 and Year counts only from your tracking start date, not the whole calendar year.</div>';
     h += '<button data-action="apply-income" data-scope="future" class="btn-accent" style="width:100%; margin-bottom:8px;">From this month onward</button>';
     h += '<div class="muted" style="font-size:11px; margin-bottom:12px;">From '+esc(shortLabel(mBounds.startStr))+' forward. Earlier months keep the income they were actually judged against — this is usually what you want.</div>';
     h += '<button data-action="apply-income" data-scope="all" class="btn-outline" style="width:100%; margin-bottom:8px;">All periods, past and future</button>';
@@ -1575,6 +1702,13 @@ function renderSettingsModal() {
         });
         rh += '</select></div>';
       }
+      if (!isRenaming) {
+        var isExcluded = categoryExcludedFromBudget(c);
+        rh += '<div class="row between" style="padding:0 12px 10px; align-items:center;">';
+        rh += '<span class="muted caption" style="min-width:0;">'+(isExcluded ? "Outside the budget \u2014 tracked as an expense only" : "Counts toward the budget")+'</span>';
+        rh += '<button data-action="toggle-category-budget" data-cat="'+esc(c)+'" class="btn-plain" style="flex-shrink:0; color:'+(isExcluded?"var(--rust)":"var(--positive)")+';">'+(isExcluded ? "Excluded" : "Included")+'</button>';
+        rh += '</div>';
+      }
       if (isEditingStyle) {
         var curStyle = categoryStyle(c);
         var hasCustom = !!(state.settings.categoryStyles && state.settings.categoryStyles[c]);
@@ -1638,30 +1772,35 @@ function renderSettingsModal() {
         h += '<div style="padding-left:14px; border-left:2px solid var(--hairline); display:flex; flex-direction:column; gap:6px;">';
         members.forEach(function(c,ci){ h += renderCategoryRow(c, ci, members); });
         h += '</div></div>';
-      } else {
-        h += '<div style="padding:0 12px 10px;"><span class="muted caption">No categories yet \u2014 assign one below.</span></div>';
       }
+      h += '<div style="padding:0 12px 12px;"><div class="row gap2"><input class="new-category-input field" data-group="'+esc(g)+'" type="text" placeholder="Add category to '+esc(g)+'" style="flex:1; font-size:13px; padding:8px 10px;" /><button data-action="add-category-scoped" data-group="'+esc(g)+'" class="btn-outline" style="padding:6px 12px; font-size:13px;">Add</button></div></div>';
       h += '</div>';
     });
 
     var ungrouped = catListAll.filter(function(c){ return !categoryGroupOf(c); });
     if (groupList.length) {
+      h += '<div style="background:var(--raised); border:1px solid var(--hairline); border-radius:10px; overflow:hidden;">';
+      h += '<div style="padding:8px 8px 4px 12px;"><span style="font-size:14px; font-weight:600;">Ungrouped</span></div>';
       if (ungrouped.length) {
-        h += '<div><div class="muted caption" style="padding:2px 2px 6px;">Ungrouped</div>';
-        h += '<div style="display:flex; flex-direction:column; gap:6px;">';
+        h += '<div style="padding:0 10px 10px 10px;">';
+        h += '<div style="padding-left:14px; border-left:2px solid var(--hairline); display:flex; flex-direction:column; gap:6px;">';
         ungrouped.forEach(function(c,ci){ h += renderCategoryRow(c, ci, ungrouped); });
         h += '</div></div>';
       }
+      h += '<div style="padding:0 12px 12px;"><div class="row gap2"><input class="new-category-input field" data-group="" type="text" placeholder="Add category" style="flex:1; font-size:13px; padding:8px 10px;" /><button data-action="add-category-scoped" data-group="" class="btn-outline" style="padding:6px 12px; font-size:13px;">Add</button></div></div>';
+      h += '</div>';
     } else {
       h += '<div style="display:flex; flex-direction:column; gap:6px;">';
       catListAll.forEach(function(c,ci){ h += renderCategoryRow(c, ci, catListAll); });
       h += '</div>';
     }
-    if (!catListAll.length) h += '<span class="muted" style="font-size:12px;">No categories yet.</span>';
+    if (!catListAll.length && !groupList.length) h += '<span class="muted" style="font-size:12px;">No categories yet.</span>';
     h += '</div>';
 
     h += '<div class="row gap2" style="margin-bottom:10px;"><input id="newGroupInput" type="text" class="field" placeholder="New group" style="flex:1;" /><button data-action="add-group" class="btn-outline">Add group</button></div>';
-    h += '<div class="row gap2"><input id="newCategoryInput" type="text" class="field" placeholder="New category" style="flex:1;" /><button data-action="add-category" class="btn-outline">Add category</button></div>';
+    if (!groupList.length) {
+      h += '<div class="row gap2"><input id="newCategoryInput" type="text" class="field" placeholder="New category" style="flex:1;" /><button data-action="add-category" class="btn-outline">Add category</button></div>';
+    }
   }
 
   if (state.settingsTab === "people") {
@@ -1725,10 +1864,15 @@ function renderAddTxnModal() {
 
   var h = '<div class="modal-backdrop" data-action="close-add-txn">';
   h += '<div class="modal-card" data-action="noop">';
-  h += '<div class="grabber"></div>';
-  h += '<div class="row between" style="margin-bottom:16px;"><div class="display" style="font-size:18px;">'+(editingItem?"Edit transaction":"Add transaction")+'</div><button data-action="close-add-txn" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div>';
+  h += '<div class="modal-sticky-header"><div class="grabber"></div>';
+  h += '<div class="row between">'+'<div class="display" style="font-size:18px;">'+(editingItem?"Edit transaction":"Add transaction")+'</div><button data-action="close-add-txn" style="background:none;border:none;color:var(--text-muted);">'+ICONS.x+'</button></div></div>';
+  var txnKind = state.txnKind != null ? state.txnKind : (editingItem && editingItem.kind==="income" ? "income" : "expense");
+  h += '<div class="seg" style="margin-bottom:10px; margin-top:14px;">';
+  h += '<button class="seg-btn" role="tab" aria-selected="'+(txnKind==="expense")+'" data-action="set-txn-kind" data-kind="expense">Expense</button>';
+  h += '<button class="seg-btn" role="tab" aria-selected="'+(txnKind==="income")+'" data-action="set-txn-kind" data-kind="income">Income</button>';
+  h += '</div>';
   var splitMode = state.txnSplitMode || "single";
-  if (!editingItem) {
+  if (!editingItem && txnKind === "expense") {
     h += '<div class="seg" style="margin-bottom:10px;">';
     h += '<button class="seg-btn" role="tab" aria-selected="'+(splitMode==="single")+'" data-action="set-txn-split-mode" data-mode="single">Single day</button>';
     h += '<button class="seg-btn" role="tab" aria-selected="'+(splitMode==="split")+'" data-action="set-txn-split-mode" data-mode="split">Split across days</button>';
@@ -1736,7 +1880,7 @@ function renderAddTxnModal() {
   }
   h += '<input id="entryDateInput" type="date" class="field mono" style="margin-bottom:8px;" value="'+formDate+'" max="'+todayStr()+'" />';
   h += '<div style="position:relative; margin-bottom:8px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none;">AED</span>';
-  h += '<input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" placeholder="'+(splitMode==="split"&&!editingItem?"Total amount":"Amount")+'" value="'+(state.entryAmountDraft != null ? esc(state.entryAmountDraft) : (editingItem?editingItem.amount:""))+'" /></div>';
+  h += '<input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" placeholder="'+(splitMode==="split"&&!editingItem&&txnKind==="expense"?"Total amount":"Amount")+'" value="'+(state.entryAmountDraft != null ? esc(state.entryAmountDraft) : (editingItem?editingItem.amount:""))+'" /></div>';
   var groupsForTxn = state.settings.categoryGroups||[];
   var selectedCatForTxn = state.entryCategoryDraft != null ? state.entryCategoryDraft : (editingItem ? (editingItem.category||"") : "");
   /* How many times each category has actually been logged, all-time — used
@@ -1755,6 +1899,7 @@ function renderAddTxnModal() {
       return list.indexOf(a) - list.indexOf(b); // stable tiebreak: original relative order
     });
   }
+  if (txnKind === "expense") {
   if (groupsForTxn.length) {
     /* Cascading picker: choosing a group narrows the category list to just
        that group's members, so a long flat list never has to be scrolled.
@@ -1765,14 +1910,15 @@ function renderAddTxnModal() {
     var editCatGroup = editingItem && editingItem.category ? (categoryGroupOf(editingItem.category) || "__ungrouped__") : "";
     var activeTxnGroup = state.txnCategoryGroup != null ? state.txnCategoryGroup : editCatGroup;
     var ungroupedCats = cats.filter(function(c){ return !categoryGroupOf(c); });
-    h += '<select id="entryGroupInput" class="field" style="margin-bottom:8px;">';
+    h += '<div class="row gap2" style="margin-bottom:8px;">';
+    h += '<select id="entryGroupInput" class="field" style="flex:1; min-width:0;">';
     h += '<option value=""'+(activeTxnGroup===""?" selected":"")+'>All groups</option>';
     groupsForTxn.forEach(function(g){
       h += '<option value="'+esc(g)+'"'+(activeTxnGroup===g?" selected":"")+'>'+esc(g)+'</option>';
     });
     if (ungroupedCats.length) h += '<option value="__ungrouped__"'+(activeTxnGroup==="__ungrouped__"?" selected":"")+'>Ungrouped</option>';
     h += '</select>';
-    h += '<select id="entryCategoryInput" class="field" style="margin-bottom:8px;">';
+    h += '<select id="entryCategoryInput" class="field" style="flex:1; min-width:0;">';
     h += '<option value="">No category</option>';
     if (!activeTxnGroup) {
       /* "All groups": organize by group (in the user's own established group
@@ -1802,6 +1948,7 @@ function renderAddTxnModal() {
       });
     }
     h += '</select>';
+    h += '</div>';
   } else {
     h += '<select id="entryCategoryInput" class="field" style="margin-bottom:8px;">';
     h += '<option value="">No category</option>';
@@ -1809,6 +1956,7 @@ function renderAddTxnModal() {
       h += '<option value="'+esc(c)+'"'+(selectedCatForTxn===c?" selected":"")+'>'+esc(c)+'</option>';
     });
     h += '</select>';
+  }
   }
   var peopleForTxn = state.settings.people||[];
   if (peopleForTxn.length) {
@@ -1864,12 +2012,12 @@ function renderAddTxnModal() {
     }
   }
   h += '<input id="entryNoteInput" type="text" class="field" style="margin-bottom:12px;" placeholder="What was it for? (optional)" value="'+(state.entryNoteDraft != null ? esc(state.entryNoteDraft) : (editingItem?esc(editingItem.note||""):""))+'" />';
-  if (!editingItem && splitMode === "split") {
+  if (!editingItem && splitMode === "split" && txnKind === "expense") {
     h += '<input id="splitDaysInput" type="number" inputmode="numeric" min="2" step="1" class="field" style="margin-bottom:8px;" placeholder="Number of days" value="'+(state.entrySplitDaysDraft != null ? esc(state.entrySplitDaysDraft) : "")+'" />';
     h += '<div class="muted caption" style="margin-bottom:12px;">Spreads the total evenly starting from the date above, one share per day. Days still to come are logged as they arrive \u2014 track progress under Plans.</div>';
   }
-  h += '<button id="addTxnBtn" data-action="add-transaction" class="btn-accent row gap2" style="width:100%; justify-content:center; align-items:center;">'+(editingItem?ICONS.check+" Save":ICONS.plus+" Add")+'</button>';
-  h += '<div id="entryHint" class="muted" style="font-size:11px; margin-top:8px;">'+(todayEntry && !editingItem ? (esc(dayLabel(formDate))+" so far: "+todayEntry.items.length+" transaction"+(todayEntry.items.length===1?"":"s")+", "+fmt(sumSpent(todayEntry),2)+" AED total.") : "")+'</div>';
+  h += '<button id="addTxnBtn" data-action="add-transaction" class="btn-accent row gap2" style="width:100%; justify-content:center; align-items:center;">'+(editingItem?(ICONS.check+" Save"):(ICONS.plus+" Add "+(txnKind==="income"?"income":"expense")))+'</button>';
+  h += '<div id="entryHint" class="muted" style="font-size:11px; margin-top:8px;">'+(todayEntry && !editingItem ? (esc(dayLabel(formDate))+" so far: "+todayEntry.items.length+" transaction"+(todayEntry.items.length===1?"":"s")+", "+fmt(sumSpent(todayEntry),2)+" AED spent.") : "")+'</div>';
   h += '</div></div>';
   return h;
 }
@@ -1927,7 +2075,10 @@ function renderTransactionsBody() {
   entryDates.forEach(function(d){
     if (!inPeriod(d)) return;
     state.entries[d].items.forEach(function(it){
-      if (itemMatchesFilters(it)) { filterCount++; filterSum += it.amount; }
+      if (itemMatchesFilters(it)) {
+        filterCount++;
+        if (isExpenseItem(it)) filterSum += personScopedAmount(it, personFilter);
+      }
     });
   });
 
@@ -2008,12 +2159,12 @@ function renderTransactionsBody() {
   } else {
     dates.forEach(function(date, i){
       var day = state.entries[date];
-      var spent = sumSpent(day);
+      var spent = sumSpentForBasis(day);
       var dayRef = referenceForDate(date);
       var delta = dayRef - spent;
       var bal = balanceMap[date];
       var displayItems = anyItemFilterActive ? day.items.filter(itemMatchesFilters) : day.items;
-      var dayFilteredSpent = displayItems.reduce(function(s,it){ return s+it.amount; }, 0);
+      var dayFilteredSpent = displayItems.reduce(function(s,it){ return isExpenseItem(it) ? s+personScopedAmount(it, personFilter) : s; }, 0);
       h += '<div style="padding:12px 16px;'+(i===0?"":"border-top:1px solid var(--hairline);")+'">';
       h += '<div class="row between">';
       h += '<div><div style="font-size:14px;">'+esc(dayLabel(date))+'</div>';
@@ -2059,9 +2210,12 @@ function renderTxnRow(date, it) {
       + '<div class="row gap2"><button data-action="delete-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:var(--rust);border:none;border-radius:5px;padding:4px;color:#fff;" aria-label="Confirm delete">'+ICONS.check+'</button>'
       + '<button data-action="cancel-delete-txn" style="background:none;border:1px solid var(--hairline);border-radius:5px;padding:4px;color:var(--text-muted);" aria-label="Cancel">'+ICONS.x+'</button></div></div>';
   }
+  var isIncome = it.kind === "income";
   var h = '<div class="row" style="align-items:center; gap:10px; padding:6px 0; margin-bottom:2px;">';
   h += '<button data-action="edit-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:none;border:none;padding:0;flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;">';
-  h += catIconCircle(it.category);
+  h += isIncome
+    ? '<span style="width:32px; height:32px; border-radius:50%; background:var(--positive); color:white; display:flex; align-items:center; justify-content:center; flex-shrink:0;">'+ICONS.plus+'</span>'
+    : catIconCircle(it.category);
   h += '<span style="min-width:0; flex:1;">';
   var seqBadge = "";
   if (it.recurringId) {
@@ -2069,7 +2223,7 @@ function renderTxnRow(date, it) {
       ? '<span class="mono" style="color:var(--text-muted); flex-shrink:0; font-size:10px;">'+it.seq+'/'+it.seqTotal+'</span>'
       : '<span style="color:var(--text-muted); flex-shrink:0;" title="Recurring payment">'+ICONS.repeat+'</span>';
   }
-  h += '<div style="font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px;">'+(it.category?esc(it.category):"Spent")+seqBadge+'</div>';
+  h += '<div style="font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px;">'+(isIncome?"Income":(it.category?esc(it.category):"Spent"))+seqBadge+'</div>';
   if (it.note) h += '<div class="muted" style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(it.note)+'</div>';
   var chipHtml = "";
   if (it.personSplit && it.personSplit.length) {
@@ -2081,7 +2235,7 @@ function renderTxnRow(date, it) {
   }
   if (chipHtml) h += '<div style="margin-top:3px; display:flex; align-items:center; flex-wrap:wrap; gap:2px;">'+chipHtml+'</div>';
   h += '</span></button>';
-  h += '<div class="mono" style="font-size:13px; font-weight:600; color:var(--rust); flex-shrink:0;">−'+fmt(it.amount,2)+' AED</div>';
+  h += '<div class="mono" style="font-size:13px; font-weight:600; color:'+(isIncome?"var(--positive)":"var(--rust)")+'; flex-shrink:0;">'+(isIncome?"+":"\u2212")+fmt(it.amount,2)+' AED</div>';
   h += '<button data-action="ask-delete-txn" data-date="'+date+'" data-id="'+esc(it.id)+'" style="background:none;border:none;padding:4px;color:var(--text-muted);flex-shrink:0;" aria-label="Delete">'+ICONS.trash+'</button>';
   h += '</div>';
   return h;
@@ -2118,7 +2272,7 @@ function renderCalendarBody() {
     var ds = toStr(cur);
     var e = state.entries[ds];
     var logged = !!e;
-    var spent = logged ? sumSpent(e) : 0;
+    var spent = logged ? sumSpentForBasis(e) : 0;
     var allowance = referenceForDate(ds);
     var isFuture = ds > today;
     var isPreTracking = tsd && ds < tsd;
@@ -2192,6 +2346,18 @@ var CAT_ICON_SVGS = {
   film: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg>',
   house: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
   gift: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C9 2 12 7 12 7z"/></svg>',
+  cloche: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20"/><path d="M4 17a8 7 0 0 1 16 0"/><line x1="12" y1="4" x2="12" y2="7"/><circle cx="12" cy="3" r="1" fill="white" stroke="none"/></svg>',
+  key: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="4"/><path d="M10 12l10-10"/><path d="M17 5l3 3"/><path d="M14 8l2.5 2.5"/></svg>',
+  bank: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21V10M9 21V10M15 21V10M20 21V10"/><path d="M2 10l10-6 10 6"/></svg>',
+  plug: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4M15 2v4"/><path d="M7 6h10v5a5 5 0 0 1-10 0z"/><path d="M12 16v6"/></svg>',
+  shield: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  tollgate: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="10" width="4" height="10" rx="1"/><rect x="18" y="10" width="4" height="10" rx="1"/><path d="M6 12l14-4"/></svg>',
+  layers: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
+  kettlebell: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8a3 3 0 0 1 6 0v2"/><circle cx="12" cy="15" r="7"/></svg>',
+  handset: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  wifi: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+  handheart: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12.5c-1-2-3-3-3-5a2 2 0 0 1 4-.5 2 2 0 0 1 4 .5c0 2-2 3-3 5z"/><path d="M4 15c0 3 3.5 5.5 8 7 4.5-1.5 8-4 8-7"/></svg>',
+  receipt: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v18l-3-2-3 2-3-2-3 2z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/></svg>',
   book: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
   plane: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>',
   fuel: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="15" y2="22"/><line x1="4" y1="9" x2="14" y2="9"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M14 13h2a2 2 0 0 1 2 2v3a1.5 1.5 0 0 0 3 0V9.5a1.5 1.5 0 0 0-.44-1.06L18 6"/><circle cx="7" cy="5.5" r="1"/></svg>',
@@ -2214,7 +2380,7 @@ var CAT_ICON_SVGS = {
   ticket: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a2 2 0 0 0 0 4v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a2 2 0 0 0 0-4z"/><path d="M13 5v14"/></svg>',
   tag: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.83 0L2.6 13.4a2 2 0 0 1 0-2.83l8-8A2 2 0 0 1 12 2h6a2 2 0 0 1 2 2v6a2 2 0 0 1-.4 1.2Z"/><circle cx="16.5" cy="7.5" r="1"/></svg>',
 };
-var CAT_ICON_ORDER = ["tag","fork","chefhat","coffee","basket","apple","cart","bag","phone","shirt","house","wrench","sparkles","bucket","spray","car","fuel","parking","bolt","heart","cross","pill","dumbbell","leaf","film","music","ticket","book","gift","plane"];
+var CAT_ICON_ORDER = ["tag","fork","chefhat","cloche","coffee","basket","apple","cart","bag","phone","handset","shirt","house","key","bank","wrench","sparkles","bucket","spray","car","fuel","parking","tollgate","shield","plug","wifi","bolt","heart","cross","pill","dumbbell","kettlebell","leaf","film","music","ticket","layers","book","gift","handheart","receipt","plane"];
 var CATEGORY_STYLES = {
   "Food & Dining": { icon:"fork", color:"#D4614A" },
   "Groceries": { icon:"basket", color:"#5EA05E" },
@@ -2233,6 +2399,20 @@ function categoryStyle(name) {
   var hash = 0;
   for (var i=0;i<name.length;i++) hash = (hash*31 + name.charCodeAt(i)) >>> 0;
   return { icon:"tag", color: PIE_COLORS[hash % PIE_COLORS.length] };
+}
+/* A group's "theme color" for the purpose of seeding a newly-added category:
+   whatever its existing members currently share, so a new category visually
+   joins the group it was added to instead of getting an unrelated color. A
+   group with no members yet has no real color to borrow, so it falls back
+   to a stable hash of the group's own name — the same trick an uncustomized
+   category already uses — so the group still has a consistent identity from
+   the very first category added to it onward. */
+function groupThemeColor(groupName) {
+  var members = (state.settings.categories||[]).filter(function(c){ return categoryGroupOf(c)===groupName; });
+  if (members.length) return categoryStyle(members[0]).color;
+  var hash = 0;
+  for (var i=0;i<groupName.length;i++) hash = (hash*31 + groupName.charCodeAt(i)) >>> 0;
+  return PIE_COLORS[hash % PIE_COLORS.length];
 }
 function catIconCircle(categoryName) {
   var st = categoryStyle(categoryName);
@@ -2557,7 +2737,7 @@ function computeForecastNumbers(rows, totalDays, periodStart) {
   var pastDays = pastRows.length;
   var pastSpent = pastRows.reduce(function(s,r){ return s+r.spent; }, 0);
   var pastDiscretionary = discretionarySpentInRows(pastRows);
-  var todayScheduledSpent = todayRow ? (todayRow.items||[]).reduce(function(s,it){ return it.recurringId ? s+it.amount : s; }, 0) : 0;
+  var todayScheduledSpent = todayRow ? (todayRow.items||[]).reduce(function(s,it){ return (isExpenseItem(it) && it.recurringId && (state.basis === "income" || itemCountsTowardBudget(it))) ? s+it.amount : s; }, 0) : 0;
   var actualSpentSoFar = pastSpent + (todayRow ? todayRow.spent : 0);
   var knownSpent = pastSpent + todayScheduledSpent;
   var historicalAvg = overallAvgDailySpend();
@@ -2786,17 +2966,41 @@ function itemMatchesPersonFilter(it, filterValue) {
    section's own pie. */
 function itemMatchesCategoryScope(it, catFilter, groupFilter) {
   if (catFilter) return (it.category || "Uncategorised") === catFilter;
+  if (groupFilter === "Ungrouped") return !categoryGroupOf(it.category);
   if (groupFilter) return categoryGroupOf(it.category) === groupFilter;
   return true;
 }
 
+/* One definition of an expense that belongs in Analysis for the active basis.
+   Budget mode excludes categories explicitly marked outside the budget; income
+   mode is cash-flow oriented and therefore includes every real expense. */
+function itemCountsForAnalysis(it) {
+  return isExpenseItem(it) && (state.basis === "income" || itemCountsTowardBudget(it));
+}
+
+/* The amount to attribute to the current person-filter scope for a given
+   item. A person filter matching a split transaction only means that person
+   holds SOME share of it — every sum built on top of that boolean match was
+   adding the item's FULL amount regardless of share, so a 100 AED purchase
+   split 30/70 was counted as a full 100 AED for BOTH people, inflating any
+   person-filtered total by everyone else's share too. This returns the
+   correct prorated amount: the person's own share when the item is split,
+   the full amount for an unsplit item (nothing to prorate), and the full
+   amount when there's no active person filter at all (nothing to scope by). */
+function personScopedAmount(it, personFilter) {
+  if (!personFilter || !it.personSplit || !it.personSplit.length) return it.amount;
+  return it.personSplit
+    .filter(function(ps){ return ps.person === personFilter; })
+    .reduce(function(t,ps){ return t + round2(it.amount * ps.pct/100); }, 0);
+}
+
 function buildAnalysisBuckets(rows, granularity, catFilter, personFilter, groupFilter) {
   function keep(it){
-    return itemMatchesCategoryScope(it, catFilter, groupFilter) && itemMatchesPersonFilter(it, personFilter);
+    return itemCountsForAnalysis(it) && itemMatchesCategoryScope(it, catFilter, groupFilter) && itemMatchesPersonFilter(it, personFilter);
   }
   function spentOf(r){
     if (!catFilter && !personFilter && !groupFilter) return r.spent;
-    return (r.items||[]).reduce(function(t,it){ return keep(it) ? t+it.amount : t; }, 0);
+    return (r.items||[]).reduce(function(t,it){ return keep(it) ? t+personScopedAmount(it, personFilter) : t; }, 0);
   }
   if (granularity !== "month") {
     return rows.map(function(r){
@@ -2892,15 +3096,15 @@ function renderAnalysisBody(T) {
      includes a drilled-into group, not just a specific leaf category, so
      browsing "Food & Drinks" filters the rest of the page exactly like
      picking "Restaurants" would, not just the category pie's own display. */
-  function keepItemPerson(it){ return itemMatchesPersonFilter(it, personFilter); }
-  function keepItemCategoryOnly(it){ return itemMatchesCategoryScope(it, catFilter, groupFilter); }
+  function keepItemPerson(it){ return itemCountsForAnalysis(it) && itemMatchesPersonFilter(it, personFilter); }
+  function keepItemCategoryOnly(it){ return itemCountsForAnalysis(it) && itemMatchesCategoryScope(it, catFilter, groupFilter); }
   function keepItem(it){ return keepItemCategoryOnly(it) && keepItemPerson(it); }
   /* Spend restricted to the active filters — the whole page reads from this
      so tapping a pie slice (category or person) re-scopes every section at
      once. */
   function filteredSpent(){
     return cs.rows.reduce(function(t,r){
-      return t + (r.items||[]).reduce(function(u,it){ return keepItem(it) ? u+it.amount : u; }, 0);
+      return t + (r.items||[]).reduce(function(u,it){ return keepItem(it) ? u+personScopedAmount(it, personFilter) : u; }, 0);
     }, 0);
   }
 
@@ -2958,7 +3162,7 @@ function renderAnalysisBody(T) {
       (r.items||[]).forEach(function(it){ if (keepItem(it)) items.push({ date: r.date, it: it }); });
     });
     items.sort(function(x,y){ return y.it.amount - x.it.amount; });
-    var totalIn = items.reduce(function(t,x){ return t+x.it.amount; }, 0);
+    var totalIn = items.reduce(function(t,x){ return t+personScopedAmount(x.it, personFilter); }, 0);
     var refIn = b.allowance;
     var net = refIn - b.spent;
 
@@ -2977,7 +3181,7 @@ function renderAnalysisBody(T) {
         s += '<div style="flex:1; min-width:0;"><div class="subhead" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(x.it.note || x.it.category || "Spent")+'</div>';
         var sub = (b.dates.length > 1 ? dayLabel(x.date) : "") + ((b.dates.length > 1 && x.it.category) ? " · " : "") + (x.it.note && x.it.category ? x.it.category : (b.dates.length > 1 ? "" : (x.it.category||"")));
         s += '<div class="muted caption" style="margin-top:1px;">'+esc(sub)+'</div></div>';
-        s += '<div class="mono subhead" style="flex-shrink:0;">'+fmt(x.it.amount,2)+'</div>';
+        s += '<div class="mono subhead" style="flex-shrink:0;">'+fmt(personScopedAmount(x.it, personFilter),2)+'</div>';
         s += '</div>';
       });
       if (items.length > 1) {
@@ -3047,6 +3251,64 @@ function renderAnalysisBody(T) {
     s += renderChart(chartData, T);
     s += '</div></div>';
     lastChartData = chartData;
+    return s;
+  };
+
+  /* Cash flow answers a different question from the rest of the page: not
+     "am I pacing against my allowance" but "did more money come in than went
+     out". So it counts EVERY expense — including categories deliberately
+     excluded from the budget, which are usually the big fixed ones (rent, a
+     mortgage) that matter most to this question. Income-basis only, since
+     without an income figure there's nothing to compare against. */
+  sectionHtml.cashFlow = function(){
+    if (state.basis !== "income") return "";
+    /* Income is whatever you've actually logged as income transactions
+       within this period — a recurring salary rule, plus any one-off
+       bonuses or gifts added by hand — not a derived rate. Hides entirely
+       when nothing's been logged yet, rather than showing a misleading
+       "0 income" for a period you simply haven't gotten to. */
+    var incomeTotal = cs.rows.reduce(function(t,r){
+      return t + (r.items||[]).reduce(function(u,it){ return isIncomeItem(it) ? u+it.amount : u; }, 0);
+    }, 0);
+    if (incomeTotal <= 0) return "";
+    var expensesTotal = cs.spentAll;
+    var netFlow = incomeTotal - expensesTotal;
+    var maxSide = Math.max(incomeTotal, expensesTotal, 1);
+    var incomePct = Math.round((incomeTotal/maxSide)*100);
+    var expensePct = Math.round((expensesTotal/maxSide)*100);
+    var positive = netFlow >= 0;
+    /* Computed directly rather than as (spentAll - spent): under the income
+       basis those two are equal by design, since income counts everything,
+       so a subtraction would always come out to zero here. */
+    var excludedTotal = cs.rows.reduce(function(t,r){
+      return t + (r.items||[]).reduce(function(u,it){ return categoryExcludedFromBudget(it.category) ? u+it.amount : u; }, 0);
+    }, 0);
+    var periodLabelUpper = periodMode === "week" ? "THIS WEEK"
+      : periodMode === "month" ? "THIS MONTH"
+      : periodMode === "year" ? "THIS YEAR"
+      : "THIS PERIOD";
+    if (info.offset && info.offset !== 0) periodLabelUpper = String(info.title||"").toUpperCase();
+
+    var s = '<div class="card card-pad" style="margin-bottom:16px;">';
+    s += '<div class="eyebrow" style="margin-bottom:2px;">Cash flow</div>';
+    s += '<div class="muted caption" style="margin-bottom:12px;">Am I spending less than I make?</div>';
+    s += '<div class="hairline-top" style="padding-top:12px;">';
+    s += '<div class="muted caption">'+esc(periodLabelUpper)+'</div>';
+    s += '<div class="mono" style="font-size:26px; font-weight:700; margin-top:2px; color:'+(positive?"var(--positive)":"var(--rust)")+';">'+(positive?"":"\u2212")+fmt(Math.abs(netFlow),2)+' <span class="muted" style="font-size:15px;">AED</span></div>';
+    s += '<div class="muted caption" style="margin-top:2px;">'+(positive?"left over after everything":"more spent than earned")+'</div>';
+    s += '</div>';
+
+    s += '<div style="margin-top:16px;">';
+    s += '<div class="row between" style="align-items:baseline; margin-bottom:6px;"><span class="subhead" style="font-weight:600;">Income</span><span class="mono subhead" style="font-weight:600;">'+fmt(incomeTotal,2)+' AED</span></div>';
+    s += '<div style="background:var(--fill); border-radius:6px; height:14px; overflow:hidden; margin-bottom:16px;"><div style="width:'+incomePct+'%; height:100%; border-radius:6px; background:var(--positive);"></div></div>';
+    s += '<div class="row between" style="align-items:baseline; margin-bottom:6px;"><span class="subhead" style="font-weight:600;">Expenses</span><span class="mono subhead" style="font-weight:600;">'+fmt(expensesTotal,2)+' AED</span></div>';
+    s += '<div style="background:var(--fill); border-radius:6px; height:14px; overflow:hidden;"><div style="width:'+expensePct+'%; height:100%; border-radius:6px; background:var(--rust);"></div></div>';
+    s += '</div>';
+
+    if (excludedTotal > 0) {
+      s += '<div class="muted caption hairline-top" style="margin-top:14px; padding-top:10px;">Includes '+fmt(excludedTotal,0)+' AED from categories kept outside the budget.</div>';
+    }
+    s += '</div>';
     return s;
   };
 
@@ -3141,7 +3403,7 @@ function renderAnalysisBody(T) {
       r.items.forEach(function(it){
         if (!keepItemPerson(it)) return;
         var key = itemCatOf(it);
-        catTotals[key] = (catTotals[key] || 0) + it.amount;
+        catTotals[key] = (catTotals[key] || 0) + personScopedAmount(it, personFilter);
       });
     });
     if (!Object.keys(catTotals).length) return "";
@@ -3261,7 +3523,7 @@ function renderAnalysisBody(T) {
     cs.rows.forEach(function(r){
       var dow = parseD(r.date).getDay();
       var idx = dow===0?6:dow-1;
-      dowSums[idx] += (r.items||[]).reduce(function(t,it){ return keepItem(it) ? t+it.amount : t; }, 0);
+      dowSums[idx] += (r.items||[]).reduce(function(t,it){ return keepItem(it) ? t+personScopedAmount(it, personFilter) : t; }, 0);
       dowCounts[idx] += 1;
     });
     var dowLabels = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
@@ -3285,7 +3547,7 @@ function renderAnalysisBody(T) {
   sectionHtml.topTransactions = function(){
     var allItems = [];
     cs.rows.forEach(function(r){
-      r.items.forEach(function(it){ if (keepItem(it)) allItems.push({date:r.date, note:it.note, amount:it.amount, category:it.category}); });
+      r.items.forEach(function(it){ if (keepItem(it)) allItems.push({date:r.date, note:it.note, amount:personScopedAmount(it, personFilter), category:it.category}); });
     });
     allItems.sort(function(a,b){ return b.amount - a.amount; });
     var top5 = allItems.slice(0,5);
@@ -3354,19 +3616,22 @@ function renderPlansBody() {
   function ruleCard(rule) {
     var complete = ruleIsComplete(rule);
     var paused = !rule.active && !complete;
+    var isIncomeRule = rule.entryKind === "income";
     var freqLabel = rule.frequency === "daily" ? "Daily" : rule.frequency === "weekly" ? "Every week" : "Every month";
     var logged = rule.occurrencesLogged || 0;
     var s = '<div class="card card-pad" style="margin-bottom:8px;'+(paused?" opacity:0.6;":"")+'">';
     s += '<div class="row between" style="align-items:flex-start;">';
     s += '<div class="row gap2" style="align-items:center; min-width:0;">';
-    s += catIconCircle(rule.category);
+    s += isIncomeRule
+      ? '<span style="width:32px; height:32px; border-radius:50%; background:var(--positive); color:white; display:flex; align-items:center; justify-content:center; flex-shrink:0;">'+ICONS.plus+'</span>'
+      : catIconCircle(rule.category);
     s += '<div style="min-width:0;">';
-    s += '<div style="font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(rule.note || rule.category || (rule.kind==="split"?"Spread":"Recurring payment"))+'</div>';
+    s += '<div style="font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'+esc(rule.note || rule.category || (rule.kind==="split"?"Spread":(isIncomeRule?"Recurring income":"Recurring payment")))+'</div>';
     var metaBits = [];
     if (rule.kind === "split") metaBits.push("Spread over "+rule.occurrencesTotal+" days");
     else metaBits.push(freqLabel);
-    metaBits.push(fmt(rule.amount,2)+" AED"+(rule.kind==="split"?"/day":""));
-    s += '<div class="muted caption" style="margin-top:2px;">'+esc(metaBits.join(" \u00b7 "))+'</div>';
+    metaBits.push((isIncomeRule?"+":"")+fmt(rule.amount,2)+" AED"+(rule.kind==="split"?"/day":""));
+    s += '<div class="muted caption" style="margin-top:2px;'+(isIncomeRule?" color:var(--positive);":"")+'">'+esc(metaBits.join(" \u00b7 "))+'</div>';
     s += '</div></div>';
     s += '<div class="row gap2" style="flex-shrink:0;">';
     if (!complete) s += '<button data-action="toggle-recurring-active" data-id="'+esc(rule.id)+'" style="background:none;border:none;padding:5px;color:var(--text-muted);" aria-label="'+(rule.active?"Pause":"Resume")+'">'+(rule.active?ICONS.pause:ICONS.play)+'</button>';
@@ -3416,21 +3681,28 @@ function renderPlansBody() {
 
   h += '<div class="card card-pad" style="margin-top:16px; margin-bottom:16px;">';
   h += '<div class="eyebrow" style="margin-bottom:10px;">Add recurring payment</div>';
+  var recKind = state.recurringKindDraft || "expense";
+  h += '<div class="seg" style="margin-bottom:8px;">';
+  h += '<button class="seg-btn" role="tab" aria-selected="'+(recKind==="expense")+'" data-action="set-recurring-kind" data-kind="expense">Expense</button>';
+  h += '<button class="seg-btn" role="tab" aria-selected="'+(recKind==="income")+'" data-action="set-recurring-kind" data-kind="income">Income</button>';
+  h += '</div>';
   h += '<div style="position:relative; margin-bottom:8px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px;">AED</span>';
-  h += '<input id="recurringAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" placeholder="Amount" /></div>';
-  h += '<select id="recurringCategoryInput" class="field" style="margin-bottom:8px;"><option value="">No category</option>';
-  (state.settings.categories||[]).forEach(function(c){ h += '<option value="'+esc(c)+'">'+esc(c)+'</option>'; });
-  h += '</select>';
+  h += '<input id="recurringAmountInput" type="number" inputmode="decimal" step="0.01" min="0" class="field mono" style="padding-left:44px;" placeholder="Amount" value="'+(state.recurringAmountDraft != null ? esc(state.recurringAmountDraft) : "")+'" /></div>';
+  if (recKind === "expense") {
+    h += '<select id="recurringCategoryInput" class="field" style="margin-bottom:8px;"><option value=""'+(!state.recurringCategoryDraft?" selected":"")+'>No category</option>';
+    (state.settings.categories||[]).forEach(function(c){ h += '<option value="'+esc(c)+'"'+(state.recurringCategoryDraft===c?" selected":"")+'>'+esc(c)+'</option>'; });
+    h += '</select>';
+  }
   if ((state.settings.people||[]).length) {
-    var recDefaultPerson = state.settings.defaultPerson||"";
+    var recDefaultPerson = state.recurringPersonDraft != null ? state.recurringPersonDraft : (state.settings.defaultPerson||"");
     h += '<select id="recurringPersonInput" class="field" style="margin-bottom:8px;"><option value=""'+(recDefaultPerson===""?" selected":"")+'>Who\u2019s this for? (optional)</option>';
     (state.settings.people||[]).forEach(function(p){ h += '<option value="'+esc(p)+'"'+(recDefaultPerson===p?" selected":"")+'>'+esc(p)+'</option>'; });
     h += '</select>';
   }
-  h += '<input id="recurringNoteInput" type="text" class="field" style="margin-bottom:8px;" placeholder="What\u2019s it for? (e.g. Rent)" />';
+  h += '<input id="recurringNoteInput" type="text" class="field" style="margin-bottom:8px;" placeholder="'+(recKind==="income"?"What\u2019s it for? (e.g. Salary)":"What\u2019s it for? (e.g. Rent)")+'" value="'+(state.recurringNoteDraft != null ? esc(state.recurringNoteDraft) : "")+'" />';
   h += '<div class="row gap2" style="margin-bottom:8px;">';
-  h += '<select id="recurringFrequencyInput" class="field" style="flex:1;"><option value="weekly">Every week</option><option value="monthly">Every month</option></select>';
-  h += '<input id="recurringStartDateInput" type="date" class="field mono" style="flex:1;" value="'+today+'" />';
+  h += '<select id="recurringFrequencyInput" class="field" style="flex:1;"><option value="weekly"'+(state.recurringFrequencyDraft!=="monthly"?" selected":"")+'>Every week</option><option value="monthly"'+(state.recurringFrequencyDraft==="monthly"?" selected":"")+'>Every month</option></select>';
+  h += '<input id="recurringStartDateInput" type="date" class="field mono" style="flex:1;" value="'+(state.recurringStartDateDraft || today)+'" />';
   h += '</div>';
   h += '<div class="muted caption" style="margin-bottom:10px;">Starts on that date, then repeats on the same day each week or month.</div>';
   var limitMode = state.recurringLimitMode || "ongoing";
@@ -3440,12 +3712,12 @@ function renderPlansBody() {
   });
   h += '</div>';
   if (limitMode === "count") {
-    h += '<input id="recurringCountInput" type="number" inputmode="numeric" min="1" step="1" class="field" style="margin-bottom:8px;" placeholder="Number of times" />';
+    h += '<input id="recurringCountInput" type="number" inputmode="numeric" min="1" step="1" class="field" style="margin-bottom:8px;" placeholder="Number of times" value="'+(state.recurringCountDraft != null ? esc(state.recurringCountDraft) : "")+'" />';
   } else if (limitMode === "until") {
-    h += '<input id="recurringEndDateInput" type="date" class="field mono" style="margin-bottom:8px;" />';
+    h += '<input id="recurringEndDateInput" type="date" class="field mono" style="margin-bottom:8px;" value="'+(state.recurringEndDateDraft || "")+'" />';
     h += '<div class="muted caption" style="margin-bottom:8px;">Stops after this date.</div>';
   }
-  h += '<button data-action="add-recurring" class="btn-accent" style="width:100%;">Add recurring payment</button>';
+  h += '<button data-action="add-recurring" class="btn-accent" style="width:100%;">Add recurring '+(recKind==="income"?"income":"payment")+'</button>';
   h += '</div>';
   return h;
 }
@@ -3503,8 +3775,15 @@ function handleAddTransaction() {
     person = personEl ? personEl.value : "";
   }
   var wasEditing = !!(state.editingItemId && state.editingOriginalDate);
+  var origItemForKind = null;
+  if (wasEditing) {
+    var origDayForKind = state.entries[state.editingOriginalDate];
+    if (origDayForKind) origItemForKind = origDayForKind.items.find(function(i){ return i.id === state.editingItemId; }) || null;
+  }
+  var kind = state.txnKind != null ? state.txnKind : (origItemForKind && origItemForKind.kind==="income" ? "income" : "expense");
+  if (kind === "income") category = ""; // income doesn't use the expense category system
 
-  if (!wasEditing && state.txnSplitMode === "split") {
+  if (!wasEditing && state.txnSplitMode === "split" && kind === "expense") {
     var splitDaysEl = document.getElementById("splitDaysInput");
     var splitDays = parseInt(splitDaysEl ? splitDaysEl.value : "", 10);
     if (isNaN(splitDays) || splitDays < 2) return;
@@ -3517,23 +3796,24 @@ function handleAddTransaction() {
   if (wasEditing) {
     var origDate = state.editingOriginalDate;
     var origDay = nextEntries[origDate];
-    var carriedAllowance = origDay ? origDay.allowance : dailyAllowance();
     if (origDay) {
       var remaining = origDay.items.filter(function(i){ return i.id !== state.editingItemId; });
       if (remaining.length === 0) delete nextEntries[origDate];
       else nextEntries[origDate] = Object.assign({}, origDay, { items: remaining });
     }
-    var updatedItem = { id: state.editingItemId, amount: amt, note: note, category: category, person: person, personSplit: personSplit };
+    /* Preserve recurringId/seq metadata when editing an occurrence so deleting
+       its plan later can still find and remove that occurrence. */
+    var updatedItem = Object.assign({}, origItemForKind || {}, { id: state.editingItemId, amount: amt, note: note, category: category, person: person, personSplit: personSplit, kind: kind });
     var destDay = nextEntries[date];
-    var nextDest = destDay ? Object.assign({}, destDay, { items: destDay.items.concat([updatedItem]) }) : { allowance: carriedAllowance, items: [updatedItem] };
+    var nextDest = destDay ? Object.assign({}, destDay, { items: destDay.items.concat([updatedItem]) }) : { allowance: allowanceForDate(date), items: [updatedItem] };
     nextEntries[date] = nextDest;
     state.editingItemId = null;
     state.editingOriginalDate = null;
     state.showAddTxn = false;
   } else {
     var existing = nextEntries[date];
-    var newItem = { id: Date.now()+"-"+Math.random().toString(36).slice(2,7), amount: amt, note: note, category: category, person: person, personSplit: personSplit };
-    nextEntries[date] = existing ? Object.assign({}, existing, { items: existing.items.concat([newItem]) }) : { allowance: dailyAllowance(), items: [newItem] };
+    var newItem = { id: Date.now()+"-"+Math.random().toString(36).slice(2,7), amount: amt, note: note, category: category, person: person, personSplit: personSplit, kind: kind };
+    nextEntries[date] = existing ? Object.assign({}, existing, { items: existing.items.concat([newItem]) }) : { allowance: allowanceForDate(date), items: [newItem] };
     state.showAddTxn = false;
   }
 
@@ -3573,6 +3853,7 @@ function handleAddSplitTransaction(startDate, totalAmount, category, note, split
   state.entryDate = startDate;
   state.showAddTxn = false;
   state.txnSplitMode = "single";
+  state.txnKind = null;
   persistAll(state.settings, state.entries, "your entries");
   showToast("Spread across "+splitDays+" days");
   render();
@@ -3585,7 +3866,7 @@ function handleApplyIncome(scope) {
   var el = document.getElementById("incomeDraftInput");
   var v = el ? parseFloat(el.value) : NaN;
   if (isNaN(v) || v < 0) return;
-  var mode = state.incomeDraftMode || incomeForDate(todayStr()).mode || "monthly";
+  var mode = "monthly"; // income is entered monthly only; legacy daily-mode history still reads correctly
   var monthStart = toStr(startOfMonth(new Date()));
   var hist = (state.settings.incomeHistory || []).slice();
   var label;
@@ -3594,6 +3875,16 @@ function handleApplyIncome(scope) {
     hist = [{ from: "1900-01-01", mode: mode, amount: v }];
     label = "Income applied to all periods";
   } else {
+    /* On the first forward-only change, preserve whatever income was configured
+       before this month as a baseline. Without this, the new record becomes
+       hist[0] and can be mistaken for historical income by older app versions. */
+    if (!hist.length) {
+      hist.push({
+        from: "1900-01-01",
+        mode: state.settings.incomeMode || "monthly",
+        amount: Number(state.settings.incomeAmount) || 0
+      });
+    }
     hist.push({ from: monthStart, mode: mode, amount: v });
     label = "Income applied from this month onward";
   }
@@ -3694,6 +3985,7 @@ function handleEditTxn(date, id) {
   state.showAddTxn = true;
   state.pendingDeleteKey = null;
   state.txnSplitMode = "single";
+  state.txnKind = null;
   state.txnCategoryGroup = null;
   state.entryAmountDraft = null;
   state.entryNoteDraft = null;
@@ -3732,6 +4024,28 @@ function handleDeleteTxn(date, id) {
    first, or they'd silently reset the moment the toggle re-renders it.
    Called at the top of every such toggle handler, before it touches other
    state and calls render(). */
+/* Same root cause as preserveTxnFormDraft, same fix: the Add Recurring
+   Payment form's fields have no draft state of their own, so toggling the
+   limit-mode segmented control (or pausing/deleting a DIFFERENT rule on the
+   same page) rebuilds the DOM and silently erases whatever's been typed
+   into this form. Called before any such action mutates state and renders. */
+function preserveRecurringFormDraft() {
+  var pairs = [
+    ["recurringAmountInput","recurringAmountDraft"],
+    ["recurringCategoryInput","recurringCategoryDraft"],
+    ["recurringPersonInput","recurringPersonDraft"],
+    ["recurringNoteInput","recurringNoteDraft"],
+    ["recurringFrequencyInput","recurringFrequencyDraft"],
+    ["recurringStartDateInput","recurringStartDateDraft"],
+    ["recurringCountInput","recurringCountDraft"],
+    ["recurringEndDateInput","recurringEndDateDraft"]
+  ];
+  pairs.forEach(function(p){
+    var el = document.getElementById(p[0]);
+    if (el) state[p[1]] = el.value;
+  });
+}
+
 function preserveTxnFormDraft() {
   var amtEl = document.getElementById("entryAmountInput");
   var noteEl = document.getElementById("entryNoteInput");
@@ -3773,12 +4087,44 @@ function handleCopyBackup() {
   }
 }
 
+function validateBackupEntries(entries) {
+  if (!entries || typeof entries !== "object" || Array.isArray(entries)) return false;
+  var dates = Object.keys(entries);
+  for (var d=0; d<dates.length; d++) {
+    var ds = dates[d];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return false;
+    var day = entries[ds];
+    if (!day || typeof day !== "object" || Array.isArray(day)) return false;
+    /* Legacy backups stored one numeric `spent` value instead of item rows. */
+    if (!Array.isArray(day.items)) {
+      if (typeof day.spent !== "number" || !isFinite(day.spent) || day.spent < 0) return false;
+      continue;
+    }
+    for (var i=0; i<day.items.length; i++) {
+      var it = day.items[i];
+      if (!it || typeof it !== "object" || Array.isArray(it)) return false;
+      if (typeof it.amount !== "number" || !isFinite(it.amount) || it.amount < 0) return false;
+      if (it.personSplit != null) {
+        if (!Array.isArray(it.personSplit)) return false;
+        var pctTotal = 0;
+        for (var j=0; j<it.personSplit.length; j++) {
+          var ps = it.personSplit[j];
+          if (!ps || typeof ps.person !== "string" || typeof ps.pct !== "number" || !isFinite(ps.pct) || ps.pct < 0 || ps.pct > 100) return false;
+          pctTotal += ps.pct;
+        }
+        if (it.personSplit.length && Math.abs(pctTotal - 100) > 0.001) return false;
+      }
+    }
+  }
+  return true;
+}
+
 function handleRestore() {
   var el = document.getElementById("restoreInput");
   var raw = el ? el.value : "";
   try {
     var parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || typeof parsed.entries !== "object") throw new Error("bad shape");
+    if (!parsed || typeof parsed !== "object" || !validateBackupEntries(parsed.entries)) throw new Error("bad shape");
     var nextSettings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings||{});
     nextSettings.analysisSectionOrder = normalizeAnalysisOrder(nextSettings.analysisSectionOrder);
     nextSettings.analysisHiddenSections = normalizeHiddenSections(nextSettings.analysisHiddenSections);
@@ -3788,6 +4134,7 @@ function handleRestore() {
     nextSettings.categoryGroupOf = normalizeCategoryGroupOf(nextSettings.categoryGroupOf, nextSettings.categories, nextSettings.categoryGroups);
     nextSettings.people = normalizePeople(nextSettings.people);
     nextSettings.personColors = normalizePersonColors(nextSettings.personColors, nextSettings.people);
+    nextSettings.categoryExcludeFromBudget = normalizeCategoryExcludeFromBudget(nextSettings.categoryExcludeFromBudget, nextSettings.categories);
     nextSettings.defaultPerson = normalizeDefaultPerson(nextSettings.defaultPerson, nextSettings.people);
     nextSettings.recurringRules = normalizeRecurringRules(nextSettings.recurringRules);
     var nextEntries = migrateEntries(parsed.entries||{}, nextSettings.weeklyTarget/7);
@@ -3841,6 +4188,11 @@ document.addEventListener("click", function(e) {
       break;
     case "edit-txn": handleEditTxn(el.dataset.date, el.dataset.id); break;
     case "cancel-edit": handleCancelEdit(); break;
+    case "set-txn-kind":
+      preserveTxnFormDraft();
+      state.txnKind = el.dataset.kind;
+      render();
+      break;
     case "set-txn-split-mode":
       preserveTxnFormDraft();
       state.txnSplitMode = el.dataset.mode;
@@ -3858,6 +4210,7 @@ document.addEventListener("click", function(e) {
       state.showAddTxn = true;
       state.pendingDeleteKey = null;
       state.txnSplitMode = "single";
+      state.txnKind = null;
       state.txnPersonSplitMode = "single";
       state.txnCategoryGroup = null;
       state.entryAmountDraft = null;
@@ -3874,6 +4227,7 @@ document.addEventListener("click", function(e) {
       state.editingItemId = null;
       state.editingOriginalDate = null;
       state.txnSplitMode = "single";
+      state.txnKind = null;
       state.txnPersonSplitMode = "single";
       state.txnCategoryGroup = null;
       state.entryAmountDraft = null;
@@ -3920,6 +4274,22 @@ document.addEventListener("click", function(e) {
     case "apply-budget":
       handleApplyBudget(el.dataset.scope);
       break;
+    case "add-category-scoped":
+      var scopedGroup = el.dataset.group || "";
+      var scopedInput = document.querySelector('.new-category-input[data-group="'+scopedGroup.replace(/"/g,'\\"')+'"]');
+      var scopedName = scopedInput ? scopedInput.value.trim() : "";
+      if (scopedName && (state.settings.categories||[]).indexOf(scopedName) === -1) {
+        var nextCatsScoped = (state.settings.categories||[]).concat([scopedName]);
+        var nextGroupOfScoped = Object.assign({}, state.settings.categoryGroupOf||{});
+        var nextStylesScoped = Object.assign({}, state.settings.categoryStyles||{});
+        if (scopedGroup) {
+          nextGroupOfScoped[scopedName] = scopedGroup;
+          nextStylesScoped[scopedName] = { icon: "tag", color: groupThemeColor(scopedGroup) };
+        }
+        persistAll(Object.assign({}, state.settings, { categories: nextCatsScoped, categoryGroupOf: nextGroupOfScoped, categoryStyles: nextStylesScoped }), state.entries, "your settings");
+        render();
+      }
+      break;
     case "add-category":
       var newCatEl = document.getElementById("newCategoryInput");
       var newCat = newCatEl ? newCatEl.value.trim() : "";
@@ -3929,7 +4299,13 @@ document.addEventListener("click", function(e) {
         render();
       }
       break;
+    case "set-recurring-kind":
+      preserveRecurringFormDraft();
+      state.recurringKindDraft = el.dataset.kind;
+      render();
+      break;
     case "set-recurring-limit-mode":
+      preserveRecurringFormDraft();
       state.recurringLimitMode = el.dataset.mode;
       render();
       break;
@@ -3939,6 +4315,7 @@ document.addEventListener("click", function(e) {
       var recStartEl = document.getElementById("recurringStartDateInput");
       var recStart = recStartEl ? recStartEl.value : "";
       if (isNaN(recAmount) || recAmount < 0 || !recStart) break;
+      var recKindForRule = state.recurringKindDraft || "expense";
       var recLimitMode = state.recurringLimitMode || "ongoing";
       var recCount = null;
       var recEndDate = null;
@@ -3959,9 +4336,10 @@ document.addEventListener("click", function(e) {
       var newRule = {
         id: Date.now()+"-"+Math.random().toString(36).slice(2,7),
         kind: "recurring",
+        entryKind: recKindForRule,
         amount: recAmount,
         splitTotal: null,
-        category: recCategoryEl ? recCategoryEl.value : "",
+        category: recKindForRule === "income" ? "" : (recCategoryEl ? recCategoryEl.value : ""),
         person: recPersonEl ? recPersonEl.value : "",
         note: recNoteEl ? recNoteEl.value.trim() : "",
         frequency: (recFreqEl && recFreqEl.value === "monthly") ? "monthly" : "weekly",
@@ -3975,10 +4353,20 @@ document.addEventListener("click", function(e) {
       runRecurringCatchUp();
       persistAll(state.settings, state.entries, "your settings");
       state.recurringLimitMode = "ongoing";
-      showToast("Recurring payment added");
+      state.recurringAmountDraft = null;
+      state.recurringCategoryDraft = null;
+      state.recurringPersonDraft = null;
+      state.recurringNoteDraft = null;
+      state.recurringFrequencyDraft = null;
+      state.recurringStartDateDraft = null;
+      state.recurringCountDraft = null;
+      state.recurringEndDateDraft = null;
+      showToast(recKindForRule === "income" ? "Recurring income added" : "Recurring payment added");
+      state.recurringKindDraft = "expense";
       render();
       break;
     case "toggle-recurring-active":
+      preserveRecurringFormDraft();
       var toggleId = el.dataset.id;
       state.settings = Object.assign({}, state.settings, { recurringRules: (state.settings.recurringRules||[]).map(function(r){
         return r.id === toggleId ? Object.assign({}, r, { active: !r.active }) : r;
@@ -3988,6 +4376,7 @@ document.addEventListener("click", function(e) {
       render();
       break;
     case "delete-recurring":
+      preserveRecurringFormDraft();
       var deleteId = el.dataset.id;
       var remainingRules = (state.settings.recurringRules||[]).filter(function(r){ return r.id !== deleteId; });
       /* Deleting a plan undoes everything it already logged, not just the
@@ -4009,6 +4398,15 @@ document.addEventListener("click", function(e) {
       persistAll(Object.assign({}, state.settings, { recurringRules: remainingRules }), entriesAfterDelete, "your settings");
       render();
       break;
+    case "toggle-category-budget":
+      var catToToggle = el.dataset.cat;
+      var nextExcludeMap = Object.assign({}, state.settings.categoryExcludeFromBudget||{});
+      if (nextExcludeMap[catToToggle]) delete nextExcludeMap[catToToggle];
+      else nextExcludeMap[catToToggle] = true;
+      persistAll(Object.assign({}, state.settings, { categoryExcludeFromBudget: nextExcludeMap }), state.entries, "your settings");
+      showToast(nextExcludeMap[catToToggle] ? catToToggle+" excluded from budget" : catToToggle+" counts toward budget");
+      render();
+      break;
     case "remove-category":
       var catToRemove = el.dataset.cat;
       var nextCatsAfterRemove = (state.settings.categories||[]).filter(function(c){ return c !== catToRemove; });
@@ -4016,7 +4414,9 @@ document.addEventListener("click", function(e) {
       delete stylesAfterRemove[catToRemove];
       var groupOfAfterRemoveCat = Object.assign({}, state.settings.categoryGroupOf||{});
       delete groupOfAfterRemoveCat[catToRemove];
-      var withoutCat = Object.assign({}, state.settings, { categories: nextCatsAfterRemove, categoryStyles: stylesAfterRemove, categoryGroupOf: groupOfAfterRemoveCat });
+      var excludeAfterRemove = Object.assign({}, state.settings.categoryExcludeFromBudget||{});
+      delete excludeAfterRemove[catToRemove];
+      var withoutCat = Object.assign({}, state.settings, { categories: nextCatsAfterRemove, categoryStyles: stylesAfterRemove, categoryGroupOf: groupOfAfterRemoveCat, categoryExcludeFromBudget: excludeAfterRemove });
       if (state.categoryStyleEditing === catToRemove) state.categoryStyleEditing = null;
       if (state.categoryRenameEditing === catToRemove) state.categoryRenameEditing = null;
       persistAll(withoutCat, state.entries, "your settings");
@@ -4240,12 +4640,6 @@ document.addEventListener("click", function(e) {
       state.showSettings = true;
       render();
       break;
-    case "income-mode":
-      var incEl = document.getElementById("incomeDraftInput");
-      if (incEl) state.incomeDraftAmount = incEl.value;
-      state.incomeDraftMode = el.dataset.mode;
-      render();
-      break;
     case "apply-income":
       handleApplyIncome(el.dataset.scope);
       break;
@@ -4313,6 +4707,10 @@ document.addEventListener("click", function(e) {
    a color is picked, without waiting for Apply or a full re-render (which
    would rebuild the sheet mid-pick and could interrupt the native picker). */
 document.addEventListener("input", function(e) {
+  if (e.target && e.target.id === "incomeDraftInput") {
+    var derivedEl = document.getElementById("incomeDerivedText");
+    if (derivedEl) derivedEl.textContent = incomeDerivedSummary(parseFloat(e.target.value));
+  }
   if (e.target && e.target.id === "weeklyDraftInput") {
     var v = parseFloat(e.target.value);
     var perDayEl = document.getElementById("weeklyPerDayText");
@@ -4484,6 +4882,22 @@ window.addEventListener("orientationchange", updateVisualViewportOffset);
 setTimeout(updateVisualViewportOffset, 300);
 setTimeout(updateVisualViewportOffset, 1000);
 
+document.addEventListener("focusin", function(e) {
+  var t = e.target;
+  if (!t || !t.closest(".modal-card")) return;
+  if (t.tagName !== "INPUT" && t.tagName !== "SELECT" && t.tagName !== "TEXTAREA") return;
+  [50, 150, 300, 450].forEach(function(ms){ setTimeout(updateVisualViewportOffset, ms); });
+});
+document.addEventListener("focusout", function(e) {
+  var t = e.target;
+  if (!t || !t.closest(".modal-card")) return;
+  if (t.tagName !== "INPUT" && t.tagName !== "SELECT" && t.tagName !== "TEXTAREA") return;
+  /* Closing the keyboard needs the same re-checks as opening it — otherwise
+     the viewport offset can stay stuck at whatever it was while the
+     keyboard was open, leaving the backdrop positioned too low and showing
+     a strip of the page behind it above the modal's own header. */
+  [50, 150, 300, 450].forEach(function(ms){ setTimeout(updateVisualViewportOffset, ms); });
+});
 loadInitial();
 render();
 </script>
