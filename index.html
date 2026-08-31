@@ -557,7 +557,7 @@
 
 /* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
-var APP_VERSION = "v91";
+var APP_VERSION = "v92";
 var FORECAST_MODEL_VERSION = "v88-canonical-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSectionOrder: null, homeSimpleView: true, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 25, safeSpendPriorities: null };
@@ -3340,6 +3340,7 @@ function render() {
   html += '<div class="app-topbar">';
   html += '<div class="brand-lockup"><div class="brand-title">The Ledger</div><span class="version-badge">'+APP_VERSION+'</span></div>';
   html += '<div class="row gap2">';
+  html += '<button class="icon-btn press" data-action="toggle-theme" aria-label="'+(state.settings.theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(state.settings.theme==="dark"?ICONS.sun:ICONS.moon)+'</button>';
   html += '<button class="icon-btn press" data-action="open-settings" aria-label="Settings">'+ICONS.settings+'</button>';
   html += '</div></div>';
 
@@ -4191,6 +4192,11 @@ function renderSettingsPage() {
     var curAccent = state.settings.customAccent || PALETTES.dark.accent;
     var curCardLightness = state.settings.customCardLightness != null ? Number(state.settings.customCardLightness) : 15;
     var hasCustom = !!(state.settings.customDarkBg || state.settings.customAccent || state.settings.customCardLightness != null);
+    h += '<label class="eyebrow">Theme</label>';
+    h += '<div class="seg" style="margin:8px 0 22px;">';
+    h += '<button class="seg-btn" role="button" aria-selected="'+(state.settings.theme==="light")+'" data-action="set-theme" data-theme="light">Light</button>';
+    h += '<button class="seg-btn" role="button" aria-selected="'+(state.settings.theme==="dark")+'" data-action="set-theme" data-theme="dark">Dark</button>';
+    h += '</div>';
     h += '<label class="eyebrow">Dark mode background</label>';
     h += '<div class="row gap2" style="margin:8px 0 4px; align-items:center;">';
     h += '<input id="customBgInput" type="color" value="'+curBg+'" style="width:48px; height:40px; border:none; border-radius:10px; padding:0; background:none;" />';
@@ -7131,6 +7137,13 @@ document.addEventListener("click", function(e) {
     case "close-factory-reset": state.showFactoryResetConfirm = false; render(); break;
     case "toggle-theme":
       persistAll(Object.assign({}, state.settings, { theme: state.settings.theme==="dark"?"light":"dark" }), state.entries, "your settings");
+      render();
+      break;
+    case "set-theme":
+      var selectedTheme = el.dataset.theme === "dark" ? "dark" : "light";
+      if (selectedTheme !== state.settings.theme) {
+        persistAll(Object.assign({}, state.settings, { theme: selectedTheme }), state.entries, "your settings");
+      }
       render();
       break;
     case "switch-view": state.view = el.dataset.view; state.offset = 0; render(); break;
