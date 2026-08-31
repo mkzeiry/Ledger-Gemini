@@ -128,7 +128,32 @@
   :root[data-theme="light"] .btn-outline,
   :root[data-theme="light"] .txn-entry-back,
   :root[data-theme="light"] .settings-back,
-  :root[data-theme="light"] .settings-header-action { border:none; box-shadow:none; }
+  :root[data-theme="light"] .settings-header-action,
+  :root[data-theme="light"] .fx-rate-input,
+  :root[data-theme="light"] .fx-panel,
+  :root[data-theme="light"] .chip {
+    border:none !important;
+    box-shadow:none !important;
+  }
+  :root[data-theme="light"] .field,
+  :root[data-theme="light"] .seg,
+  :root[data-theme="light"] .icon-btn,
+  :root[data-theme="light"] .btn-outline,
+  :root[data-theme="light"] .txn-entry-back,
+  :root[data-theme="light"] .settings-back,
+  :root[data-theme="light"] .settings-header-action,
+  :root[data-theme="light"] .chip { background:var(--fill); }
+  :root[data-theme="light"] .fx-panel { background:var(--raised); }
+  :root[data-theme="light"] .field,
+  :root[data-theme="light"] .fx-rate-input,
+  :root[data-theme="light"] .fx-currency-select,
+  :root[data-theme="light"] select,
+  :root[data-theme="light"] textarea,
+  :root[data-theme="light"] input {
+    -webkit-appearance:none;
+    appearance:none;
+    box-shadow:none;
+  }
 
   .btn-accent { background: var(--accent); color: var(--accent-ink); font-weight:700; letter-spacing:-0.015em; border:none; border-radius:13px; padding:13px 16px; font-size:16px; }
   .btn-accent:disabled { opacity:0.4; }
@@ -549,7 +574,7 @@
   }
 
 
-  /* v93 — unified iOS settings details + adjustable glass chrome */
+  /* v95 — light-mode controls + home/transaction polish */
   :root { --chrome-bg:rgba(11,17,32,.68); }
   .app-topbar {
     background:var(--chrome-bg);
@@ -565,14 +590,14 @@
   /* The floating tab bar now sits partly inside the iPhone safe-area, like a
      native glass dock, rather than hovering a full safe-area above it. */
   .tabbar {
-    bottom:max(4px, calc(env(safe-area-inset-bottom,0px) - 20px - var(--vv-extra-bottom,0px)));
+    bottom:max(7px, calc(env(safe-area-inset-bottom,0px) - 15px - var(--vv-extra-bottom,0px)));
     min-height:64px; padding:6px 5px;
     background:var(--tab-bg);
     border-color:color-mix(in srgb,var(--sep) 48%,transparent);
     -webkit-backdrop-filter:saturate(190%) blur(32px); backdrop-filter:saturate(190%) blur(32px);
     box-shadow:0 8px 30px rgba(0,0,0,.10);
   }
-  .app-fab { bottom:calc(max(env(safe-area-inset-bottom,0px), 8px) + 68px); }
+  .app-fab { bottom:calc(max(env(safe-area-inset-bottom,0px), 8px) + 73px); }
 
   /* Focused Settings pages now use the same airy surface language as the
      primary app instead of reverting to dense form-page styling. */
@@ -641,7 +666,7 @@
 
 /* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
-var APP_VERSION = "v93";
+var APP_VERSION = "v95";
 var FORECAST_MODEL_VERSION = "v88-canonical-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSectionOrder: null, homeSimpleView: true, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 25, safeSpendPriorities: null };
@@ -934,7 +959,7 @@ var PALETTES = {
   dark:  { bg:"#000000", card:"#1C1C1E", raised:"#2C2C2E", hairline:"rgba(84,84,88,.65)", sep:"rgba(84,84,88,.48)", fill:"#2C2C2E",
            text:"#F5F5F7", textMuted:"#98989F", accent:"#016E8F", accentInk:"#FFFFFF",
            rust:"#FF453A", rustWash:"rgba(255,69,58,0.14)", positive:"#30D158", positiveWash:"rgba(48,209,88,0.14)", amber:"#FF9F0A", tabBg:"rgba(22,22,24,0.82)" },
-  light: { bg:"#F5F5F7", card:"#FFFFFF", raised:"#F0F0F3", hairline:"rgba(60,60,67,.20)", sep:"rgba(60,60,67,.14)", fill:"#F0F0F3",
+  light: { bg:"#F5F5F7", card:"#FFFFFF", raised:"#ECECF1", hairline:"rgba(60,60,67,.20)", sep:"rgba(60,60,67,.14)", fill:"#E7E8EE",
            text:"#111114", textMuted:"#737785", accent:"#016E8F", accentInk:"#FFFFFF",
            rust:"#D93636", rustWash:"rgba(217,54,54,0.09)", positive:"#1A9B50", positiveWash:"rgba(26,155,80,0.11)", amber:"#B86E00", tabBg:"rgba(250,250,252,0.84)" },
 };
@@ -3894,7 +3919,7 @@ function renderHomeBody(T, da) {
       h += '<div class="hairline-top" style="margin-top:12px;padding-top:11px;"><div class="row between" style="gap:10px;align-items:baseline;"><span class="muted caption" style="font-weight:650;">BUDGET SPENDING PACE</span><span class="mono caption" style="font-weight:800;color:'+simpleTrendColor+';">'+esc(simpleTrendText)+'</span></div><div class="row" style="margin-top:7px;gap:16px;"><div style="flex:1;"><div class="muted caption">Daily avg</div><div class="mono subhead" style="font-weight:750;">'+(budgetDailyAvg==null?'—':fmt(budgetDailyAvg,0)+' AED/day')+'</div></div><div style="flex:1;"><div class="muted caption">Last 7 days</div><div class="mono subhead" style="font-weight:750;color:'+simpleTrendColor+';">'+(budgetLast7Avg==null?'—':fmt(budgetLast7Avg,0)+' AED/day')+'</div></div></div></div>';
     }
     if(homeBudgetPositionData.length){
-      h += '<div class="hairline-top" style="margin-top:14px;padding-top:12px;"><div class="row between" style="gap:10px;"><span class="muted caption" style="font-weight:650;">AHEAD / BEHIND BUDGET</span><span class="mono subhead" style="font-weight:750;color:'+(homeBudgetPosition>=0?'var(--positive)':'var(--rust)')+';">'+(homeBudgetPosition>=0?'+':'−')+fmt(Math.abs(homeBudgetPosition),0)+' AED</span></div>'+renderMiniBudgetPositionChart(homeBudgetPositionData,T)+'</div>';
+      h += '<div class="hairline-top" style="margin-top:14px;padding-top:14px;"><div class="muted caption" style="font-weight:650;">AHEAD / BEHIND BUDGET</div><div class="mono" style="margin-top:5px;font-size:30px;line-height:1.05;font-weight:780;letter-spacing:-.035em;color:'+(homeBudgetPosition>=0?'var(--positive)':'var(--rust)')+';">'+(homeBudgetPosition>=0?'+':'−')+fmt(Math.abs(homeBudgetPosition),0)+' <span class="muted" style="font-size:14px;font-weight:650;letter-spacing:0;">AED</span></div></div>';
     }
     h += '</div>';
 
@@ -4729,7 +4754,7 @@ function renderTransactionsBody() {
   h+='<div class="row between page-heading-row"><div class="title2">Transactions</div><button data-action="go-page" data-page="calendar" class="icon-btn page-icon-action" aria-label="Calendar">'+ICONS.calendar+'</button></div>';
 
   h+='<div class="card card-pad" style="margin-bottom:12px;">';
-  h+='<div><div class="eyebrow">Spent</div><div class="mono" style="font-size:30px;font-weight:700;margin-top:2px;">'+fmt(totalExpense,2)+' <span class="muted" style="font-size:15px;">AED</span></div></div>';
+  h+='<div><div class="eyebrow">Spent</div><div class="mono" style="font-size:30px;font-weight:700;margin-top:2px;">'+fmt(totalExpense,0)+' <span class="muted" style="font-size:15px;">AED</span></div></div>';
   if(periodMode!=="all"&&periodMode!=="custom") h+='<div class="row between hairline-top" style="margin-top:12px;padding-top:10px;"><button data-action="txn-nav-offset" data-delta="-1" class="icon-btn" style="padding:6px;">'+ICONS.chevronLeft+'</button><div style="text-align:center;"><div class="subhead" style="font-weight:600;">'+esc(info.title)+'</div><div class="muted caption">'+esc(info.sub)+'</div></div><button data-action="txn-nav-offset" data-delta="1" class="icon-btn" style="padding:6px;'+(info.isCurrent?'opacity:.3;pointer-events:none;':'')+'">'+ICONS.chevronRight+'</button></div>';
   h+='</div>';
 
@@ -8218,6 +8243,9 @@ document.addEventListener("input", function(e) {
     return;
   }
   if (e.target && e.target.id === "customBgInput") {
+    var lbl = document.getElementById("customBgLabel");
+    if (lbl) lbl.textContent = e.target.value.toUpperCase();
+    if (state.settings.theme !== "dark") return;
     var cardLiveEl = document.getElementById("cardBrightnessInput");
     var tones = deriveDarkTones(e.target.value, cardLiveEl ? Number(cardLiveEl.value) : (state.settings.customCardLightness != null ? state.settings.customCardLightness : 15));
     var r = document.documentElement.style;
@@ -8230,10 +8258,11 @@ document.addEventListener("input", function(e) {
     r.setProperty("--tab-bg",rgbaFromHex(tones.card,Math.min(.94,chromeA+.04)));
     var metaBg = document.querySelector('meta[name="theme-color"]');
     if (metaBg) metaBg.setAttribute("content", tones.bg);
-    var lbl = document.getElementById("customBgLabel");
-    if (lbl) lbl.textContent = e.target.value.toUpperCase();
   }
   if (e.target && e.target.id === "cardBrightnessInput") {
+    var cardLbl = document.getElementById("cardBrightnessLabel");
+    if (cardLbl) cardLbl.textContent = e.target.value + "%";
+    if (state.settings.theme !== "dark") return;
     var bgLiveEl = document.getElementById("customBgInput");
     var liveBg = bgLiveEl ? bgLiveEl.value : (state.settings.customDarkBg || PALETTES.dark.bg);
     var tonesCard = deriveDarkTones(liveBg, Number(e.target.value));
@@ -8244,8 +8273,6 @@ document.addEventListener("input", function(e) {
     var chromePct2=chromeLive2?Number(chromeLive2.value):chromeTransparencyPct();
     var chromeA2=1-Math.max(0,Math.min(65,chromePct2))/100;
     rc.setProperty("--tab-bg",rgbaFromHex(tonesCard.card,Math.min(.94,chromeA2+.04)));
-    var cardLbl = document.getElementById("cardBrightnessLabel");
-    if (cardLbl) cardLbl.textContent = e.target.value + "%";
   }
   if (e.target && e.target.id === "customAccentInput") {
     var r2 = document.documentElement.style;
