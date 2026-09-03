@@ -738,7 +738,6 @@
   .btn-outline,
   .field,
   .seg,
-  .chip,
   .settings-header-action,
   .txn-entry-back,
   .settings-back,
@@ -748,6 +747,7 @@
     box-shadow:var(--inset-stroke) !important;
     background:var(--surface-2) !important;
   }
+  .chip { border:none !important; box-shadow:var(--inset-stroke) !important; background:var(--surface-2); }
   .icon-btn {
     min-width:44px;
     min-height:44px;
@@ -922,6 +922,76 @@
     .tabbar { left:10px; right:10px; }
   }
 
+
+
+  /* ===== v112.1 UX structure pass ===== */
+  .simple-home-stack { gap:14px; }
+  .simple-home-stack > .card { box-shadow:0 14px 34px rgba(15,23,42,.07), var(--inset-stroke); }
+  .simple-hero { padding:10px !important; background:transparent !important; box-shadow:none !important; }
+  .simple-hero-grid { gap:10px; }
+  .simple-hero-cell { min-height:104px; display:flex; flex-direction:column; justify-content:center; }
+  .simple-hero-cell:first-child { box-shadow:0 14px 32px color-mix(in srgb,var(--accent) 10%,transparent), var(--inset-stroke); }
+  .simple-hero-cell:last-child { opacity:.94; }
+  .simple-budget-card, .simple-outlook-card, .simple-today-card { padding:18px !important; }
+  .simple-budget-meta { margin-top:10px; }
+  .simple-today-row { min-height:58px; }
+
+  .page-transactions .txn-period-primary,
+  .page-analysis > .seg,
+  .page-budget > .seg { margin-bottom:14px !important; }
+  .page-transactions > .card,
+  .page-analysis > .card,
+  .page-budget > .card,
+  .page-plans > .card { box-shadow:0 14px 34px rgba(15,23,42,.07), var(--inset-stroke); }
+  .page-transactions .card[style*="padding:12px"] { padding:14px !important; }
+  .page-transactions .scope-switch,
+  .page-analysis .scope-switch { scrollbar-width:none; }
+  .page-transactions .scope-switch::-webkit-scrollbar,
+  .page-analysis .scope-switch::-webkit-scrollbar { display:none; }
+
+  .txn-entry-content { padding-top:2px; }
+  .txn-entry-content > .seg:first-child { margin-top:8px !important; }
+  .fx-amount-shell {
+    min-height:82px;
+    border-radius:22px !important;
+    background:color-mix(in srgb,var(--accent) 8%,var(--surface-2)) !important;
+  }
+  .fx-amount-input { min-height:80px; font-size:40px; font-weight:800; letter-spacing:-.055em; }
+  .fx-currency-select { font-size:14px; font-weight:760; }
+  .txn-payment-seg { background:var(--surface-2) !important; }
+  .txn-more-button { border-top:1px solid color-mix(in srgb,var(--text) 7%,transparent) !important; margin-top:5px; }
+  .txn-more-card { border-radius:20px; box-shadow:var(--inset-stroke) !important; background:var(--surface-2) !important; }
+  .txn-entry-save { min-height:56px !important; border-radius:20px !important; font-size:16px !important; font-weight:780 !important; }
+  .txn-hscroll button { transition:transform .14s ease, background .18s ease; }
+  .txn-hscroll button:active { transform:scale(.96); }
+
+  .page-budget .stat-grid > div,
+  .page-plans .stat-grid > div {
+    padding:12px 13px;
+    border-radius:17px;
+    background:var(--surface-2);
+    box-shadow:var(--inset-stroke);
+  }
+  .page-budget .stat-grid,
+  .page-plans .stat-grid { gap:10px; }
+  .page-budget .card > .stat-grid { margin-top:2px; }
+
+  .page-analysis .scope-switch .chip { min-width:92px; }
+  .page-analysis .scope-switch { margin-top:-2px; }
+  .page-analysis .card .eyebrow,
+  .page-budget .card .eyebrow,
+  .page-plans .card .eyebrow { margin-bottom:8px; }
+
+  .settings-list { border-radius:22px !important; overflow:hidden; box-shadow:var(--soft-shadow),var(--inset-stroke); }
+  .settings-row { min-height:68px !important; padding:13px 16px !important; }
+  .settings-row-sub { margin-top:2px; line-height:1.3; }
+  .settings-group-title { margin:22px 4px 8px !important; font-size:11px !important; letter-spacing:.07em !important; text-transform:uppercase; font-weight:780 !important; }
+
+  @media (max-width:390px) {
+    .fx-amount-input { font-size:36px; }
+    .simple-hero-cell { min-height:96px; padding:13px; }
+  }
+
 </style>
 </head>
 <body>
@@ -931,18 +1001,10 @@
 
 /* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
-var APP_VERSION = "v112.0";
+var APP_VERSION = "v112.1";
 var FORECAST_MODEL_VERSION = "v11112-tabby-outlook-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: null, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 25, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true };
-var DEFAULT_SIMPLE_HOME_ORDER = ["hero","budgetStatus","today","outlook"];
-var SIMPLE_HOME_SECTION_LABELS = { hero:"Today summary", budgetStatus:"Budget status", today:"Recent activity", outlook:"Month outlook" };
-function normalizeSimpleHomeOrder(order) {
-  var out=(order||[]).filter(function(id){return DEFAULT_SIMPLE_HOME_ORDER.indexOf(id)!==-1;});
-  DEFAULT_SIMPLE_HOME_ORDER.forEach(function(id){if(out.indexOf(id)===-1)out.push(id);});
-  return out;
-}
-
 /* Forecast backtesting is independent of the removed Accounts feature.
    Keep its saved snapshots normalized on every boot so an older/corrupt
    snapshot can never prevent the ledger itself from opening. */
@@ -987,19 +1049,6 @@ function normalizeHiddenSections(hidden) {
 }
 function normalizeBudgetHiddenSections(hidden) {
   return (hidden||[]).filter(function(id){ return DEFAULT_BUDGET_ORDER.indexOf(id) !== -1; });
-}
-function visualArrangeBar(kind, id, label, idx, count) {
-  var action = kind === "budget" ? "move-budget-section" : "move-analysis-section";
-  var hidden = kind === "budget" ? normalizeBudgetHiddenSections(state.settings.budgetHiddenSections) : normalizeHiddenSections(state.settings.analysisHiddenSections);
-  var isHidden = hidden.indexOf(id) !== -1;
-  var toggleAction = kind === "budget" ? "toggle-budget-hidden" : "toggle-analysis-hidden";
-  return '<div class="row between" style="padding:5px 2px 8px;gap:10px;">'
-    +'<span class="caption" style="font-weight:650;min-width:0;'+(isHidden?'color:var(--text-muted);':'color:var(--text);')+'">'+esc(label)+(isHidden?' <span class="muted" style="font-weight:500;">· Hidden</span>':'')+'</span>'
-    +'<span class="row gap2" style="flex-shrink:0;">'
-    +'<button data-action="'+toggleAction+'" data-section="'+id+'" class="icon-btn" aria-label="'+(isHidden?'Show ':'Hide ')+esc(label)+'" style="padding:5px;color:'+(isHidden?'var(--text-muted)':'var(--accent)')+';">'+(isHidden?ICONS.eyeOff:ICONS.eye)+'</button>'
-    +'<button data-action="'+action+'" data-section="'+id+'" data-dir="-1" class="icon-btn" style="padding:5px;'+(idx===0?'opacity:.3;':'')+'" '+(idx===0?'disabled':'')+'>'+ICONS.chevronUp+'</button>'
-    +'<button data-action="'+action+'" data-section="'+id+'" data-dir="1" class="icon-btn" style="padding:5px;'+(idx===count-1?'opacity:.3;':'')+'" '+(idx===count-1?'disabled':'')+'>'+ICONS.chevronDown+'</button>'
-    +'</span></div>';
 }
 function normalizeCategoryStyles(styles, categories) {
   var out = {};
@@ -1867,9 +1916,6 @@ var state = {
   analysisPeriodFrom: "",
   analysisPeriodTo: "",
   analysisCashRange: "tracking",
-  analysisReorderMode: false,
-  budgetReorderMode: false,
-  homeSimpleReorderMode: false,
   plansCreateOpen: false,
   plansShowFinished: false,
   plansReturnScrollY: 0,
@@ -2007,16 +2053,6 @@ function normalizeSavingsTargetPct(v) {
 }
 function savingsTargetPct(){ return normalizeSavingsTargetPct(state.settings.savingsTargetPct); }
 function clampPct(v){ var n=Number(v); return isFinite(n)?Math.max(0,Math.min(100,round2(n))):0; }
-function normalizeHomeAheadBehindResolution(v){
-  v=String(v||"hourly").toLowerCase();
-  return v==="4h"||v==="daily" ? v : "hourly";
-}
-function homeAheadBehindResolution(){ return normalizeHomeAheadBehindResolution(state.settings.homeAheadBehindResolution); }
-function homeAheadBehindResolutionLabel(v){
-  v=normalizeHomeAheadBehindResolution(v);
-  return v==="4h" ? "Every 4 hours" : (v==="daily" ? "Daily" : "Hourly");
-}
-
 function normalizeSafeSpendHistory(v){
   var rows=Array.isArray(v)?v:[], byDate={};
   rows.forEach(function(x){
@@ -2311,42 +2347,6 @@ function hourlyBudgetPositionData(rows,info){
   return out;
 }
 
-function homeBudgetPositionDataByResolution(rows,info,resolution){
-  rows=rows||[]; if(!rows.length) return [];
-  resolution=normalizeHomeAheadBehindResolution(resolution);
-  var step=resolution==="hourly"?60:(resolution==="4h"?240:1440);
-  var today=todayStr(), now=new Date(), currentMinute=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
-  var out=[], cumulative=0, previousBalance=0;
-  rows.forEach(function(row,rowIndex){
-    var ds=row.date, isToday=ds===today, fullRef=effectiveBudgetReferenceForDate(ds,info), dayStartBalance=cumulative;
-    if(rowIndex===0){
-      out.push({label:shortHourLabel(ds,0,false),date:ds,balance:round2(dayStartBalance),delta:0});
-      previousBalance=dayStartBalance;
-    }
-    var limits=[];
-    if(isToday){
-      if(resolution==="daily") limits.push(currentMinute);
-      else{
-        for(var m=step;m<=currentMinute;m+=step) limits.push(m);
-        if(!limits.length || Math.abs(limits[limits.length-1]-currentMinute)>.01) limits.push(currentMinute);
-      }
-    }else if(resolution==="daily") limits.push(1440);
-    else{
-      for(var m2=step;m2<=1440;m2+=step) limits.push(m2);
-      if(limits[limits.length-1]!==1440) limits.push(1440);
-    }
-    limits.forEach(function(limit,li){
-      var frac=Math.max(0,Math.min(1,limit/1440)), spent=spendThrough(row,limit);
-      var bal=round2(dayStartBalance+fullRef*frac-spent);
-      var live=isToday&&li===limits.length-1;
-      var label=limit>=1440 ? (shortLabel(ds)+" · end") : (resolution==="daily" ? (live?"Today · now":shortLabel(ds)) : shortHourLabel(ds,limit,live));
-      out.push({label:label,date:ds,balance:bal,delta:round2(bal-previousBalance)});
-      previousBalance=bal;
-    });
-    cumulative=out.length?out[out.length-1].balance:dayStartBalance;
-  });
-  return out;
-}
 function effectiveBudgetTargetForRange(startStr,endStr,info){
   info=info||currentEffectiveBudgetInfo();
   /* A live effective target must obey Tracking Start Date just like periodStats
@@ -2668,7 +2668,6 @@ function loadInitial() {
   }
   state.settings.budgetSectionOrder = normalizeBudgetOrder(state.settings.budgetSectionOrder);
   state.settings.budgetHiddenSections = normalizeBudgetHiddenSections(state.settings.budgetHiddenSections);
-  state.settings.homeSimpleSectionOrder = normalizeSimpleHomeOrder(state.settings.homeSimpleSectionOrder);
   state.settings.fxRateCache = normalizeFxCache(state.settings.fxRateCache);
   state.settings.baseCurrency = TXN_CURRENCIES.indexOf(String(state.settings.baseCurrency||"AED").toUpperCase())!==-1 ? String(state.settings.baseCurrency||"AED").toUpperCase() : "AED";
   state.settings.startingCashBalance = isFinite(Number(state.settings.startingCashBalance)) ? round2(Number(state.settings.startingCashBalance)) : 0;
@@ -2717,7 +2716,6 @@ function loadInitial() {
   state.settings.transactionTagColors = normalizeTransactionTagColors(state.settings.transactionTagColors, state.settings.transactionTags);
   state.settings.incomeHistory = normalizeIncomeHistory(state.settings.incomeHistory);
   state.settings.savingsTargetPct = normalizeSavingsTargetPct(state.settings.savingsTargetPct);
-  state.settings.homeAheadBehindResolution = normalizeHomeAheadBehindResolution(state.settings.homeAheadBehindResolution);
   state.settings.monthlyBudgetHistory = normalizeMonthlyBudgetHistory(state.settings.monthlyBudgetHistory);
   state.settings.categoryStyles = normalizeCategoryStyles(state.settings.categoryStyles, state.settings.categories);
   state.settings.categoryGroups = normalizeCategoryGroups(state.settings.categoryGroups);
@@ -3169,91 +3167,6 @@ function renderChart(data, T) {
 /* Compact Home sparkline for cumulative ahead/behind budget. It supports
    mouse hover on desktop and tap/drag scrubbing on iPhone, while remaining
    visually lighter than the full Budget chart. */
-function renderMiniBudgetPositionChart(data,T) {
-  data=data||[]; if(!data.length) return '';
-  var w=340,h=78,pL=4,pR=4,pT=9,pB=9,vals=data.map(function(d){return Number(d.balance)||0;});
-  var mn=Math.min.apply(null,[0].concat(vals)), mx=Math.max.apply(null,[0].concat(vals)), range=(mx-mn)||1;
-  function x(i){return pL+(data.length>1?(i/(data.length-1))*(w-pL-pR):(w-pL-pR)/2);}
-  function y(v){return pT+(h-pT-pB)-((v-mn)/range)*(h-pT-pB);}
-  var pts=data.map(function(d,i){return [x(i),y(d.balance)];}), path=pts.length>1?smoothPathD(pts):'';
-  var zero=y(0), last=pts[pts.length-1], endColor=(data[data.length-1].balance>=0?T.positive:T.rust);
-  var areaPath=path ? (path+' L '+last[0]+','+zero+' L '+pts[0][0]+','+zero+' Z') : '';
-  return '<div id="homeBudgetPositionChartWrap" style="position:relative;margin-top:2px;">'
-    +'<div id="homeBudgetPositionChartTip" class="mono footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:8px;padding:4px 8px;max-width:230px;white-space:nowrap;opacity:0;pointer-events:none;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.16);"></div>'
-    +'<svg id="homeBudgetPositionChartSvg" viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="none">'
-    +'<line x1="'+pL+'" x2="'+(w-pR)+'" y1="'+zero+'" y2="'+zero+'" stroke="'+T.hairline+'" stroke-width="1" stroke-dasharray="3,3"/>'
-    +(areaPath?'<path d="'+areaPath+'" fill="'+endColor+'" fill-opacity="0.12" stroke="none"/>':'')
-    +(path?'<path d="'+path+'" fill="none" stroke="'+endColor+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>':'')
-    +'<circle cx="'+last[0]+'" cy="'+last[1]+'" r="4" fill="'+endColor+'"/>'
-    +'<line id="homeBudgetPositionCrosshair" x1="0" x2="0" y1="'+pT+'" y2="'+(h-pB)+'" stroke="'+T.text+'" stroke-width="1" opacity="0"/>'
-    +'<circle id="homeBudgetPositionDot" r="4.5" fill="'+endColor+'" stroke="'+T.bg+'" stroke-width="2" opacity="0"/>'
-    +'<rect id="homeBudgetPositionHit" x="0" y="0" width="'+w+'" height="'+h+'" fill="transparent" style="touch-action:none;cursor:crosshair;"/>'
-    +'</svg></div>';
-}
-
-function wireMiniBudgetPositionChart(data) {
-  var svg=document.getElementById('homeBudgetPositionChartSvg');
-  var hit=document.getElementById('homeBudgetPositionHit');
-  var cross=document.getElementById('homeBudgetPositionCrosshair');
-  var dot=document.getElementById('homeBudgetPositionDot');
-  var tip=document.getElementById('homeBudgetPositionChartTip');
-  if(!svg||!hit||!cross||!dot||!tip||!data||!data.length) return;
-  var w=340,h=78,pL=4,pR=4,pT=9,pB=9,vals=data.map(function(d){return Number(d.balance)||0;});
-  var mn=Math.min.apply(null,[0].concat(vals)),mx=Math.max.apply(null,[0].concat(vals)),range=(mx-mn)||1;
-  function x(i){return pL+(data.length>1?(i/(data.length-1))*(w-pL-pR):(w-pL-pR)/2);}
-  function y(v){return pT+(h-pT-pB)-((v-mn)/range)*(h-pT-pB);}
-  function indexAt(clientX){
-    var rect=svg.getBoundingClientRect(); if(!rect.width) return 0;
-    var frac=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
-    return Math.max(0,Math.min(data.length-1,Math.round(frac*(data.length-1))));
-  }
-  var dragging=false, activeIndex=-1, hideTimer=null, visible=false;
-  function cancelHide(){ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } }
-  function scheduleHide(){ cancelHide(); hideTimer=setTimeout(hide,1900); }
-  function showAt(i){
-    cancelHide();
-    var d=data[i],px=x(i),py=y(Number(d.balance)||0),v=Number(d.balance)||0;
-    activeIndex=i; visible=true;
-    cross.setAttribute('x1',px);cross.setAttribute('x2',px);cross.setAttribute('opacity','0.55');
-    dot.setAttribute('cx',px);dot.setAttribute('cy',py);dot.setAttribute('opacity','1');
-    tip.textContent=(d.label||d.date||'')+' · '+(v>=0?'+':'−')+fmt(Math.abs(v),0)+' AED '+(v>=0?'ahead':'behind');
-    tip.style.opacity='1'; positionChartTooltip(tip,svg,px,w);
-  }
-  function hide(){
-    cancelHide(); visible=false; activeIndex=-1;
-    cross.setAttribute('opacity','0');dot.setAttribute('opacity','0');tip.style.opacity='0';
-  }
-  hit.addEventListener('pointerdown',function(e){
-    var idx=indexAt(e.clientX);
-    if(e.pointerType!=='mouse' && visible && activeIndex===idx){ hide(); dragging=false; e.preventDefault(); return; }
-    dragging=true; try{hit.setPointerCapture(e.pointerId);}catch(_e){} showAt(idx); e.preventDefault();
-  });
-  hit.addEventListener('pointermove',function(e){
-    if(e.pointerType==='mouse'||dragging) showAt(indexAt(e.clientX));
-  });
-  hit.addEventListener('pointerup',function(e){
-    dragging=false;
-    if(e.pointerType==='mouse') showAt(indexAt(e.clientX));
-    else scheduleHide();
-  });
-  hit.addEventListener('pointercancel',function(){dragging=false;hide();});
-  hit.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&!dragging) hide();});
-  hit.addEventListener('dblclick',hide);
-}
-
-/* Drives the crosshair/dot/tooltip during a touch or mouse drag across the
-   balance chart. Bypasses state/render() entirely — a full re-render on every
-   pixel of finger movement would destroy the SVG node and feel laggy, so this
-   updates the existing elements' attributes directly instead. Re-wired after
-   every render() since the chart's DOM is rebuilt each time. */
-/* Positions an absolutely-positioned chart tooltip so it never overflows its
-   container: converts a viewBox-space x-coordinate to actual on-screen
-   pixels (the SVG renders at width:100%, so viewBox units and real pixels
-   scale by a ratio that changes with device width), then clamps the
-   tooltip's left edge so its full rendered width stays within the SVG's
-   bounds. This is what stops the scrub tooltip from running off the right
-   edge of the screen near the last day of a period. Shared by the balance
-   chart and the forecast chart so the two can't drift out of sync. */
 function positionChartTooltip(tip, svg, pxInViewBox, viewBoxWidth) {
   var rect = svg.getBoundingClientRect();
   if (!rect.width) return;
@@ -3339,6 +3252,8 @@ var ICONS = {
   palette: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
   repeat: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
   repeatNav: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+  budgetNav: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 9h10M7 13h6"/></svg>',
+  insightsNav: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 14 21 6"/><polyline points="15 6 21 6 21 12"/></svg>',
 };
 
 /* ---------------- rendering ---------------- */
@@ -3378,7 +3293,6 @@ var lastCashBalanceChartData = null;
 var lastAnalysisForecastChartData = null;
 var lastBudgetTrendChartData = null;
 var lastOverallTrendChartData = null;
-var lastHomeBudgetPositionData = null;
 var lockedScrollY = 0;
 function lockBodyScroll() {
   if (bodyScrollLocked) return;
@@ -4222,7 +4136,6 @@ function render() {
   if (state.page === "analysis" && lastAnalysisForecastChartData) wireAnalysisForecastChart(lastAnalysisForecastChartData);
   if (state.page === "budget" && lastBudgetTrendChartData) wirePeriodTrendChart("budget", lastBudgetTrendChartData);
   if (state.page === "analysis" && lastOverallTrendChartData) wirePeriodTrendChart("overall", lastOverallTrendChartData);
-  if (state.page === "home" && lastHomeBudgetPositionData) wireMiniBudgetPositionChart(lastHomeBudgetPositionData);
   if (state.page === "analysis") restoreAnalysisAnchor();
 }
 
@@ -4500,10 +4413,6 @@ function renderHomeBody(T, da) {
   var todayHomeStr = todayStr();
   var monthDaysLeft = Math.max(0, daysBetween(todayHomeStr, month.endStr) + 1);
   var pacing = liveBudgetPacing();
-  var budgetSpendPace = currentFlexibleSpendPaceStats();
-  var budgetDailyAvg = budgetSpendPace.dailyAvg;
-  var budgetLast7Avg = budgetSpendPace.last7Avg;
-  var budgetTrendPct = budgetSpendPace.trendPct;
   var safeToday = pacing.safeToday;
   var safeTodayOpeningRatio = pacing.safeTodayOpeningRatio;
   var safeTodayColor = 'var(--text)';
@@ -4539,10 +4448,7 @@ function renderHomeBody(T, da) {
     return { data: data, value: round2(acc) };
   }
   var homeMonthPosition = homePacePositionData(budget.rows);
-  var homeChartResolution = homeAheadBehindResolution();
-  var homeBudgetPositionData = homeBudgetPositionDataByResolution(budget.rows, homeEffectiveInfo, homeChartResolution);
   var monthBudgetPosition = homeMonthPosition.value;
-  lastHomeBudgetPositionData = homeBudgetPositionData;
 
   function pctBar(pct, over) {
     var pw = Math.max(0, Math.min(100, pct || 0));
@@ -4565,7 +4471,7 @@ function renderHomeBody(T, da) {
     simpleStatusColor = 'var(--rust)';
   }
 
-  var h = '<div class="row between" style="margin-bottom:7px;align-items:center;gap:10px;"><div class="eyebrow">This month</div><div class="row gap2"><button data-action="toggle-home-simple-reorder" class="btn-plain" style="font-size:12px;">' + (state.homeSimpleReorderMode ? 'Done' : 'Arrange') + '</button></div></div>';
+  var h = '';
   var simpleCards = {};
 
   var hero = '<div class="card simple-metric-card simple-hero"><div class="simple-hero-grid">';
@@ -4580,14 +4486,13 @@ function renderHomeBody(T, da) {
   budgetStatus += '<div><div class="simple-outlook-label">BUDGET SPENT SO FAR</div><div class="mono simple-outlook-value">' + fmt(budget.spent, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (target > 0 ? budgetPctRaw.toFixed(0) + '% of budget' : 'Budget not set') + '</div></div>';
   budgetStatus += '<div><div class="simple-outlook-label">PROJECTED BUDGET SPEND</div><div class="mono simple-outlook-value" style="color:' + projectedBudgetColor + ';">' + fmt(projectedBudgetSpend, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (projectedBudgetPct == null ? 'Budget not set' : projectedBudgetPct.toFixed(0) + '% of budget') + '</div></div></div>';
   budgetStatus += pctBar(progress, budgetPctRaw > 100) + '<div class="simple-budget-meta"><span>Remaining <strong style="color:' + (remaining >= 0 ? 'var(--text)' : 'var(--rust)') + ';">' + (remaining < 0 ? '−' : '') + fmt(Math.abs(remaining), 0) + ' AED</strong> of ' + fmt(target, 0) + ' AED</span><span> · ' + monthDaysLeft + ' day' + (monthDaysLeft === 1 ? '' : 's') + ' left</span></div>' + paceBadge(monthBudgetPosition);
-  if (homeBudgetPositionData && homeBudgetPositionData.length) budgetStatus += '<div class="hairline-top" style="margin-top:11px;padding-top:9px;"><div class="row between" style="align-items:baseline;"><span class="muted caption" style="font-weight:700;">AHEAD / BEHIND</span><span class="muted caption">vs monthly pace · ' + esc(homeAheadBehindResolutionLabel(homeChartResolution)) + '</span></div>' + renderMiniBudgetPositionChart(homeBudgetPositionData, T) + '</div>';
   simpleCards.budgetStatus = budgetStatus + '</div>';
 
   var todayActivity = [];
   Object.keys(state.entries).sort().reverse().some(function (d) {
     if (d > todayHomeStr) return false;
-    txnNewestFirst(state.entries[d].items || []).forEach(function (it) { if (todayActivity.length < 5 && isExpenseItem(it)) todayActivity.push({ date: d, it: it }); });
-    return todayActivity.length >= 5;
+    txnNewestFirst(state.entries[d].items || []).forEach(function (it) { if (todayActivity.length < 4 && isExpenseItem(it)) todayActivity.push({ date: d, it: it }); });
+    return todayActivity.length >= 4;
   });
   var todayCard = '<div class="card simple-today-card"><div class="row between"><div class="eyebrow">Recent</div><button data-action="go-page" data-page="transactions" class="btn-plain" style="font-size:12px;">See all</button></div>';
   if (!todayActivity.length) todayCard += '<div class="muted subhead" style="margin-top:10px;">No expense transactions yet</div>';
@@ -4615,18 +4520,16 @@ function renderHomeBody(T, da) {
   var simpleSavingColor = simpleSaving < 0 ? 'var(--rust)' : 'var(--positive)';
   var outlook = '<div class="card simple-outlook-card"><div class="eyebrow">Cash flow</div><div class="simple-outlook-grid">';
   outlook += '<div><div class="simple-outlook-label">TOTAL SPENT SO FAR</div><div class="mono simple-outlook-value">' + fmt(overall.spent, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (spentVsIncomePct == null ? 'Income not set' : spentVsIncomePct.toFixed(0) + '% of income') + '</div></div>';
-  outlook += '<div><div class="simple-outlook-label">PROJECTED TOTAL SPEND</div><div class="mono simple-outlook-value" style="color:' + projectedSpendColor + ';">' + fmt(projected, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (projectedSpendVsIncomePct == null ? 'Income not set' : projectedSpendVsIncomePct.toFixed(0) + '% of income') + '</div></div></div>';
+  var projectedTargetText='';
+  if(projectedSpendTargetGapPct!=null){projectedTargetText=' · '+Math.abs(projectedSpendTargetGapPct).toFixed(0)+'% '+(projectedSpendTargetGapPct>0?'above':'below')+' savings limit';}
+  outlook += '<div><div class="simple-outlook-label">PROJECTED TOTAL SPEND</div><div class="mono simple-outlook-value" style="color:' + projectedSpendColor + ';">' + fmt(projected, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (projectedSpendVsIncomePct == null ? 'Income not set' : projectedSpendVsIncomePct.toFixed(0) + '% of income'+projectedTargetText) + '</div></div></div>';
   if (incomeReference > 0) outlook += pctBar(projectedSpendVsIncomePct, projectedSpendVsIncomePct > 100);
   outlook += '<div class="hairline-top" style="margin-top:12px;padding-top:12px;"><div class="simple-outlook-label">PROJECTED SAVING</div><div style="margin-top:3px;"><div class="mono simple-outlook-value" style="color:' + simpleSavingColor + ';">' + (simpleSaving >= 0 ? '+' : '−') + fmt(Math.abs(simpleSaving), 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (simpleSavingPct == null ? 'Income not set' : ((simpleSavingPct < 0 ? '−' : '') + Math.abs(simpleSavingPct).toFixed(0) + '% of income')) + '</div></div></div></div>';
   simpleCards.outlook = outlook;
 
-  var simpleOrder = normalizeSimpleHomeOrder(state.settings.homeSimpleSectionOrder);
+  var simpleOrder = ['hero','budgetStatus','outlook','today'];
   h += '<div class="simple-home-stack">';
-  simpleOrder.forEach(function (id, idx) {
-    if (!simpleCards[id]) return;
-    if (state.homeSimpleReorderMode) h += '<div><div class="row between" style="padding:4px 2px 7px;"><span class="muted caption" style="font-weight:650;">' + esc(SIMPLE_HOME_SECTION_LABELS[id] || id) + '</span><span class="row gap2"><button data-action="move-home-simple-card" data-id="' + id + '" data-dir="-1" class="icon-btn" style="padding:5px;' + (idx === 0 ? 'opacity:.3;' : '') + '" ' + (idx === 0 ? 'disabled' : '') + '>' + ICONS.chevronUp + '</button><button data-action="move-home-simple-card" data-id="' + id + '" data-dir="1" class="icon-btn" style="padding:5px;' + (idx === simpleOrder.length - 1 ? 'opacity:.3;' : '') + '" ' + (idx === simpleOrder.length - 1 ? 'disabled' : '') + '>' + ICONS.chevronDown + '</button></span></div>' + simpleCards[id] + '</div>';
-    else h += simpleCards[id];
-  });
+  simpleOrder.forEach(function (id) { if (simpleCards[id]) h += simpleCards[id]; });
   h += '</div>';
   return h;
 }
@@ -4724,7 +4627,7 @@ function renderBudgetBody(T) {
     });
     flexibleForecastBreakdown.sort(function(a,b){return b.amount-a.amount;});
   }
-  var h='<div class="row between page-heading-row"><div class="title2">Budget</div><div class="row gap2 page-actions"><button data-action="toggle-budget-reorder" class="btn-plain">'+(state.budgetReorderMode?'Done':'Arrange')+'</button><button data-action="open-budget-settings" class="btn-outline compact-action">Edit</button></div></div>';
+  var h='<div class="row between page-heading-row"><div class="title2">Budget</div><button data-action="open-budget-settings" class="btn-outline compact-action">Edit</button></div>';
   h+='<div class="seg" style="margin-bottom:12px;">';['week','month','year'].forEach(function(v){h+='<button class="seg-btn" role="tab" aria-selected="'+(state.view===v)+'" data-action="switch-view" data-view="'+v+'" style="text-transform:capitalize;">'+v+'</button>';});h+='</div>';
   h+='<div class="row between card" style="padding:8px 10px;margin-bottom:12px;"><button data-action="nav-offset" data-delta="-1" class="icon-btn" style="border-radius:10px;">'+ICONS.chevronLeft+'</button><div style="text-align:center;"><div class="subhead" style="font-weight:600;">'+esc(period.title)+'</div><div class="muted caption">'+esc(period.sub)+(isClosed?' · closed':'')+'</div></div><button data-action="nav-offset" data-delta="1" class="icon-btn" style="border-radius:10px;'+(isCurrent?'opacity:.3;pointer-events:none;':'')+'">'+ICONS.chevronRight+'</button></div>';
 
@@ -4732,76 +4635,43 @@ function renderBudgetBody(T) {
   var budgetUsedPct = target>0 ? (stats.spent/target*100) : 0;
   var summary='<div class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="align-items:baseline;"><div><div class="muted caption">'+(state.view==='week'?'WEEKLY PACE SPENT':(isCurrent?'EFFECTIVE BUDGET SPENT':'BUDGET SPENT'))+'</div><div class="mono" style="font-size:30px;font-weight:700;margin-top:2px;">'+fmt(stats.spent,0)+' AED</div></div><div style="text-align:right;"><div class="mono muted subhead">of '+fmt(target,0)+' AED</div><div class="mono caption" style="margin-top:3px;font-weight:700;color:'+(budgetUsedPct>100?'var(--rust)':'var(--text-muted)')+';">'+budgetUsedPct.toFixed(0)+'% used</div></div></div><div style="height:10px;background:var(--fill);border-radius:999px;overflow:hidden;margin:12px 0 14px;"><div style="height:100%;width:'+progress+'%;background:'+(stats.spent>target?'var(--rust)':'var(--accent)')+';"></div></div><div class="stat-grid">';
   summary+=statBlock('Remaining',(remaining>=0?'':'−')+fmt(Math.abs(remaining),0)+' AED',remaining>=0?'var(--positive)':'var(--rust)');
-  summary+=statBlock('Safe to spend today',isCurrent&&safeToday!=null?(fmt(safeToday,0)+' AED'):'—',safeToday!=null&&safeToday<0?'var(--rust)':'var(--text)');
+  summary+=statBlock('Safe to spend today',isCurrent&&safeToday!=null?(fmt(safeToday,0)+' AED'):'—',safeToday!=null?'var(--accent)':'var(--text-muted)');
   summary+=statBlock('Spent today',isCurrent?fmt(spentToday,0)+' AED':'—','var(--text)');
   summary+=statBlock('Projected vs budget',isCurrent?((projectedSaving>=0?'+':'−')+fmt(Math.abs(projectedSaving),0)+' AED'):'—',projectedSaving>=0?'var(--positive)':'var(--rust)')+'</div>';
   if(budgetSavingsComparison){
     var bsc=budgetSavingsComparison, savingsTighter=effectiveInfo&&effectiveInfo.savingsTight;
-    var relationText=savingsTighter ? fmt(bsc.pct,0)+'% savings goal sets the limit' : 'Your set monthly budget sets the limit';
+    var relationText=savingsTighter ? fmt(bsc.pct,0)+'% savings target sets this limit' : 'Your monthly budget sets this limit';
     var relationColor=savingsTighter?'var(--amber)':'var(--positive)';
-    summary+='<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--sep);">';
-    summary+='<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:4px;align-items:start;"><div><div class="subhead" style="font-weight:700;">Effective monthly budget</div></div><div class="mono subhead" style="font-weight:800;color:'+relationColor+';text-align:right;white-space:nowrap;">≈ '+fmt(effectiveInfo.effectiveBudget,0)+' AED</div><div class="caption" style="grid-column:1/-1;font-weight:700;color:'+relationColor+';line-height:1.35;white-space:normal;">'+esc(relationText)+'</div></div>';
-    summary+='<div style="margin-top:10px;border-radius:10px;background:var(--fill);padding:2px 10px;">';
-    summary+='<div class="row between" style="padding:7px 0;"><span class="muted caption">Your set budget</span><span class="mono caption" style="font-weight:700;">'+fmt(bsc.configuredBudget,0)+' AED</span></div>';
-    summary+='<div class="row between" style="padding:7px 0;border-top:1px solid var(--sep);"><span class="muted caption">Savings-compatible limit</span><span class="mono caption" style="font-weight:750;">≈ '+fmt(bsc.compatibleBudget,0)+' AED</span></div>';
-    summary+='<div class="row between" style="padding:7px 0;border-top:1px solid var(--sep);"><span class="muted caption">Normalized outside-budget / month</span><span class="mono caption" style="font-weight:700;">≈ '+fmt(bsc.normalizedExcluded,0)+' AED</span></div>';
-    summary+='</div></div>';
+    summary+='<div class="row between" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--sep);gap:14px;align-items:center;"><div style="min-width:0;"><div class="subhead" style="font-weight:720;">Effective monthly budget</div><div class="caption" style="margin-top:3px;color:'+relationColor+';font-weight:700;">'+esc(relationText)+'</div></div><div class="mono subhead" style="font-weight:800;color:'+relationColor+';white-space:nowrap;">≈ '+fmt(effectiveInfo.effectiveBudget,0)+' AED</div></div>';
   }
   
-  if(isCurrent){
+  if(isCurrent && (protectedTotal>0 || flexibleForecastTotal>0 || overSafeToday>0 || adjustmentNeeded>0)){
     var budgetDetailsOpen=!!state.budgetSummaryDetailsOpen;
     summary+='<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--sep);">';
-    summary+='<button data-action="toggle-budget-summary-details" class="row between" style="width:100%;background:none;border:none;padding:0;color:inherit;text-align:left;gap:12px;align-items:center;"><span class="subhead" style="font-weight:700;">Budget details</span><span class="row gap2"><span class="muted caption">'+(budgetDetailsOpen?'Hide':'View')+'</span><span style="display:flex;transform:rotate('+(budgetDetailsOpen?'180':'0')+'deg);transition:transform .16s ease;">'+ICONS.chevronDown+'</span></span></button>';
+    summary+='<button data-action="toggle-budget-summary-details" class="row between" style="width:100%;background:none;border:none;padding:0;color:inherit;text-align:left;gap:12px;align-items:center;"><span class="subhead" style="font-weight:720;">Reserved & upcoming</span><span class="row gap2"><span class="muted caption">'+(budgetDetailsOpen?'Hide':'View')+'</span><span style="display:flex;transform:rotate('+(budgetDetailsOpen?'180':'0')+'deg);transition:transform .16s ease;">'+ICONS.chevronDown+'</span></span></button>';
     if(budgetDetailsOpen){
-      summary+='<div style="margin-top:11px;border-radius:10px;background:var(--fill);padding:2px 10px;">';
-      summary+='<div class="row between" style="padding:8px 0;"><span class="muted caption">Equal remaining / day</span><span class="mono caption" style="font-weight:700;">'+(selectedDailyAllowance!=null?((selectedDailyAllowance<0?'−':'')+fmt(Math.abs(selectedDailyAllowance),0)+' AED/day'):'—')+'</span></div>';
-      summary+='<div class="row between" style="padding:8px 0;border-top:1px solid var(--sep);"><span class="muted caption">Sustainable flexible pace</span><span class="mono caption" style="font-weight:700;">'+(flexibleAllowancePerDay!=null?((flexibleAllowancePerDay<0?'−':'')+fmt(Math.abs(flexibleAllowancePerDay),0)+' AED/day'):'—')+'</span></div>';
-      summary+='<div class="row between" style="padding:8px 0;border-top:1px solid var(--sep);"><span class="muted caption">Opening safe allowance</span><span class="mono caption" style="font-weight:700;">'+(openingSafeAllowance!=null?fmt(Math.max(0,openingSafeAllowance),0)+' AED':'—')+'</span></div>';
-      if(limitingHorizon){
-        var limitName=limitingHorizon==='effective'?'Effective budget':(limitingHorizon==='savings'?'Savings goal':(limitingHorizon.charAt(0).toUpperCase()+limitingHorizon.slice(1)));
-        summary+='<div class="row between" style="padding:8px 0;border-top:1px solid var(--sep);"><span class="muted caption">Safe-to-spend limit</span><span class="caption" style="font-weight:700;">'+esc(limitName)+'</span></div>';
-      }
-      summary+='</div>';
-      if(limitingPacing&&limitingPacing.days>0&&flexibleAllowancePerDay!=null){
-        var pacingLabel='Month';
-        summary+='<div class="muted caption" style="margin-top:8px;line-height:1.4;">Month Safe-to-Spend: ('+fmt(limitingPacing.openingRemaining,0)+' opening − '+fmt(limitingPacing.futureReserve||0,0)+' protected) ÷ '+limitingPacing.days+' day'+(limitingPacing.days===1?'':'s')+' = '+fmt(flexibleAllowancePerDay,0)+' AED/day. This sustainable amount is used directly—there is no extra daily-flexibility headroom borrowed from later days.</div>';
-        if(state.view==='week') summary+='<div class="muted caption" style="margin-top:5px;line-height:1.35;">Week is a pacing/forecast view only. Safe-to-Spend is always controlled by the remaining Month.</div>';
-      }
-      if(protectedTotal>0||flexibleForecastTotal>0){
-        summary+='<div style="margin-top:12px;padding-top:11px;border-top:1px solid var(--sep);">';
-        if(protectedTotal>0){
-          var protectedOpen=!!state.budgetProtectedOpen;
-          summary+='<button data-action="toggle-budget-protected" class="row between" style="width:100%;background:none;border:none;padding:0;color:inherit;text-align:left;gap:12px;align-items:center;"><span class="subhead" style="font-weight:650;">Protected essentials <span class="muted caption" style="font-weight:500;">· '+selectedForecastHorizonLabel+'</span></span><span class="row gap2"><span class="mono subhead" style="font-weight:750;">'+fmt(protectedTotal,0)+' AED</span><span style="display:flex;transform:rotate('+(protectedOpen?'180':'0')+'deg);transition:transform .16s ease;">'+ICONS.chevronDown+'</span></span></button>';
-          if(protectedOpen&&protectedBreakdown.length){
-            summary+='<div class="muted caption" style="margin-top:5px;line-height:1.35;">Money still ring-fenced from now through the selected period.</div>';
-            summary+='<div style="margin-top:8px;border-radius:10px;background:var(--fill);padding:2px 10px;">';
-            protectedBreakdown.forEach(function(x,i){
-              summary+='<div style="padding:9px 0;'+(i?'border-top:1px solid var(--sep);':'')+'"><div class="row between" style="gap:12px;"><div class="caption" style="font-weight:650;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(x.category)+'</div><div style="flex-shrink:0;text-align:right;"><div class="mono caption" style="font-weight:750;">'+fmt(x.amount,0)+' AED</div><div class="muted caption">protected</div></div></div>'+budgetForecastEvidenceHtml(x,true)+'</div>';
-            });
-            summary+='</div>';
-          }
-        }
-        if(flexibleForecastTotal>0){
-          var upcomingOpen=!!state.budgetUpcomingOpen;
-          summary+='<div class="'+(protectedTotal>0?'hairline-top':'')+'" style="margin-top:'+(protectedTotal>0?'12px':'0')+';padding-top:'+(protectedTotal>0?'11px':'0')+';"><button data-action="toggle-budget-upcoming" class="row between" style="width:100%;background:none;border:none;padding:0;color:inherit;text-align:left;gap:12px;align-items:center;"><span class="subhead" style="font-weight:650;">Upcoming forecast <span class="muted caption" style="font-weight:500;">· '+selectedForecastHorizonLabel+'</span></span><span class="row gap2"><span class="mono subhead" style="font-weight:700;color:var(--text-muted);">≈ '+fmt(flexibleForecastTotal,0)+' AED</span><span style="display:flex;transform:rotate('+(upcomingOpen?'180':'0')+'deg);transition:transform .16s ease;">'+ICONS.chevronDown+'</span></span></button>';
-          if(upcomingOpen&&flexibleForecastBreakdown.length){
-            summary+='<div class="muted caption" style="margin-top:5px;line-height:1.35;">Expected spend that is forecast but not hard-reserved above.</div>';
-            summary+='<div style="margin-top:8px;border-radius:10px;background:var(--fill);padding:2px 10px;">';
-            flexibleForecastBreakdown.forEach(function(x,i){
-              summary+='<div style="padding:9px 0;'+(i?'border-top:1px solid var(--sep);':'')+'"><div class="row between" style="gap:12px;"><div class="caption" style="font-weight:650;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(x.category)+'</div><div class="mono caption muted" style="font-weight:750;flex-shrink:0;">≈ '+fmt(x.amount,0)+' AED</div></div>'+budgetForecastEvidenceHtml(x,false)+'</div>';
-            });
-            summary+='</div>';
-          }
+      if(protectedTotal>0){
+        var protectedOpen=!!state.budgetProtectedOpen;
+        summary+='<div style="margin-top:12px;"><button data-action="toggle-budget-protected" class="row between" style="width:100%;background:none;border:none;padding:0;color:inherit;text-align:left;gap:12px;align-items:center;"><span class="caption" style="font-weight:700;">Protected essentials</span><span class="row gap2"><span class="mono caption" style="font-weight:800;">'+fmt(protectedTotal,0)+' AED</span><span style="display:flex;transform:rotate('+(protectedOpen?'180':'0')+'deg);">'+ICONS.chevronDown+'</span></span></button>';
+        if(protectedOpen&&protectedBreakdown.length){
+          summary+='<div style="margin-top:8px;border-radius:16px;background:var(--fill);padding:2px 10px;">';
+          protectedBreakdown.forEach(function(x,i){summary+='<div class="row between" style="gap:12px;padding:9px 0;'+(i?'border-top:1px solid var(--sep);':'')+'"><span class="caption" style="font-weight:650;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(x.category)+'</span><span class="mono caption" style="font-weight:800;flex-shrink:0;">'+fmt(x.amount,0)+' AED</span></div>';});
           summary+='</div>';
         }
         summary+='</div>';
       }
-      if(overSafeToday>0){
-        summary+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--sep);" class="row between"><span class="caption" style="font-weight:650;color:var(--rust);">Over today\'s safe allowance</span><span class="mono caption" style="font-weight:750;color:var(--rust);">'+fmt(overSafeToday,0)+' AED</span></div>';
+      if(flexibleForecastTotal>0){
+        var upcomingOpen=!!state.budgetUpcomingOpen;
+        summary+='<div class="'+(protectedTotal>0?'hairline-top':'')+'" style="margin-top:'+(protectedTotal>0?'12px':'10px')+';padding-top:'+(protectedTotal>0?'11px':'0')+';"><button data-action="toggle-budget-upcoming" class="row between" style="width:100%;background:none;border:none;padding:0;color:inherit;text-align:left;gap:12px;align-items:center;"><span class="caption" style="font-weight:700;">Forecasted flexible spend</span><span class="row gap2"><span class="mono caption muted" style="font-weight:800;">≈ '+fmt(flexibleForecastTotal,0)+' AED</span><span style="display:flex;transform:rotate('+(upcomingOpen?'180':'0')+'deg);">'+ICONS.chevronDown+'</span></span></button>';
+        if(upcomingOpen&&flexibleForecastBreakdown.length){
+          summary+='<div style="margin-top:8px;border-radius:16px;background:var(--fill);padding:2px 10px;">';
+          flexibleForecastBreakdown.slice(0,6).forEach(function(x,i){summary+='<div class="row between" style="gap:12px;padding:9px 0;'+(i?'border-top:1px solid var(--sep);':'')+'"><span class="caption" style="font-weight:650;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(x.category)+'</span><span class="mono caption muted" style="font-weight:800;flex-shrink:0;">≈ '+fmt(x.amount,0)+' AED</span></div>';});
+          summary+='</div>';
+        }
+        summary+='</div>';
       }
-      if(adjustmentNeeded>0){
-        summary+='<div style="margin-top:8px;" class="row between"><span class="caption" style="font-weight:650;color:var(--rust);">Adjustment needed</span><span class="mono caption" style="font-weight:700;color:var(--rust);">'+fmt(adjustmentNeeded,0)+' AED</span></div>';
-      }
+      if(overSafeToday>0) summary+='<div class="row between" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--sep);"><span class="caption" style="font-weight:700;color:var(--rust);">Over today\'s safe amount</span><span class="mono caption" style="font-weight:800;color:var(--rust);">'+fmt(overSafeToday,0)+' AED</span></div>';
+      if(adjustmentNeeded>0) summary+='<div class="row between" style="margin-top:8px;"><span class="caption" style="font-weight:700;color:var(--rust);">Adjustment needed</span><span class="mono caption" style="font-weight:800;color:var(--rust);">'+fmt(adjustmentNeeded,0)+' AED</span></div>';
     }
     summary+='</div>';
   }
@@ -4858,16 +4728,9 @@ function renderBudgetBody(T) {
   sections.category=catCard;
   var personCard='';if((state.settings.people||[]).length){var pt={};stats.rows.forEach(function(r){(r.items||[]).forEach(function(it){if(!isExpenseItem(it)||!itemCountsTowardBudget(it)||!catMatch(it))return;if(it.personSplit&&it.personSplit.length)it.personSplit.forEach(function(ps){pt[ps.person]=(pt[ps.person]||0)+round2(it.amount*ps.pct/100);});else{var pk=it.person||'Unassigned';pt[pk]=(pt[pk]||0)+it.amount;}});});var pslices=Object.keys(pt).map(function(k){return{label:k,value:pt[k]};}).sort(function(a,b){return b.value-a.value;});pslices.forEach(function(sl){sl.color=sl.label==='Unassigned'?'#8595B5':personColor(sl.label);});if(pslices.length){var ptotal=pslices.reduce(function(t,x){return t+x.value;},0);personCard='<div class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="margin-bottom:10px;"><span class="eyebrow">Budget spend by person</span><span class="muted caption">'+(personFilter?'Tap to clear':'Tap to filter')+'</span></div><div style="display:flex;justify-content:center;margin-bottom:12px;">'+renderPieChart(pslices,T,personFilter||null,'Budget',ptotal,'filter-budget-person','person')+'</div>';pslices.forEach(function(sl,i){var p=ptotal?sl.value/ptotal*100:0,isSel=personFilter===sl.label;personCard+='<button data-action="filter-budget-person" data-person="'+esc(sl.label)+'" class="row between" style="width:100%;background:none;border:none;padding:8px 0;'+(i?'border-top:1px solid var(--sep);':'')+(personFilter&&!isSel?'opacity:.45;':'')+'"><span>'+(sl.label==='Unassigned'?'<span class="subhead">Unassigned</span>':personChip(sl.label))+'</span><span class="row" style="gap:10px;"><span class="mono subhead">'+fmt(sl.value,0)+'</span><span class="muted mono caption" style="width:36px;text-align:right;">'+p.toFixed(0)+'%</span></span></button>';});personCard+='</div>';}}sections.person=personCard;
 
-  var order=normalizeBudgetOrder(state.settings.budgetSectionOrder),budgetHidden=normalizeBudgetHiddenSections(state.settings.budgetHiddenSections);
+  var order=['summary','forecast','category','progress','spendTrend','person'];
   h+='<div style="display:flex;flex-direction:column;">';
-  if(state.budgetReorderMode){
-    order.forEach(function(id,idx){
-      var hidden=budgetHidden.indexOf(id)!==-1;
-      h+='<div style="order:'+idx+';">'+visualArrangeBar('budget',id,BUDGET_SECTION_LABELS[id]||id,idx,order.length)+(hidden?'':(sections[id]||''))+'</div>';
-    });
-  } else {
-    order.filter(function(id){return !!sections[id]&&budgetHidden.indexOf(id)===-1;}).forEach(function(id,idx){h+='<div style="order:'+idx+';">'+sections[id]+'</div>';});
-  }
+  order.filter(function(id){return !!sections[id];}).forEach(function(id,idx){h+='<div style="order:'+idx+';">'+sections[id]+'</div>';});
   h+='</div>';
   return h;
 }
@@ -4894,30 +4757,35 @@ function renderSettingsPage() {
   if (!section) {
     var monthlyNow = currentMonthlyBudget();
     var catsN=(state.settings.categories||[]).length, groupsN=(state.settings.categoryGroups||[]).length;
-    var peopleN=(state.settings.people||[]).length;
-    var tagsN=(state.settings.transactionTags||[]).length;
+    var peopleN=(state.settings.people||[]).length, tagsN=(state.settings.transactionTags||[]).length;
     var themeLabel = state.settings.theme === "dark" ? "Dark" : "Light";
     var trackLabel = state.settings.trackingStartDate ? shortLabel(state.settings.trackingStartDate) : "Not set";
 
-    h += '<div class="settings-group-title">Money</div><div class="settings-list">';
-    h += '<button class="settings-row" data-action="settings-section" data-section="budget"><span class="settings-row-main"><span class="settings-row-label">Monthly budget</span><span class="settings-row-sub">Your controllable-spend target</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(monthlyNow,0)+' AED</span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="savings"><span class="settings-row-main"><span class="settings-row-label">Savings target</span><span class="settings-row-sub">Target share of full income to keep</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(savingsTargetPct(),0)+'%</span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="currency"><span class="settings-row-main"><span class="settings-row-label">Currencies</span><span class="settings-row-sub">Travel spending and exchange rates</span></span><span class="row gap2"><span class="settings-row-value">'+reportingCurrency()+' base</span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="categories"><span class="settings-row-main"><span class="settings-row-label">Categories</span><span class="settings-row-sub">Categories, subcategories and budget rules</span></span><span class="row gap2"><span class="settings-row-value">'+groupsN+' · '+catsN+' sub</span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="people"><span class="settings-row-main"><span class="settings-row-label">People</span><span class="settings-row-sub">Defaults, colors and shared spending</span></span><span class="row gap2"><span class="settings-row-value">'+peopleN+'</span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="tags"><span class="settings-row-main"><span class="settings-row-label">Transaction tags</span><span class="settings-row-sub">Flexible labels such as Travel or Work</span></span><span class="row gap2"><span class="settings-row-value">'+tagsN+'</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<div class="settings-group-title">Budgeting</div><div class="settings-list">';
+    h += '<button class="settings-row" data-action="settings-section" data-section="budget"><span class="settings-row-main"><span class="settings-row-label">Monthly budget</span><span class="settings-row-sub">Your controllable spending limit</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(monthlyNow,0)+' AED</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="savings"><span class="settings-row-main"><span class="settings-row-label">Savings target</span><span class="settings-row-sub">Long-term share of income to keep</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(savingsTargetPct(),0)+'%</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="categories"><span class="settings-row-main"><span class="settings-row-label">Categories & rules</span><span class="settings-row-sub">Budget scope, forecasting and protection</span></span><span class="row gap2"><span class="settings-row-value">'+groupsN+' · '+catsN+'</span>'+ICONS.chevronRight+'</span></button>';
+    h += '</div>';
+
+    h += '<div class="settings-group-title">Tracking</div><div class="settings-list">';
+    h += '<button class="settings-row" data-action="settings-section" data-section="people"><span class="settings-row-main"><span class="settings-row-label">People</span><span class="settings-row-sub">Who spending belongs to</span></span><span class="row gap2"><span class="settings-row-value">'+peopleN+'</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="tags"><span class="settings-row-main"><span class="settings-row-label">Tags</span><span class="settings-row-sub">Optional labels for deeper filtering</span></span><span class="row gap2"><span class="settings-row-value">'+tagsN+'</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="currency"><span class="settings-row-main"><span class="settings-row-label">Currencies</span><span class="settings-row-sub">Base currency and travel transactions</span></span><span class="row gap2"><span class="settings-row-value">'+reportingCurrency()+'</span>'+ICONS.chevronRight+'</span></button>';
     h += '</div>';
 
     h += '<div class="settings-group-title">App</div><div class="settings-list">';
-    h += '<button class="settings-row" data-action="settings-section" data-section="theme"><span class="settings-row-main"><span class="settings-row-label">Appearance</span><span class="settings-row-sub">Theme, background, cards and accent</span></span><span class="row gap2"><span class="settings-row-value">'+themeLabel+'</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="theme"><span class="settings-row-main"><span class="settings-row-label">Appearance</span><span class="settings-row-sub">Theme and accent</span></span><span class="row gap2"><span class="settings-row-value">'+themeLabel+'</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="forecastAccuracy"><span class="settings-row-main"><span class="settings-row-label">Forecast health</span><span class="settings-row-sub">Backtesting and forecast error</span></span><span>'+ICONS.chevronRight+'</span></button>';
     h += '</div>';
 
     h += '<div class="settings-group-title">Data</div><div class="settings-list">';
-    h += '<button class="settings-row" data-action="settings-section" data-section="forecastAccuracy"><span class="settings-row-main"><span class="settings-row-label">Forecast accuracy</span><span class="settings-row-sub">Backtesting and forecast error over time</span></span><span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="tracking"><span class="settings-row-main"><span class="settings-row-label">Tracking start</span><span class="settings-row-sub">Where budget history should begin</span></span><span class="row gap2"><span class="settings-row-value">'+esc(trackLabel)+'</span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="backup"><span class="settings-row-main"><span class="settings-row-label">Data & Backup</span><span class="settings-row-sub">Automatic local recovery + manual backup</span></span><span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row settings-danger" data-action="settings-section" data-section="clearEntries"><span class="settings-row-main"><span class="settings-row-label">Clear all entries</span><span class="settings-row-sub">Danger zone · permanently erase transactions</span></span><span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row settings-danger" data-action="settings-section" data-section="factoryReset"><span class="settings-row-main"><span class="settings-row-label">Reset app to defaults</span><span class="settings-row-sub">Factory reset · erase data, settings and recovery history</span></span><span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="tracking"><span class="settings-row-main"><span class="settings-row-label">Tracking start</span><span class="settings-row-sub">Where your history begins</span></span><span class="row gap2"><span class="settings-row-value">'+esc(trackLabel)+'</span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row" data-action="settings-section" data-section="backup"><span class="settings-row-main"><span class="settings-row-label">Backup & recovery</span><span class="settings-row-sub">Automatic local recovery and manual backup</span></span><span>'+ICONS.chevronRight+'</span></button>';
+    h += '</div>';
+
+    h += '<div class="settings-group-title">Danger zone</div><div class="settings-list">';
+    h += '<button class="settings-row settings-danger" data-action="settings-section" data-section="clearEntries"><span class="settings-row-main"><span class="settings-row-label">Clear transactions</span><span class="settings-row-sub">Erase logged activity but keep settings</span></span><span>'+ICONS.chevronRight+'</span></button>';
+    h += '<button class="settings-row settings-danger" data-action="settings-section" data-section="factoryReset"><span class="settings-row-main"><span class="settings-row-label">Reset The Ledger</span><span class="settings-row-sub">Erase data, settings and recovery history</span></span><span>'+ICONS.chevronRight+'</span></button>';
     h += '</div>';
     h += '</div></div>';
     return h;
@@ -4934,10 +4802,6 @@ function renderSettingsPage() {
     h += '<div style="position:relative; margin:6px 0 6px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px;">'+reportingCurrency()+'</span>';
     h += '<input id="monthlyDraftInput" type="number" inputmode="decimal" class="field mono" style="padding-left:44px; font-size:20px; font-weight:650;" value="'+round2(toReporting(curMonthly))+'" /></div>';
     h += '<div class="muted" id="monthlyBudgetDerivedText" style="font-size:12px; margin-bottom:18px;">= '+fmt(curMonthly/dim,2)+' AED/day in '+esc(monthName)+' · about '+fmt((curMonthly/dim)*7,0)+' AED/week pace</div>';
-    var homeChartRes=homeAheadBehindResolution();
-    h += '<div class="taxonomy-form-card" style="margin:0 0 16px;"><div class="eyebrow">Home ahead / behind chart</div><div class="muted caption" style="margin:4px 0 10px;line-height:1.4;">Choose how densely the Home budget pace chart is sampled. This changes only the chart detail, not the budget calculation.</div><div class="seg" style="padding:3px;">';
-    [["hourly","Hourly"],["4h","Every 4 hrs"],["daily","Daily"]].forEach(function(o){h+='<button class="seg-btn" data-action="set-home-ahead-resolution" data-value="'+o[0]+'" aria-selected="'+(homeChartRes===o[0])+'">'+o[1]+'</button>';});
-    h += '</div></div>';
     h += '<button data-action="apply-budget" data-scope="future" class="btn-accent" style="width:100%; margin-bottom:8px;">From this month onward</button>';
     h += '<div class="muted" style="font-size:11px; margin-bottom:14px;">Starts '+esc(shortLabel(monthBounds.startStr))+'. Earlier months keep the budget that applied then.</div>';
     h += '<button data-action="apply-budget" data-scope="all" class="btn-outline" style="width:100%; margin-bottom:8px;">All periods, past and future</button>';
@@ -4964,7 +4828,7 @@ function renderSettingsPage() {
   }
   if (section === "currency") {
     var fxCache = normalizeFxCache(state.settings.fxRateCache), rc=reportingCurrency();
-    var popularFx = ["AED","EGP","USD","EUR","GBP","SAR"].filter(function(c){return c!==rc;}).slice(0,5);
+    var popularFx = ["AED","EGP","USD","EUR","GBP","SAR"].filter(function(c){return c!==rc;}).slice(0,4);
     h += '<div class="card card-pad" style="margin-bottom:14px;"><div class="eyebrow">BASE / REPORTING CURRENCY</div><div class="row gap2" style="margin-top:8px;"><select id="baseCurrencyInput" class="field" style="flex:1;">';
     TXN_CURRENCIES.forEach(function(c){h+='<option value="'+c+'"'+(c===rc?' selected':'')+'>'+c+' · '+esc(CURRENCY_NAMES[c]||c)+'</option>';});
     h += '</select><button data-action="save-base-currency" class="btn-accent">Apply</button></div><div class="muted caption" style="margin-top:9px;">Changes reporting across the app and the default currency for new transactions. Historical values are not rewritten; The Ledger keeps an internal AED canonical ledger so switching is reversible.</div><div id="baseCurrencyStatus" class="muted caption" style="margin-top:6px;"></div></div>';
@@ -5277,7 +5141,7 @@ function renderAddTxnPage() {
   var fxRateShown = state.entryFxRateDraft != null ? state.entryFxRateDraft : (editingItem && editingItem.fxRate ? (Number(editingItem.fxRate)*reportingRate()) : (selectedCurrency===reportingCurrency()?1:""));
   var fxSourceShown = state.entryFxSourceDraft != null ? state.entryFxSourceDraft : (editingItem && editingItem.fxSource ? editingItem.fxSource : "");
   var parsedShown = parseFloat(amountShown);
-  var advancedOpen = !!state.txnAdvancedOpen || !!editingItem || splitMode === "tabby";
+  var advancedOpen = !!state.txnAdvancedOpen || !!editingItem;
 
   /* Most-used categories become one-tap choices. The full category hierarchy
      is still available behind More, but common entries no longer require a
@@ -5324,12 +5188,21 @@ function renderAddTxnPage() {
   h += '<div id="entryFxConverted" class="mono caption" style="margin-top:7px;font-weight:650;">'+((selectedCurrency!==reportingCurrency()&&!isNaN(parsedShown)&&Number(fxRateShown)>0)?(currencyAmountLabel(parsedShown,selectedCurrency,2)+' = '+currencyAmountLabel(round2(parsedShown*Number(fxRateShown)),reportingCurrency(),2)):'')+'</div>';
   h += '</div>';
 
+  if (!editingItem && txnKind === "expense") {
+    h += '<div class="eyebrow" style="margin-bottom:7px;">Payment</div>';
+    h += '<div class="seg txn-payment-seg" style="margin-bottom:'+(splitMode==='tabby'?'7':'14')+'px;">';
+    h += '<button class="seg-btn" role="tab" aria-selected="'+(splitMode==='single')+'" data-action="set-txn-split-mode" data-mode="single">Pay now</button>';
+    h += '<button class="seg-btn" role="tab" aria-selected="'+(splitMode==='tabby')+'" data-action="set-txn-split-mode" data-mode="tabby">Tabby × 4</button></div>';
+    if (splitMode === "tabby") {
+      var tabbyInstallment=(!isNaN(parsedShown)&&parsedShown>0)?round2(parsedShown/4):null;
+      h += '<div class="muted caption" style="margin:-1px 2px 14px;line-height:1.4;">Full purchase amount'+(tabbyInstallment!=null?(' · <span class="mono" style="font-weight:750;color:var(--text);">'+fmt(tabbyInstallment,2)+' '+selectedCurrency+' × 4</span>'):'')+'. The remaining 3 payments are added to Plans automatically.</div>';
+    }
+  }
+
   /* Date is part of the primary entry flow: most entries default to Today,
      but a backdated transaction should never require opening More options. */
-  h += '<div class="row txn-date-time-row" style="margin-bottom:14px;align-items:flex-end;gap:10px;">';
-  h += '<label style="flex:1;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Date</span><input id="entryDateInput" type="date" class="field mono" style="width:100%;font-size:14px;" value="'+formDate+'" max="'+todayStr()+'" /></label>';
-  h += '<label style="width:122px;flex:0 0 122px;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Time</span><input id="entryTimeInput" type="time" class="field mono" style="width:100%;font-size:14px;" value="'+esc(selectedTime)+'" /></label>';
-  h += '</div>';
+  h += '<label style="display:block;margin-bottom:14px;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Date</span><input id="entryDateInput" type="date" class="field mono" style="width:100%;font-size:14px;" value="'+formDate+'" max="'+todayStr()+'" /></label>';
+  if(!advancedOpen) h += '<input id="entryTimeInput" type="hidden" value="'+esc(selectedTime)+'" />';
 
   if (txnKind === "expense") {
     h += '<div class="row between" style="margin-bottom:8px;"><span class="eyebrow">Subcategory</span>'+(selectedCat?'<span class="muted caption">'+esc(categoryGroupOf(selectedCat)||"Ungrouped")+'</span>':'')+'</div>';
@@ -5380,32 +5253,20 @@ function renderAddTxnPage() {
     h += '<input id="entryPersonInput" type="hidden" value="" />';
   }
 
-  if (txnTags.length) {
-    h += '<div class="eyebrow" style="margin:2px 0 8px;">Tags</div><div class="txn-hscroll" style="gap:7px;margin:0 -8px 12px;padding:0 8px 4px;">';
-    txnTags.forEach(function(tag){var sel=selectedTxnTags.indexOf(tag)!==-1;h+='<button data-action="toggle-txn-tag" data-tag="'+esc(tag)+'" style="flex:0 0 auto;border:none;border-radius:999px;padding:7px 10px;background:'+(sel?transactionTagColor(tag):'var(--fill)')+';color:'+(sel?'#fff':'var(--text)')+';font-size:12px;font-weight:'+(sel?'650':'500')+';">'+esc(tag)+(sel?' ✓':'')+'</button>';});
-    h += '</div>';
-  }
 
   h += '<div class="eyebrow" style="margin-bottom:6px;">Note</div>';
   h += '<input id="entryNoteInput" type="text" class="field" style="margin-bottom:10px;" placeholder="Merchant or what it was for" value="'+(state.entryNoteDraft!=null?esc(state.entryNoteDraft):(editingItem?esc(editingItem.note||""):""))+'" />';
 
-  /* The only advanced transaction control is the spread-across-days option,
-     which applies only while creating a new expense. Do not show an empty
-     More/Fewer row on Edit Transaction or Income. */
-  if (!editingItem && txnKind === "expense") {
-    h += '<button data-action="toggle-txn-advanced" class="row between" style="width:100%;background:none;border:none;padding:8px 0 10px;color:var(--text-muted);font-size:13px;"><span>'+(advancedOpen?'Fewer options':'More options')+'</span><span style="display:flex;transform:rotate('+(advancedOpen?'90':'0')+'deg);">'+ICONS.chevronRight+'</span></button>';
-
-    if (advancedOpen) {
-      h += '<div class="card" style="padding:12px;margin-bottom:12px;">';
-      h += '<div class="eyebrow" style="margin-bottom:6px;">Payment type</div><div class="seg" style="margin-bottom:'+(splitMode==='tabby'?'8':'0')+'px;">';
-      h += '<button class="seg-btn" role="tab" aria-selected="'+(splitMode==='single')+'" data-action="set-txn-split-mode" data-mode="single">Single payment</button>';
-      h += '<button class="seg-btn" role="tab" aria-selected="'+(splitMode==='tabby')+'" data-action="set-txn-split-mode" data-mode="tabby">Tabby · 4</button></div>';
-      if (splitMode === "tabby") {
-        var tabbyInstallment=(!isNaN(parsedShown)&&parsedShown>0)?round2(parsedShown/4):null;
-        h += '<div class="muted caption" style="margin-top:7px;line-height:1.45;">Enter the <b style="color:var(--text);">full purchase amount</b>. Ledger logs the first quarter on this date and creates the next 3 monthly payments in Plans.'+(tabbyInstallment!=null?(' <span class="mono" style="font-weight:700;color:var(--text);">≈ '+fmt(tabbyInstallment,2)+' '+selectedCurrency+' × 4</span>'):'')+'</div>';
-      }
-      h += '</div>';
+  h += '<button data-action="toggle-txn-advanced" class="row between txn-more-button" style="width:100%;background:none;border:none;padding:9px 0 11px;color:var(--text-muted);font-size:13px;"><span>'+(advancedOpen?'Fewer details':'More details')+'</span><span style="display:flex;transform:rotate('+(advancedOpen?'90':'0')+'deg);">'+ICONS.chevronRight+'</span></button>';
+  if (advancedOpen) {
+    h += '<div class="card txn-more-card" style="padding:14px;margin-bottom:14px;">';
+    h += '<label style="display:block;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Time</span><input id="entryTimeInput" type="time" class="field mono" style="width:100%;font-size:14px;" value="'+esc(selectedTime)+'" /></label>';
+    if (txnTags.length) {
+      h += '<div class="hairline-top" style="margin-top:12px;padding-top:12px;"><div class="eyebrow" style="margin-bottom:8px;">Tags</div><div class="txn-hscroll" style="gap:7px;margin:0 -6px;padding:0 6px 2px;">';
+      txnTags.forEach(function(tag){var sel=selectedTxnTags.indexOf(tag)!==-1;h+='<button data-action="toggle-txn-tag" data-tag="'+esc(tag)+'" style="flex:0 0 auto;border:none;border-radius:999px;padding:7px 10px;background:'+(sel?transactionTagColor(tag):'var(--fill)')+';color:'+(sel?'#fff':'var(--text)')+';font-size:12px;font-weight:'+(sel?'650':'500')+';">'+esc(tag)+(sel?' ✓':'')+'</button>';});
+      h += '</div></div>';
     }
+    h += '</div>';
   }
 
   var saveLabel;
@@ -5496,15 +5357,15 @@ function renderTransactionsBody() {
   h+='</div>';
 
   h+='<div class="card" style="padding:12px;margin-bottom:12px;">';
-  h+='<div style="position:relative;margin-bottom:10px;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);display:flex;">'+ICONS.search+'</span><input id="txnSearchInput" type="search" class="field" placeholder="Search merchant, category, person or tag" value="'+esc(state.txnSearch||"")+'" style="padding-left:40px;" /></div>';
+  h+='<div style="position:relative;margin-bottom:10px;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);display:flex;">'+ICONS.search+'</span><input id="txnSearchInput" type="search" class="field" placeholder="Search activity" value="'+esc(state.txnSearch||"")+'" style="padding-left:40px;" /></div>';
   h+='<div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">';
-  [["all","All"],["expense","Expenses"],["income","Income"]].forEach(function(opt){var sel=typeFilter===opt[0];h+='<button data-action="set-txn-type-filter" data-type="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
+  [["all","All"],["expense","Spent"],["income","Income"]].forEach(function(opt){var sel=typeFilter===opt[0];h+='<button data-action="set-txn-type-filter" data-type="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
   var extraFilters=!!groupFilter||!!categoryFilter||!!personFilter||!!tagFilter||periodMode!=="month"||budgetScopeFilter!=="all";
   h+='<button data-action="toggle-txn-filters" class="chip" style="flex:0 0 auto;'+(extraFilters?'background:var(--accent);color:var(--accent-ink);font-weight:600;':'')+'">Filters'+(extraFilters?' •':'')+'</button>';
   h+='</div>';
   if(typeFilter!=="income"){
-    h+='<div class="hairline-top" style="margin-top:11px;padding-top:10px;"><div class="muted caption" style="margin-bottom:7px;">Budget scope</div><div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">';
-    [["all","All spending"],["budget","In budget"],["protected","Protected budget"],["unprotected","Unprotected budget"],["excluded","Outside budget"]].forEach(function(opt){var sel=budgetScopeFilter===opt[0];h+='<button data-action="set-txn-budget-scope" data-scope="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
+    h+='<div class="hairline-top" style="margin-top:11px;padding-top:10px;"><div class="muted caption" style="margin-bottom:7px;">Scope</div><div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">';
+    [["all","All"],["protected","Protected"],["unprotected","Unprotected"],["excluded","Outside"]].forEach(function(opt){var sel=budgetScopeFilter===opt[0];h+='<button data-action="set-txn-budget-scope" data-scope="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
     h+='</div></div>';
   }
 
@@ -5522,9 +5383,6 @@ function renderTransactionsBody() {
   h+='</div>';
 
   var dates=entryDates.slice().reverse().filter(function(d){if(!inPeriod(d))return false;return (state.entries[d].items||[]).some(matches);});
-  if(dates.length>1){
-    h+='<div class="row between" style="margin:2px 3px 8px;"><span class="muted caption">Tap a day to show or hide its transactions</span><span class="row gap2"><button data-action="collapse-all-txn-days" class="btn-plain" style="font-size:12px;">Collapse all</button><button data-action="expand-all-txn-days" class="btn-plain" style="font-size:12px;">Expand all</button></span></div>';
-  }
   h+='<div class="card" style="overflow:hidden;margin-bottom:16px;">';
   if(!dates.length)h+='<div class="muted subhead" style="padding:20px 16px;">'+(itemFilterActive?'No matching transactions.':'Nothing logged in this period.')+'</div>';
   else dates.forEach(function(date,di){
@@ -7387,9 +7245,14 @@ function renderAnalysisBody(T) {
   if(analysisAvgEnd<analysisAvgStart)analysisAvgEnd=minStr(info.end,today);
   var analysisAvgDays=Math.max(1,daysBetween(analysisAvgStart,analysisAvgEnd)+1);
   function analysisDailyAvg(total){return total/analysisAvgDays;}
-  var h='<div class="row between page-heading-row"><div class="title2">Insights</div><button data-action="toggle-analysis-reorder" class="btn-plain">'+(state.analysisReorderMode?'Done':'Arrange')+'</button></div>';
+  var h='<div class="page-heading-row"><div class="title2">Insights</div></div>';
   h+='<div class="seg" style="margin-bottom:12px;">';[["week","Week"],["month","Month"],["year","Year"],["custom","Custom"]].forEach(function(opt){h+='<button class="seg-btn" role="tab" aria-selected="'+(periodMode===opt[0])+'" data-action="set-analysis-period" data-mode="'+opt[0]+'">'+opt[1]+'</button>';});h+='</div>';
   if(periodMode==='custom'){h+='<div class="row gap2" style="margin-bottom:12px;"><input id="analysisPeriodFromInput" type="date" class="field mono" style="flex:1;font-size:13px;" value="'+esc(periodFrom)+'" max="'+today+'"/><input id="analysisPeriodToInput" type="date" class="field mono" style="flex:1;font-size:13px;" value="'+esc(periodTo)+'" max="'+today+'"/></div>';}else{h+='<div class="row between card" style="padding:8px 10px;margin-bottom:12px;"><button data-action="analysis-nav-offset" data-delta="-1" class="icon-btn">'+ICONS.chevronLeft+'</button><div style="text-align:center;"><div class="subhead">'+esc(info.title)+'</div><div class="muted caption">'+esc(info.sub)+'</div></div><button data-action="analysis-nav-offset" data-delta="1" class="icon-btn" style="'+(info.isCurrent?'opacity:.3;pointer-events:none;':'')+'">'+ICONS.chevronRight+'</button></div>';}
+  h+='<div class="scope-switch" style="display:flex;gap:7px;overflow-x:auto;margin-bottom:12px;padding:1px 1px 3px;">';
+  h+='<button data-action="clear-analysis-budget-scope" class="chip" style="flex:0 0 auto;'+(analysisScopeState==='all'?'background:var(--accent)!important;color:var(--accent-ink);':'')+'">All spending</button>';
+  h+='<button data-action="filter-analysis-budget-scope" data-scope="Budget spend" class="chip" style="flex:0 0 auto;'+(analysisScopeState==='budget'?'background:var(--accent)!important;color:var(--accent-ink);':'')+'">Budget</button>';
+  h+='<button data-action="filter-analysis-budget-scope" data-scope="Outside budget" class="chip" style="flex:0 0 auto;'+(analysisScopeState==='excluded'?'background:var(--accent)!important;color:var(--accent-ink);':'')+'">Outside</button>';
+  h+='</div>';
   var scopeBudgetSpend=0,scopeExcludedSpend=0;
   csAll.rows.forEach(function(r){(r.items||[]).forEach(function(it){if(!isExpenseItem(it))return;if(itemCountsTowardBudget(it))scopeBudgetSpend+=Number(it.amount)||0;else scopeExcludedSpend+=Number(it.amount)||0;});});
   scopeBudgetSpend=round2(scopeBudgetSpend);scopeExcludedSpend=round2(scopeExcludedSpend);
@@ -7406,7 +7269,7 @@ function renderAnalysisBody(T) {
   function keepItemPerson(it){return isExpenseItem(it)&&itemMatchesPersonFilter(it,personFilter)&&(!personFilter||!subcategoryExcludedFromPeopleAnalysis(it.category));}function keepItemCategoryOnly(it){return isExpenseItem(it)&&itemMatchesCategoryScope(it,catFilter,groupFilter);}function keepItem(it){return keepItemCategoryOnly(it)&&keepItemPerson(it);}
   var showGroupChip=groupFilter&&!catFilter;if(catFilter||personFilter||showGroupChip){h+='<div class="row gap2" style="margin-bottom:12px;align-items:center;flex-wrap:wrap;">';if(showGroupChip)h+='<span class="chip chip-accent">'+esc(groupFilter)+'</span>';if(catFilter)h+='<span class="chip chip-accent">'+esc(catFilter)+'</span>';if(personFilter)h+='<span class="chip" style="background:'+(personFilter==='Unassigned'?'#8595B5':personColor(personFilter))+';color:#fff;font-weight:600;">'+esc(personFilter)+'</span>';if(showGroupChip)h+='<button class="btn-plain" data-action="clear-analysis-group">Clear group</button>';if(catFilter)h+='<button class="btn-plain" data-action="clear-analysis-category">Clear subcategory</button>';if(personFilter)h+='<button class="btn-plain" data-action="clear-analysis-person">Clear person</button>';h+='</div>';}
   var sectionHtml={};
-  sectionHtml.budgetScope=function(){return scopeCardHtml;};
+  sectionHtml.budgetScope=function(){return "";};
 
   sectionHtml.cashFlow=function(){
     if(analysisScope!=="overall"||catFilter||personFilter||groupFilter||cs.income<=0)return'';
@@ -7494,7 +7357,7 @@ function renderAnalysisBody(T) {
     var headerRight=personFilter?'<span class="muted caption">'+esc(personFilter)+'</span>':(topLevel?'<span class="muted caption">Tap category</span>':'');
     var subtitle=drillGroup?'Subcategory frequency · full observed window · up to 12 months':'Observed frequency · full tracked window · up to 12 months';
     var s='<div id="analysisFrequencyCard" class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="margin-bottom:4px;">'+headerLeft+headerRight+'</div><div class="muted caption" style="margin-bottom:12px;">'+subtitle+'</div>';
-    var shownTargets=(state.analysisFrequencyExpanded||targets.length<=5)?targets:targets.slice(0,5);
+    var shownTargets=(state.analysisFrequencyExpanded||targets.length<=5)?targets:targets.slice(0,4);
     shownTargets.forEach(function(x,i){
       var st=x.stats, label=frequencyLabel(st), rate=st.enough?(st.avgGap<=0?maxRate:1/st.avgGap):0, w=maxRate>0?Math.max(4,Math.min(100,rate/maxRate*100)):0;
       var clickable=topLevel&&x.groupKey;
@@ -7511,21 +7374,12 @@ function renderAnalysisBody(T) {
   sectionHtml.dow=function(){return'';}
   sectionHtml.topTransactions=function(){var all=[];cs.rows.forEach(function(r){(r.items||[]).forEach(function(it){if(keepItem(it))all.push({date:r.date,it:it,amount:personScopedAmount(it,personFilter)});});});all.sort(function(a,b){return b.amount-a.amount;});var top=all.slice(0,5),s='<div class="card card-pad" style="margin-bottom:16px;"><div class="eyebrow" style="margin-bottom:10px;">Biggest transactions</div>';if(!top.length)s+='<div class="muted subhead">Nothing logged in this period.</div>';else top.forEach(function(x,i){s+='<div class="row" style="gap:10px;align-items:center;padding:8px 0;'+(i?'border-top:1px solid var(--sep);':'')+'">'+catIconCircle(x.it.category)+'<div style="flex:1;min-width:0;"><div class="subhead">'+esc(x.it.note||x.it.category||'Spent')+'</div><div class="muted caption">'+esc(dayLabel(x.date)+(x.it.category?' · '+x.it.category:''))+'</div></div><div class="mono subhead">'+fmt(x.amount,2)+' AED</div></div>';});return s+'</div>';};
   var filteredMode=!!(catFilter||personFilter||groupFilter);
-  var analysisHidden=normalizeHiddenSections(state.settings.analysisHiddenSections);
-  var order=filteredMode?['summary','category','frequency','person','topTransactions']:normalizeAnalysisOrder(state.settings.analysisSectionOrder);
+  var order=filteredMode?['summary','category','frequency','person','topTransactions']:['cashFlow','forecastedSpend','balance','spendTrend','category','frequency','person','topTransactions'];
   h+='<div style="display:flex;flex-direction:column;">';
-  if(state.analysisReorderMode&&!filteredMode){
-    order.forEach(function(id,idx){
-      var hidden=analysisHidden.indexOf(id)!==-1,c=sectionHtml[id]?sectionHtml[id]():'';
-      h+='<div style="order:'+idx+';">'+visualArrangeBar('analysis',id,ANALYSIS_SECTION_LABELS[id]||id,idx,order.length)+(hidden?'':c)+'</div>';
-    });
-  } else {
-    order.forEach(function(id,idx){
-      if(analysisHidden.indexOf(id)!==-1)return;
-      var c=sectionHtml[id]?sectionHtml[id]():'';
-      if(c)h+='<div style="order:'+idx+';">'+c+'</div>';
-    });
-  }
+  order.forEach(function(id,idx){
+    var c=sectionHtml[id]?sectionHtml[id]():'';
+    if(c)h+='<div style="order:'+idx+';">'+c+'</div>';
+  });
   h+='</div>';
   return h;
 }
@@ -7695,7 +7549,7 @@ function renderPlansBody() {
   var upcoming=activeRules.map(nextOccurrence).filter(Boolean).sort(function(a,b){return a.due<b.due?-1:a.due>b.due?1:0;}).slice(0,5);
   var h='<div class="row between page-heading-row"><div class="title2">Plans</div><button data-action="toggle-plan-create" class="btn-accent compact-action">'+(state.plansCreateOpen?'Close':'New plan')+'</button></div>';
 
-  h+='<div class="card card-pad" style="margin-bottom:14px;"><div class="eyebrow" style="margin-bottom:10px;">Next 30 days</div><div class="stat-grid">'+statBlock('Scheduled expenses',fmt(totals.expense,0)+' AED',totals.expense?'var(--rust)':'var(--text)')+statBlock('Scheduled income',fmt(totals.income,0)+' AED',totals.income?'var(--positive)':'var(--text)')+'</div></div>';
+  h+='<div class="card card-pad" style="margin-bottom:14px;"><div class="row between" style="margin-bottom:10px;"><div class="eyebrow">Next 30 days</div><div class="muted caption">'+activeRules.length+' active</div></div><div class="stat-grid">'+statBlock('Scheduled expenses',fmt(totals.expense,0)+' AED',totals.expense?'var(--rust)':'var(--text)')+statBlock('Scheduled income',fmt(totals.income,0)+' AED',totals.income?'var(--positive)':'var(--text)')+'</div></div>';
 
   if(upcoming.length) {
     h+='<div class="card card-pad" style="margin-bottom:14px;"><div class="eyebrow" style="margin-bottom:6px;">Upcoming</div>';
@@ -7729,9 +7583,9 @@ function renderBottomNav() {
   var tabs = [
     {id:"home", label:"Home", icon:ICONS.home},
     {id:"transactions", label:"Activity", icon:ICONS.list},
-    {id:"budget", label:"Budget", icon:ICONS.chart},
+    {id:"budget", label:"Budget", icon:ICONS.budgetNav},
     {id:"plans", label:"Plans", icon:ICONS.repeatNav},
-    {id:"analysis", label:"Insights", icon:ICONS.chart}
+    {id:"analysis", label:"Insights", icon:ICONS.insightsNav}
   ];
   var h='<div class="tabbar">';
   tabs.forEach(function(t){var active=state.page===t.id;h+='<button class="tabbar-item" data-action="go-page" data-page="'+t.id+'" aria-current="'+(active?'page':'false')+'">'+t.icon+'<span class="tabbar-label">'+t.label+'</span></button>';});
@@ -8128,7 +7982,6 @@ function handleRestore() {
     }
     nextSettings.budgetSectionOrder = normalizeBudgetOrder(nextSettings.budgetSectionOrder);
     nextSettings.budgetHiddenSections = normalizeBudgetHiddenSections(nextSettings.budgetHiddenSections);
-    nextSettings.homeSimpleSectionOrder = normalizeSimpleHomeOrder(nextSettings.homeSimpleSectionOrder);
     nextSettings.fxRateCache = normalizeFxCache(nextSettings.fxRateCache);
     nextSettings.baseCurrency = TXN_CURRENCIES.indexOf(String(nextSettings.baseCurrency||"AED").toUpperCase())!==-1 ? String(nextSettings.baseCurrency||"AED").toUpperCase() : "AED";
     nextSettings.forecastSnapshots = normalizeForecastSnapshots(nextSettings.forecastSnapshots);
@@ -8174,6 +8027,11 @@ document.addEventListener("click", function(e) {
     case "close-backup": state.showBackup = false; state.restoreError = null; render(); break;
     case "open-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = null; state.showSettings = true; render(); break;
     case "open-budget-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = "budget"; state.showSettings = true; render(); break;
+    case "toggle-theme":
+      var toggledTheme = state.settings.theme === "dark" ? "light" : "dark";
+      persistAll(Object.assign({}, state.settings, { theme: toggledTheme }), state.entries, "your settings");
+      render();
+      break;
     case "set-theme":
       var selectedTheme = el.dataset.theme === "dark" ? "dark" : "light";
       if (selectedTheme !== state.settings.theme) {
@@ -8201,6 +8059,12 @@ document.addEventListener("click", function(e) {
       render();
       break;
     case "edit-txn": handleEditTxn(el.dataset.date, el.dataset.id); break;
+    case "set-txn-kind":
+      preserveTxnFormDraft();
+      state.txnKind = el.dataset.kind === "income" ? "income" : "expense";
+      if (state.txnKind === "income") state.txnSplitMode = "single";
+      render();
+      break;
     case "set-txn-split-mode":
       preserveTxnFormDraft();
       state.txnSplitMode = el.dataset.mode;
@@ -8271,6 +8135,12 @@ document.addEventListener("click", function(e) {
       state.pendingDeleteKey = null;
       state.page = el.dataset.page;
       if (state.page === "budget") { state.view = "month"; state.offset = 0; state.budgetSelectedGroup = null; state.budgetCategoryFilter = ""; state.budgetPersonFilter = ""; }
+      render();
+      break;
+    case "cal-nav":
+      var calDelta = parseInt(el.dataset.delta, 10) || 0;
+      state.calendarOffset = Math.min(0, (state.calendarOffset || 0) + calDelta);
+      state.calendarSelectedDate = null;
       render();
       break;
     case "cal-select":
@@ -8411,12 +8281,6 @@ document.addEventListener("click", function(e) {
       break;
     case "apply-budget":
       handleApplyBudget(el.dataset.scope);
-      break;
-    case "set-home-ahead-resolution":
-      var homeResVal=normalizeHomeAheadBehindResolution(el.dataset.value);
-      persistAll(Object.assign({},state.settings,{homeAheadBehindResolution:homeResVal}),state.entries,"home chart resolution");
-      showToast("Home chart: "+homeAheadBehindResolutionLabel(homeResVal));
-      render();
       break;
     case "save-savings-target":
       var savingsEl=document.getElementById("savingsTargetPctInput");
@@ -8567,6 +8431,17 @@ document.addEventListener("click", function(e) {
         }
       });
       persistAll(Object.assign({}, state.settings, { recurringRules: remainingRules }), entriesAfterDelete, "your settings");
+      render();
+      break;
+    case "toggle-subcategory-people-analysis":
+      var peopleCatToToggle = el.dataset.cat || "";
+      if (peopleCatToToggle) {
+        var nextPeopleAnalysisExcluded = Object.assign({}, state.settings.peopleAnalysisExcluded || {});
+        if (nextPeopleAnalysisExcluded[peopleCatToToggle]) delete nextPeopleAnalysisExcluded[peopleCatToToggle];
+        else nextPeopleAnalysisExcluded[peopleCatToToggle] = true;
+        persistAll(Object.assign({}, state.settings, { peopleAnalysisExcluded: nextPeopleAnalysisExcluded }), state.entries, "your settings");
+        showToast(nextPeopleAnalysisExcluded[peopleCatToToggle] ? peopleCatToToggle + " excluded from People insights" : peopleCatToToggle + " included in People insights");
+      }
       render();
       break;
     case "toggle-safe-spend-priority":
@@ -8731,20 +8606,6 @@ document.addEventListener("click", function(e) {
         render();
       }
       break;
-    case "toggle-home-simple-reorder":
-      state.homeSimpleReorderMode = !state.homeSimpleReorderMode;
-      render();
-      break;
-    case "move-home-simple-card":
-      var simpleOrder = normalizeSimpleHomeOrder(state.settings.homeSimpleSectionOrder);
-      var simpleId = el.dataset.id, simpleDir = parseInt(el.dataset.dir,10);
-      var simpleIdx = simpleOrder.indexOf(simpleId), simpleSwap = simpleIdx + simpleDir;
-      if(simpleIdx>=0&&simpleSwap>=0&&simpleSwap<simpleOrder.length){
-        var simpleTmp=simpleOrder[simpleIdx]; simpleOrder[simpleIdx]=simpleOrder[simpleSwap]; simpleOrder[simpleSwap]=simpleTmp;
-        persistAll(Object.assign({},state.settings,{homeSimpleSectionOrder:simpleOrder}),state.entries,"simple home layout");
-      }
-      render();
-      break;
     case "toggle-plan-create":
       if (state.plansCreateOpen) preserveRecurringFormDraft();
       if (!state.plansCreateOpen) {
@@ -8762,30 +8623,6 @@ document.addEventListener("click", function(e) {
       break;
     case "toggle-finished-plans":
       state.plansShowFinished = !state.plansShowFinished;
-      render();
-      break;
-    case "toggle-budget-reorder":
-      state.budgetReorderMode = !state.budgetReorderMode;
-      render();
-      break;
-    case "move-budget-section":
-      var orderB = normalizeBudgetOrder(state.settings.budgetSectionOrder);
-      var idxB = orderB.indexOf(el.dataset.section), dirB = parseInt(el.dataset.dir,10), swapB = idxB + dirB;
-      if (idxB >= 0 && swapB >= 0 && swapB < orderB.length) {
-        var tmpB = orderB[idxB]; orderB[idxB] = orderB[swapB]; orderB[swapB] = tmpB;
-        persistAll(Object.assign({},state.settings,{budgetSectionOrder:orderB}),state.entries,"budget layout");
-      }
-      render();
-      break;
-    case "toggle-budget-hidden":
-      var hiddenB = normalizeBudgetHiddenSections(state.settings.budgetHiddenSections);
-      var secB = el.dataset.section;
-      var nextHiddenB = hiddenB.indexOf(secB) !== -1 ? hiddenB.filter(function(x){ return x!==secB; }) : hiddenB.concat([secB]);
-      persistAll(Object.assign({}, state.settings, { budgetHiddenSections: nextHiddenB }), state.entries, "budget layout");
-      render();
-      break;
-    case "toggle-analysis-reorder":
-      state.analysisReorderMode = !state.analysisReorderMode;
       render();
       break;
     case "set-analysis-period":
@@ -8952,16 +8789,6 @@ document.addEventListener("click", function(e) {
       }
       render();
       break;
-    case "collapse-all-txn-days":
-      state.txnCollapseAll=true;
-      state.txnCollapsedDays={};
-      render();
-      break;
-    case "expand-all-txn-days":
-      state.txnCollapseAll=false;
-      state.txnCollapsedDays={};
-      render();
-      break;
     case "toggle-txn-filters":
       state.txnFiltersOpen = !state.txnFiltersOpen;
       render();
@@ -9032,24 +8859,6 @@ document.addEventListener("click", function(e) {
       state.txnOffset = Math.min(0, (state.txnOffset||0) + parseInt(el.dataset.delta,10));
       render();
       break;
-    case "move-analysis-section":
-      var dirA = parseInt(el.dataset.dir,10);
-      var orderA = normalizeAnalysisOrder(state.settings.analysisSectionOrder);
-      var idxA = orderA.indexOf(el.dataset.section);
-      var swapA = idxA + dirA;
-      if (idxA >= 0 && swapA >= 0 && swapA < orderA.length) {
-        var tmpA = orderA[idxA]; orderA[idxA] = orderA[swapA]; orderA[swapA] = tmpA;
-        persistAll(Object.assign({}, state.settings, { analysisSectionOrder: orderA }), state.entries, "your settings");
-        render();
-      }
-      break;
-    case "toggle-analysis-hidden":
-      var hiddenH = normalizeHiddenSections(state.settings.analysisHiddenSections);
-      var secH = el.dataset.section;
-      var nextHidden = hiddenH.indexOf(secH) !== -1 ? hiddenH.filter(function(x){ return x!==secH; }) : hiddenH.concat([secH]);
-      persistAll(Object.assign({}, state.settings, { analysisHiddenSections: nextHidden }), state.entries, "your settings");
-      render();
-      break;
     case "save-base-currency":
       (async function(){
         var sel=document.getElementById("baseCurrencyInput"), next=sel?String(sel.value||"AED").toUpperCase():"AED", status=document.getElementById("baseCurrencyStatus"), old=reportingCurrency();
@@ -9085,6 +8894,24 @@ document.addEventListener("click", function(e) {
       break;
     case "copy-backup": handleCopyBackup(); break;
     case "restore-backup": handleRestore(); break;
+    case "open-reset":
+      state.showResetConfirm = true;
+      render();
+      break;
+    case "close-reset":
+      state.showResetConfirm = false;
+      render();
+      break;
+    case "open-factory-reset":
+      state.showFactoryResetConfirm = true;
+      render();
+      break;
+    case "close-factory-reset":
+      state.showFactoryResetConfirm = false;
+      render();
+      break;
+    case "noop":
+      break;
     case "confirm-reset":
       var clearInput=document.getElementById("clearConfirmInput");
       if(!clearInput || String(clearInput.value||"").trim().toUpperCase()!=="CLEAR") { showToast("Type CLEAR first"); break; }
