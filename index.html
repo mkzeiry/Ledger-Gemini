@@ -924,7 +924,7 @@
 
 
 
-  /* ===== v112.3 activity + chart polish ===== */
+  /* ===== v112.4 annualized cash-target refinement ===== */
   .simple-home-stack { gap:14px; }
   .simple-home-stack > .card { box-shadow:0 14px 34px rgba(15,23,42,.07), var(--inset-stroke); }
   .simple-hero { padding:10px !important; background:transparent !important; box-shadow:none !important; }
@@ -1015,7 +1015,7 @@
 
 /* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
-var APP_VERSION = "v112.3";
+var APP_VERSION = "v112.4";
 var FORECAST_MODEL_VERSION = "v11112-tabby-outlook-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: null, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 25, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true };
@@ -2164,6 +2164,49 @@ function normalizedOutsideBudgetMonthlyCost(){
    amount. Projected cash spending for this specific month is still calculated
    and displayed, but it no longer tightens Safe-to-Spend merely because a
    yearly bill or installment happens to be paid now. */
+/* Monthly cash target for an annualized savings goal. The annual goal stays
+   unchanged; this shifts only the selected month's cash-spend ceiling so
+   yearly bills paid through installments are not penalized twice. Across a
+   full 12-month cycle these timing adjustments net to zero. */
+function yearlyBillCashTimingForMonth(startStr,endStr){
+  var cats=(state.settings.categories||[]).filter(function(c){return categoryForecastBehavior(c)==="yearly";});
+  if(!cats.length)return {normalized:0,cash:0,adjustment:0,breakdown:[]};
+  var scheduled=scheduledExpenseBreakdown(toStr(addDays(parseD(startStr),-1)),endStr,"overall"), today=todayStr(), out=[];
+  cats.forEach(function(c){
+    var cfg=yearlyBillConfigForCategory(c), annual=Math.max(0,Number(cfg.amount)||0);
+    if(!(annual>0))return;
+    var normalized=round2(annual/12), logged=0;
+    Object.keys(state.entries||{}).forEach(function(ds){
+      if(ds<startStr||ds>endStr)return;
+      ((state.entries[ds]&&state.entries[ds].items)||[]).forEach(function(it){
+        if(isExpenseItem(it)&&subcategoryKey(it)===c)logged+=Math.max(0,Number(it.amount)||0);
+      });
+    });
+    var future=cfg.hasExactPlan?Math.max(0,Number(scheduled[c])||0):0;
+    if(!cfg.hasExactPlan&&endStr>=today){
+      var year=parseD(startStr).getFullYear();
+      var dueMonth=Math.max(1,Math.min(12,Math.round(Number(cfg.dueMonth)||1)));
+      var dueDay=Math.max(1,Math.round(Number(cfg.dueDay)||1));
+      dueDay=Math.min(dueDay,new Date(year,dueMonth,0).getDate());
+      var due=toStr(new Date(year,dueMonth-1,dueDay));
+      var paidThisYear=categoryHistoricalExpenseRows(c).some(function(r){return String(r.date||'').slice(0,4)===String(year);});
+      if(!paidThisYear&&due>=startStr&&due<=endStr&&due>=today)future=annual;
+    }
+    var cash=round2(logged+future), adjustment=round2(cash-normalized);
+    out.push({category:c,annual:round2(annual),normalized:normalized,logged:round2(logged),future:round2(future),cash:cash,adjustment:adjustment});
+  });
+  var normalizedTotal=round2(out.reduce(function(s,x){return s+x.normalized;},0));
+  var cashTotal=round2(out.reduce(function(s,x){return s+x.cash;},0));
+  return {normalized:normalizedTotal,cash:cashTotal,adjustment:round2(cashTotal-normalizedTotal),breakdown:out};
+}
+function effectiveMonthlyCashSavingsTarget(startStr,endStr,projectedIncome){
+  var pct=savingsTargetPct(), base=(projectedIncome>0&&pct>0)?savingsSpendCeilingForIncome(projectedIncome):null;
+  if(base==null)return {base:null,effective:null,effectiveSavingPct:null,timing:{normalized:0,cash:0,adjustment:0,breakdown:[]}};
+  var timing=yearlyBillCashTimingForMonth(startStr,endStr), effective=round2(Math.max(0,base+timing.adjustment));
+  var effectiveSavingPct=projectedIncome>0?((projectedIncome-effective)/projectedIncome*100):null;
+  return {base:base,effective:effective,effectiveSavingPct:effectiveSavingPct,timing:timing};
+}
+
 function currentSavingsBudgetComparison() {
   var pct=savingsTargetPct();
   if(!(pct>0)) return null;
@@ -4555,7 +4598,8 @@ function renderHomeBody(T, da) {
   simpleCards.today = todayCard + '</div>';
 
   var projectedSpendVsIncomePct = incomeReference > 0 ? (projected / incomeReference * 100) : null;
-  var maxSpendForSavings = (incomeReference > 0 && homeSavingsPct > 0) ? savingsSpendCeilingForIncome(incomeReference) : null;
+  var homeEffectiveCashGoal=(incomeReference>0&&homeSavingsPct>0)?effectiveMonthlyCashSavingsTarget(month.startStr,month.endStr,incomeReference):null;
+  var maxSpendForSavings = homeEffectiveCashGoal&&homeEffectiveCashGoal.effective!=null?homeEffectiveCashGoal.effective:((incomeReference > 0 && homeSavingsPct > 0) ? savingsSpendCeilingForIncome(incomeReference) : null);
   var projectedSpendTargetGapPct = maxSpendForSavings > 0 ? ((projected - maxSpendForSavings) / maxSpendForSavings * 100) : null;
   var projectedSpendColor = 'var(--text)';
   if (maxSpendForSavings != null && projected > maxSpendForSavings) projectedSpendColor = projectedSpendTargetGapPct != null && projectedSpendTargetGapPct >= 10 ? 'var(--rust)' : 'var(--amber)';
@@ -4565,7 +4609,7 @@ function renderHomeBody(T, da) {
   var outlook = '<div class="card simple-outlook-card"><div class="eyebrow">Cash flow</div><div class="simple-outlook-grid">';
   outlook += '<div><div class="simple-outlook-label">TOTAL SPENT SO FAR</div><div class="mono simple-outlook-value">' + fmt(overall.spent, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (spentVsIncomePct == null ? 'Income not set' : spentVsIncomePct.toFixed(0) + '% of income') + '</div></div>';
   var projectedTargetText='';
-  if(projectedSpendTargetGapPct!=null){projectedTargetText=' · '+Math.abs(projectedSpendTargetGapPct).toFixed(0)+'% '+(projectedSpendTargetGapPct>0?'above':'below')+' savings limit';}
+  if(projectedSpendTargetGapPct!=null){projectedTargetText=' · '+Math.abs(projectedSpendTargetGapPct).toFixed(0)+'% '+(projectedSpendTargetGapPct>0?'above':'below')+' effective savings limit';}
   outlook += '<div><div class="simple-outlook-label">PROJECTED TOTAL SPEND</div><div class="mono simple-outlook-value" style="color:' + projectedSpendColor + ';">' + fmt(projected, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (projectedSpendVsIncomePct == null ? 'Income not set' : projectedSpendVsIncomePct.toFixed(0) + '% of income'+projectedTargetText) + '</div></div></div>';
   if (incomeReference > 0) outlook += pctBar(projectedSpendVsIncomePct, projectedSpendVsIncomePct > 100);
   outlook += '<div class="hairline-top" style="margin-top:12px;padding-top:12px;"><div class="simple-outlook-label">PROJECTED SAVING</div><div style="margin-top:3px;"><div class="mono simple-outlook-value" style="color:' + simpleSavingColor + ';">' + (simpleSaving >= 0 ? '+' : '−') + fmt(Math.abs(simpleSaving), 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (simpleSavingPct == null ? 'Income not set' : ((simpleSavingPct < 0 ? '−' : '') + Math.abs(simpleSavingPct).toFixed(0) + '% of income')) + '</div></div></div></div>';
@@ -5963,8 +6007,15 @@ function buildAnalysisForecastCard(info, cs, T, scope) {
      selected savings target. */
   
   var useSavingsBenchmark = scope === "overall" && (info.mode === "month" || info.mode === "year");
-  var goalPct=savingsTargetPct();
+  var goalPct=savingsTargetPct(), goalContext=null;
   var savingsSpendCeiling=(useSavingsBenchmark && projectedIncome>0 && goalPct>0)?savingsSpendCeilingForIncome(projectedIncome):null;
+  if(useSavingsBenchmark&&info.mode==="month"&&savingsSpendCeiling!=null){
+    var effectiveGoal=effectiveMonthlyCashSavingsTarget(info.start,info.end,projectedIncome);
+    if(effectiveGoal.effective!=null){
+      savingsSpendCeiling=effectiveGoal.effective;
+      goalContext={statusLabel:"Effective target",chartLabel:fmt(goalPct,0)+"% annual goal · effective this month",baseTarget:effectiveGoal.base,effectiveTarget:effectiveGoal.effective,effectiveSavingPct:effectiveGoal.effectiveSavingPct,timingAdjustment:effectiveGoal.timing.adjustment,timing:effectiveGoal.timing};
+    }
+  }
   var incomeTarget = null;
 
   var periodWord = info.mode === "week" ? "week"
@@ -5991,7 +6042,8 @@ function buildAnalysisForecastCard(info, cs, T, scope) {
     compareRows,
     scope,
     savingsSpendCeiling,
-    goalPct
+    goalPct,
+    goalContext
   );
 }
 
@@ -6750,7 +6802,7 @@ function forecastAccuracySummary(scope,period) {
    conditional events first; a transaction today resets that subcategory's
    repeat clock. Frequent subcategories use their own recency-weighted weekday behavior;
    sparse subcategories forecast zero. Scheduled expenses remain exact. */
-function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, periodWord, compareRows, scope, goalTarget, goalPct) {
+function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, periodWord, compareRows, scope, goalTarget, goalPct, goalContext) {
   if (!rows.length) return "";
   scope = scope || "overall";
   /* Normalize row.spent to the requested scope so chart geometry and compare
@@ -6793,11 +6845,12 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
   if (rangeLow != null && rangeHigh != null) s += '<div class="muted caption" style="margin-top:3px;">Likely range '+fmt(rangeLow,0)+'–'+fmt(rangeHigh,0)+' AED</div>';
   s += '</div>';
   if (hasTarget) {
-    var statusLabel=goalTarget!=null?"Savings target":(refLabel||"Budget");
+    var statusLabel=goalContext&&goalContext.statusLabel?goalContext.statusLabel:(goalTarget!=null?"Savings target":(refLabel||"Budget"));
     s += '<div style="text-align:right;"><div class="muted caption">VS '+esc(statusLabel.toUpperCase())+'</div>';
-    
     s += '<div class="chip" style="margin-top:4px; background:'+forecastStatusBg+'; color:'+forecastStatusColor+'; font-weight:700;">'+(vsBudgetPct>=0?'+':'')+vsBudgetPct+'%</div>';
-    s += '<div class="mono footnote" style="margin-top:4px; color:'+forecastStatusColor+';">'+(projectedSaved>=0?'+':'−')+fmt(Math.abs(projectedSaved),0)+' AED</div></div>';
+    s += '<div class="mono footnote" style="margin-top:4px; color:'+forecastStatusColor+';">'+(projectedSaved>=0?'+':'−')+fmt(Math.abs(projectedSaved),0)+' AED</div>';
+    if(goalContext&&goalContext.effectiveSavingPct!=null)s += '<div class="muted caption" style="margin-top:3px;">save ≥ '+fmt(goalContext.effectiveSavingPct,1)+'% this month</div>';
+    s += '</div>';
   }
   s += '</div>';
   s += '<div class="seg" style="margin-bottom:12px;">';
@@ -6807,7 +6860,7 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
   s += '</div>';
   s += '<div id="forecastChartWrap" class="chart-shell" style="position:relative;padding:4px 4px 0;">';
   s += '<div id="forecastChartTip" class="mono footnote" style="position:absolute; top:0; left:0; background:var(--fill); border-radius:8px; padding:4px 9px; max-width:250px; opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:2;"></div>';
-  s += renderForecastChart(scopedRows, totalDays, target, projectedSpend, T, refLabel, compareValues, pastDays, hasForecast, forecastValues, goalTarget, goalTarget!=null?(fmt(goalPct==null?savingsTargetPct():goalPct,0)+"% savings target"):null);
+  s += renderForecastChart(scopedRows, totalDays, target, projectedSpend, T, refLabel, compareValues, pastDays, hasForecast, forecastValues, goalTarget, goalTarget!=null?((goalContext&&goalContext.chartLabel)?goalContext.chartLabel:(fmt(goalPct==null?savingsTargetPct():goalPct,0)+"% savings target")):null);
   s += '</div>';
   if (compareValues) {
     s += '<div class="row gap2" style="margin-top:10px; flex-wrap:wrap;">'+legendSwatch(T.positive,"Actual")+legendSwatch(T.accent,"Projected")+legendSwatch(T.textMuted,compareLabel)+'</div>';
@@ -6826,6 +6879,10 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
       if(hasForecast){
         var previousTotal=scopedCompareRows.reduce(function(t,r){return t+(Number(r.spent)||0);},0);
         s += '<div style="background:var(--fill);border-radius:12px;padding:10px 12px;margin:0 0 10px;"><div class="row between"><span class="muted caption">Actual so far</span><span class="mono caption" style="font-weight:700;">'+fmt(actualSoFar,0)+' AED</span></div><div class="row between" style="margin-top:5px;"><span class="muted caption">Remaining forecast</span><span class="mono caption" style="font-weight:700;">'+fmt(fc.remainingForecast||0,0)+' AED</span></div><div class="row between" style="margin-top:5px;"><span class="muted caption">Projected close</span><span class="mono caption" style="font-weight:800;">'+fmt(projectedSpend,0)+' AED</span></div>'+(previousTotal>0?'<div class="row between" style="margin-top:5px;"><span class="muted caption">Last '+esc(periodWord)+'</span><span class="mono caption">'+fmt(previousTotal,0)+' AED</span></div>':'')+'</div>';
+        if(goalContext&&goalContext.baseTarget!=null&&goalContext.effectiveTarget!=null){
+          var timingAdj=goalContext.timingAdjustment||0;
+          s += '<div style="background:var(--surface-2);border-radius:12px;padding:10px 12px;margin:0 0 10px;"><div class="eyebrow" style="margin-bottom:7px;">Effective savings target</div><div class="row between"><span class="muted caption">Normalized '+fmt(goalPct==null?savingsTargetPct():goalPct,0)+'% ceiling</span><span class="mono caption">'+fmt(goalContext.baseTarget,0)+' AED</span></div><div class="row between" style="margin-top:5px;"><span class="muted caption">Yearly-bill cash timing</span><span class="mono caption" style="color:'+(timingAdj>=0?'var(--positive)':'var(--rust)')+';">'+(timingAdj>=0?'+':'−')+fmt(Math.abs(timingAdj),0)+' AED</span></div><div class="row between" style="margin-top:5px;"><span class="caption" style="font-weight:700;">Effective cash ceiling</span><span class="mono caption" style="font-weight:800;">'+fmt(goalContext.effectiveTarget,0)+' AED</span></div><div class="row between" style="margin-top:5px;"><span class="muted caption">Cash saving needed this month</span><span class="mono caption" style="font-weight:700;">'+fmt(goalContext.effectiveSavingPct,1)+'%</span></div></div>';
+        }
       }
       if(!hasForecast) s += '<div class="muted caption" style="padding:2px 0 9px;line-height:1.4;">This period has no future calendar days left. Frequency evidence is still shown below; remaining-period probability is 0%.</div>';
       if(fc.calibrationCount>0&&Math.abs((fc.calibrationFactor||1)-1)>=.01) s += '<div class="muted caption" style="padding:2px 0 9px;line-height:1.4;">Backtest calibration '+((fc.calibrationFactor||1)>1?'+':'')+fmt(((fc.calibrationFactor||1)-1)*100,0)+'% from '+fc.calibrationCount+' completed early-period forecast'+(fc.calibrationCount===1?'':'s')+'.</div>';
@@ -6863,7 +6920,7 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
     }
   }
   s += '</div>';
-  lastForecastChartData = { rows:scopedRows, totalDays:totalDays, target:target, goalTarget:goalTarget, projectedSpend:projectedSpend, start:periodStart, compareValues:compareValues, compareLabel:compareLabel, pastDays:pastDays, forecastValues:forecastValues };
+  lastForecastChartData = { rows:scopedRows, totalDays:totalDays, target:target, goalTarget:goalTarget, goalContext:goalContext||null, projectedSpend:projectedSpend, start:periodStart, compareValues:compareValues, compareLabel:compareLabel, pastDays:pastDays, forecastValues:forecastValues };
   return s;
 }
 
