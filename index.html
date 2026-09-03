@@ -924,14 +924,15 @@
 
 
 
-  /* ===== v112.1 UX structure pass ===== */
+  /* ===== v112.3 activity + chart polish ===== */
   .simple-home-stack { gap:14px; }
   .simple-home-stack > .card { box-shadow:0 14px 34px rgba(15,23,42,.07), var(--inset-stroke); }
   .simple-hero { padding:10px !important; background:transparent !important; box-shadow:none !important; }
   .simple-hero-grid { gap:10px; }
-  .simple-hero-cell { min-height:104px; display:flex; flex-direction:column; justify-content:center; }
+  .simple-hero-cell { min-height:104px; display:flex; flex-direction:column; justify-content:space-between; align-items:flex-start; }
   .simple-hero-cell:first-child { box-shadow:0 14px 32px color-mix(in srgb,var(--accent) 10%,transparent), var(--inset-stroke); }
   .simple-hero-cell:last-child { opacity:.94; }
+  .simple-hero-value-muted { color:var(--text-muted); opacity:.92; }
   .simple-budget-card, .simple-outlook-card, .simple-today-card { padding:18px !important; }
   .simple-budget-meta { margin-top:10px; }
   .simple-today-row { min-height:58px; }
@@ -975,6 +976,19 @@
   .page-budget .stat-grid,
   .page-plans .stat-grid { gap:10px; }
   .page-budget .card > .stat-grid { margin-top:2px; }
+  .stat-block { min-height:114px; display:flex; flex-direction:column; justify-content:space-between; align-items:flex-start; }
+  .stat-block-label { min-height:2.8em; display:flex; align-items:flex-start; }
+  .stat-block-value { font-size:18px !important; line-height:1.1; margin-top:12px !important; }
+  .activity-toolbar { padding:10px !important; margin-bottom:10px !important; }
+  .activity-search-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; }
+  .activity-search-row .field { min-height:44px; }
+  .activity-filter-trigger { min-height:44px; white-space:nowrap; padding:10px 13px; }
+  .activity-filter-panel { margin-top:10px; padding-top:11px; border-top:1px solid color-mix(in srgb,var(--text) 7%,transparent); }
+  .activity-filter-section + .activity-filter-section { margin-top:12px; }
+  .activity-filter-section .eyebrow { margin-bottom:7px; }
+  .activity-filter-scroll { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:1px; }
+  .activity-filter-scroll::-webkit-scrollbar { display:none; }
+  .chart-shell { border-radius:18px; background:linear-gradient(180deg,color-mix(in srgb,var(--fill) 42%,transparent),transparent 58%); overflow:hidden; }
 
   .page-analysis .scope-switch .chip { min-width:92px; }
   .page-analysis .scope-switch { margin-top:-2px; }
@@ -1001,7 +1015,7 @@
 
 /* ---------------- constants & helpers ---------------- */
 var STORAGE_KEY = "ledger-data";
-var APP_VERSION = "v112.1";
+var APP_VERSION = "v112.3";
 var FORECAST_MODEL_VERSION = "v11112-tabby-outlook-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: null, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 25, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true };
@@ -2346,6 +2360,45 @@ function hourlyBudgetPositionData(rows,info){
   });
   return out;
 }
+function budgetAdaptiveStepMinutes(ds){
+  var day=parseD(ds).getDate();
+  if(day<=7) return 60;
+  if(day<=14) return 120;
+  if(day<=21) return 240;
+  return 360;
+}
+function adaptiveBudgetPositionData(rows,info){
+  rows=rows||[]; if(!rows.length) return [];
+  var today=todayStr(), now=new Date(), currentMinute=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+  var out=[], cumulative=0, previousBalance=0;
+  rows.forEach(function(row,rowIndex){
+    var ds=row.date, isToday=ds===today, fullRef=effectiveBudgetReferenceForDate(ds,info);
+    var dayStartBalance=cumulative, step=budgetAdaptiveStepMinutes(ds);
+    if(rowIndex===0){
+      out.push({label:shortHourLabel(ds,0,false),date:ds,balance:round2(dayStartBalance),delta:0,hourly:true});
+      previousBalance=dayStartBalance;
+    }
+    var limits=[];
+    if(isToday){
+      for(var m=step;m<currentMinute;m+=step) limits.push(m);
+      limits.push(currentMinute);
+    }else{
+      for(var m2=step;m2<=1440;m2+=step) limits.push(m2);
+      if(!limits.length || limits[limits.length-1]!==1440) limits.push(1440);
+    }
+    limits.forEach(function(limit,idx){
+      var frac=Math.max(0,Math.min(1,limit/1440));
+      var spent=budgetSpendThroughMinute(row,limit,currentMinute,today);
+      var bal=round2(dayStartBalance + fullRef*frac - spent);
+      var live=isToday && idx===limits.length-1 && Math.abs(limit-currentMinute)<0.01;
+      var label=limit>=1440 ? (shortLabel(ds)+' · end') : shortHourLabel(ds,limit,live);
+      out.push({label:label,date:ds,balance:bal,delta:round2(bal-previousBalance),hourly:true});
+      previousBalance=bal;
+    });
+    cumulative=out.length?out[out.length-1].balance:dayStartBalance;
+  });
+  return out;
+}
 
 function effectiveBudgetTargetForRange(startStr,endStr,info){
   info=info||currentEffectiveBudgetInfo();
@@ -3136,32 +3189,23 @@ function smoothPathD(points) {
 }
 
 function renderChart(data, T) {
-  var g = balanceChartGeom(data);
-  var hasLine = data.length >= 2;
+  var g = balanceChartGeom(data), hasLine = data.length >= 2;
   var pts = data.map(function(d,i){ return [g.x(i), g.y(d.balance)]; });
   var curveD = hasLine ? smoothPathD(pts) : "";
   var areaD = hasLine ? (curveD+" L "+g.x(data.length-1)+","+g.y(0)+" L "+g.x(0)+","+g.y(0)+" Z") : "";
-  var singleDot = (data.length === 1) ? '<circle cx="'+g.x(0)+'" cy="'+g.y(data[0].balance)+'" r="4.5" fill="'+T.accent+'"/>' : "";
   var ticksSet = {}; [g.max,g.min,0].forEach(function(t){ ticksSet[Math.round(t)] = true; });
-  var ticks = Object.keys(ticksSet).map(Number);
-  var tickSvg = ticks.map(function(t){
-    return '<line x1="'+g.padL+'" x2="'+(g.w-g.padR)+'" y1="'+g.y(t)+'" y2="'+g.y(t)+'" stroke="'+T.hairline+'" stroke-dasharray="3,3"/>'
-      + '<text x="2" y="'+(g.y(t)+3)+'" font-size="9" fill="'+T.textMuted+'" font-family="var(--f-mono)">'+fmt(t)+'</text>';
+  var tickSvg = Object.keys(ticksSet).map(Number).sort(function(a,b){return a-b;}).map(function(t){
+    var isZero=Math.abs(t)<.5;
+    return '<line x1="'+g.padL+'" x2="'+(g.w-g.padR)+'" y1="'+g.y(t)+'" y2="'+g.y(t)+'" stroke="'+(isZero?T.textMuted:T.hairline)+'" stroke-opacity="'+(isZero?'.62':'.7')+'" stroke-width="'+(isZero?'1.15':'1')+'" stroke-dasharray="'+(isZero?'':'3,4')+'"/>'
+      + '<text x="2" y="'+(g.y(t)+3)+'" font-size="8.5" fill="'+T.textMuted+'" font-family="var(--f-mono)">'+fmt(t)+'</text>';
   }).join("");
   var axisLabels = data.length > 1
-    ? '<text x="'+g.x(0)+'" y="'+(g.h-4)+'" font-size="9" fill="'+T.textMuted+'">'+esc(data[0].label)+'</text>'
-      + '<text x="'+g.x(data.length-1)+'" y="'+(g.h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="end">'+esc(data[data.length-1].label)+'</text>'
-    : (data.length === 1 ? '<text x="'+g.x(0)+'" y="'+(g.h-4)+'" font-size="9" fill="'+T.textMuted+'" text-anchor="middle">'+esc(data[0].label)+'</text>' : "");
-  return '<svg id="balanceChartSvg" viewBox="0 0 '+g.w+' '+g.h+'" width="100%" height="'+g.h+'" preserveAspectRatio="none">'
-    + tickSvg
-    + (hasLine ? '<path d="'+areaD+'" fill="'+T.accent+'" fill-opacity="0.18" stroke="none"/>' : "")
-    + (hasLine ? '<path d="'+curveD+'" fill="none" stroke="'+T.accent+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' : "")
-    + singleDot
-    + axisLabels
-    + '<line id="balanceChartCrosshair" x1="0" x2="0" y1="'+g.padT+'" y2="'+(g.h-g.padB)+'" stroke="'+T.text+'" stroke-width="1" opacity="0"/>'
-    + '<circle id="balanceChartDot" r="4.5" fill="'+T.accent+'" stroke="'+T.bg+'" stroke-width="2" opacity="0"/>'
-    + '<rect id="balanceChartHit" x="0" y="0" width="'+g.w+'" height="'+g.h+'" fill="transparent" style="touch-action:none;"/>'
-    + '</svg>';
+    ? '<text x="'+g.x(0)+'" y="'+(g.h-4)+'" font-size="8.5" fill="'+T.textMuted+'">'+esc(data[0].label)+'</text><text x="'+g.x(data.length-1)+'" y="'+(g.h-4)+'" font-size="8.5" fill="'+T.textMuted+'" text-anchor="end">'+esc(data[data.length-1].label)+'</text>'
+    : (data.length === 1 ? '<text x="'+g.x(0)+'" y="'+(g.h-4)+'" font-size="8.5" fill="'+T.textMuted+'" text-anchor="middle">'+esc(data[0].label)+'</text>' : "");
+  var dots=data.length===1?'<circle cx="'+g.x(0)+'" cy="'+g.y(data[0].balance)+'" r="4.2" fill="'+T.accent+'"/>':(hasLine?'<circle cx="'+g.x(data.length-1)+'" cy="'+g.y(data[data.length-1].balance)+'" r="3.8" fill="'+T.accent+'" stroke="'+T.card+'" stroke-width="2"/>':'');
+  return '<svg id="balanceChartSvg" viewBox="0 0 '+g.w+' '+g.h+'" width="100%" height="'+g.h+'" preserveAspectRatio="none"><defs><linearGradient id="balanceAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+T.accent+'" stop-opacity=".24"/><stop offset="100%" stop-color="'+T.accent+'" stop-opacity=".035"/></linearGradient></defs>'
+    +tickSvg+(hasLine?'<path d="'+areaD+'" fill="url(#balanceAreaGrad)" stroke="none"/><path d="'+curveD+'" fill="none" stroke="'+T.accent+'" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>':'')+dots+axisLabels
+    +'<line id="balanceChartCrosshair" x1="0" x2="0" y1="'+g.padT+'" y2="'+(g.h-g.padB)+'" stroke="'+T.text+'" stroke-width="1" opacity="0"/><circle id="balanceChartDot" r="4.5" fill="'+T.accent+'" stroke="'+T.bg+'" stroke-width="2" opacity="0"/><rect id="balanceChartHit" x="0" y="0" width="'+g.w+'" height="'+g.h+'" fill="transparent" style="touch-action:none;"/></svg>';
 }
 
 /* Compact Home sparkline for cumulative ahead/behind budget. It supports
@@ -4476,7 +4520,7 @@ function renderHomeBody(T, da) {
 
   var hero = '<div class="card simple-metric-card simple-hero"><div class="simple-hero-grid">';
   hero += '<div class="simple-hero-cell"><div class="muted caption">SAFE TO SPEND TODAY</div><div class="mono simple-hero-value" style="color:' + safeTodayColor + ';">' + (safeToday == null ? '—' : (fmt(safeToday, 0) + ' <span class="muted simple-metric-unit">AED</span>')) + '</div></div>';
-  hero += '<div class="simple-hero-cell"><div class="muted caption">SPENT TODAY</div><div class="mono" style="font-size:30px;font-weight:650;margin-top:5px;color:' + (safeToday != null && spentToday > safeToday ? 'var(--rust)' : 'var(--text-muted)') + ';">' + fmt(spentToday, 0) + ' <span class="muted simple-metric-unit">AED</span></div></div></div>';
+  hero += '<div class="simple-hero-cell"><div class="muted caption">SPENT TODAY</div><div class="mono simple-hero-value simple-hero-value-muted" style="color:' + (safeToday != null && spentToday > safeToday ? 'var(--rust)' : 'var(--text-muted)') + ';">' + fmt(spentToday, 0) + ' <span class="muted simple-metric-unit">AED</span></div></div></div>';
   if (simpleStatus) hero += '<div class="simple-status" style="color:' + simpleStatusColor + ';">' + esc(simpleStatus) + '</div>';
   simpleCards.hero = hero + '</div>';
 
@@ -4682,16 +4726,21 @@ function renderBudgetBody(T) {
   sections.spendTrend=buildBudgetTrendCard(state.view,state.offset,T);
   if(stats.rows.length){
     var acc=0,savingData;
-    if(state.view==='week'){
+    if(isCurrent&&(state.view==='week'||state.view==='month')){
+      savingData=adaptiveBudgetPositionData(stats.rows,effectiveInfo);
+      acc=savingData.length?round2(savingData[savingData.length-1].balance):0;
+    }else if(state.view==='week'){
       savingData=hourlyBudgetPositionData(stats.rows,effectiveInfo);
       acc=savingData.length?round2(savingData[savingData.length-1].balance):0;
     }else{
       savingData=stats.rows.map(function(r){var ref=isCurrent?effectiveBudgetPaceReferenceForDate(r.date,effectiveInfo):r.allowance;var d=round2(ref-r.spent);acc=round2(acc+d);return{label:shortLabel(r.date),date:r.date,balance:acc,delta:d};});
     }
-    var paceCaption=state.view==='week'
-      ? ('Hourly cumulative position versus your budget pace.'+(isCurrent?' Current hour updates live.':''))
-      : 'Versus budget pace · today updates live.';
-    sections.progress='<div class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="margin-bottom:6px;"><span class="eyebrow">Ahead / behind budget</span><span class="mono footnote" style="color:'+(acc>=0?'var(--positive)':'var(--rust)')+';font-weight:600;">'+(acc>=0?'+':'−')+fmt(Math.abs(acc),0)+' AED</span></div><div class="muted caption" style="margin-bottom:10px;">'+paceCaption+'</div><div id="budgetSavingChartWrap" style="position:relative;"><div id="balanceChartTip" class="mono footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:8px;padding:4px 9px;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;pointer-events:none;z-index:2;"></div>'+renderChart(savingData,T)+'</div></div>';lastChartData=savingData;
+    var paceCaption=(isCurrent&&(state.view==='week'||state.view==='month'))
+      ? 'Adaptive live position versus your budget pace.'
+      : (state.view==='week'
+          ? ('Hourly cumulative position versus your budget pace.'+(isCurrent?' Current hour updates live.':''))
+          : 'Versus budget pace · today updates live.');
+    sections.progress='<div class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="margin-bottom:6px;"><span class="eyebrow">Ahead / behind budget</span><span class="mono footnote" style="color:'+(acc>=0?'var(--positive)':'var(--rust)')+';font-weight:600;">'+(acc>=0?'+':'−')+fmt(Math.abs(acc),0)+' AED</span></div><div class="muted caption" style="margin-bottom:10px;">'+paceCaption+'</div><div id="budgetSavingChartWrap" class="chart-shell" style="position:relative;padding:4px 4px 0;"><div id="balanceChartTip" class="mono footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:8px;padding:4px 9px;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;pointer-events:none;z-index:2;"></div>'+renderChart(savingData,T)+'</div></div>';lastChartData=savingData;
   } else {sections.progress='';}
 
   var catFilter=state.budgetCategoryFilter||'',personFilter=state.budgetPersonFilter||'',groupFilter=state.budgetSelectedGroup||'';
@@ -5342,43 +5391,40 @@ function renderTransactionsBody() {
 
   var h='';
   h+='<div class="row between page-heading-row"><div class="title2">Activity</div><button data-action="go-page" data-page="calendar" class="icon-btn page-icon-action" aria-label="Calendar">'+ICONS.calendar+'</button></div>';
-  h+='<div class="seg txn-period-primary">';
-  [["week","Week"],["month","Month"],["year","Year"],["custom","Custom"]].forEach(function(opt){h+='<button class="seg-btn" role="tab" aria-selected="'+(periodMode===opt[0])+'" data-action="set-txn-period" data-mode="'+opt[0]+'">'+opt[1]+'</button>';});
-  h+='</div>';
-  h+='<div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:-2px 0 12px;">';
-  [["last7","Last 7 days"],["last30","Last 30 days"]].forEach(function(opt){var sel=periodMode===opt[0];h+='<button data-action="set-txn-period" data-mode="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
-  h+='</div>';
-  if(periodMode==='custom') h+='<div class="row gap2" style="margin:-2px 0 12px;"><input id="txnPeriodFromInput" type="date" class="field mono" style="flex:1;font-size:13px;text-align:center;" value="'+esc(periodFrom)+'" max="'+todayStr()+'"/><input id="txnPeriodToInput" type="date" class="field mono" style="flex:1;font-size:13px;text-align:center;" value="'+esc(periodTo)+'" max="'+todayStr()+'"/></div>';
-
   h+='<div class="card card-pad" style="margin-bottom:12px;">';
   h+='<div class="row between" style="gap:18px;align-items:flex-start;"><div><div class="eyebrow">'+(summaryIsIncome?'Received':'Spent')+'</div><div class="mono" style="font-size:30px;font-weight:700;margin-top:2px;color:'+(summaryIsIncome?'var(--positive)':'var(--text)')+';">'+fmt(summaryTotal,0)+' <span class="muted" style="font-size:15px;">AED</span></div></div><div style="text-align:right;flex-shrink:0;padding-top:1px;"><div class="eyebrow">Daily avg</div><div class="mono" style="font-size:18px;font-weight:720;margin-top:4px;">'+fmt(dailyAvg,0)+' <span class="muted" style="font-size:11px;">AED/day</span></div></div></div>';
   if(periodMode==="week"||periodMode==="month"||periodMode==="year") h+='<div class="row between hairline-top" style="margin-top:12px;padding-top:10px;"><button data-action="txn-nav-offset" data-delta="-1" class="icon-btn" style="padding:6px;">'+ICONS.chevronLeft+'</button><div style="text-align:center;"><div class="subhead" style="font-weight:600;">'+esc(info.title)+'</div><div class="muted caption">'+esc(info.sub)+'</div></div><button data-action="txn-nav-offset" data-delta="1" class="icon-btn" style="padding:6px;'+(info.isCurrent?'opacity:.3;pointer-events:none;':'')+'">'+ICONS.chevronRight+'</button></div>';
   else if(periodMode==="last7"||periodMode==="last30") h+='<div class="hairline-top" style="margin-top:12px;padding-top:10px;text-align:center;"><div class="subhead" style="font-weight:600;">'+esc(info.title)+'</div><div class="muted caption">'+esc(info.sub)+'</div></div>';
   h+='</div>';
 
-  h+='<div class="card" style="padding:12px;margin-bottom:12px;">';
-  h+='<div style="position:relative;margin-bottom:10px;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);display:flex;">'+ICONS.search+'</span><input id="txnSearchInput" type="search" class="field" placeholder="Search activity" value="'+esc(state.txnSearch||"")+'" style="padding-left:40px;" /></div>';
-  h+='<div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">';
-  [["all","All"],["expense","Spent"],["income","Income"]].forEach(function(opt){var sel=typeFilter===opt[0];h+='<button data-action="set-txn-type-filter" data-type="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
-  var extraFilters=!!groupFilter||!!categoryFilter||!!personFilter||!!tagFilter||periodMode!=="month"||budgetScopeFilter!=="all";
-  h+='<button data-action="toggle-txn-filters" class="chip" style="flex:0 0 auto;'+(extraFilters?'background:var(--accent);color:var(--accent-ink);font-weight:600;':'')+'">Filters'+(extraFilters?' •':'')+'</button>';
-  h+='</div>';
-  if(typeFilter!=="income"){
-    h+='<div class="hairline-top" style="margin-top:11px;padding-top:10px;"><div class="muted caption" style="margin-bottom:7px;">Scope</div><div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">';
-    [["all","All"],["protected","Protected"],["unprotected","Unprotected"],["excluded","Outside"]].forEach(function(opt){var sel=budgetScopeFilter===opt[0];h+='<button data-action="set-txn-budget-scope" data-scope="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
-    h+='</div></div>';
-  }
-
+  var extraFilters=!!groupFilter||!!categoryFilter||!!personFilter||!!tagFilter||periodMode!=="month"||budgetScopeFilter!=="all"||typeFilter!=="all";
+  h+='<div class="card activity-toolbar">';
+  h+='<div class="activity-search-row"><div style="position:relative;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);display:flex;">'+ICONS.search+'</span><input id="txnSearchInput" type="search" class="field" placeholder="Search activity" value="'+esc(state.txnSearch||"")+'" style="padding-left:40px;" /></div><button data-action="toggle-txn-filters" class="btn-outline activity-filter-trigger" style="'+(extraFilters?'color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card))!important;':'')+'">'+(state.txnFiltersOpen?'Done':'Filters')+(extraFilters?' •':'')+'</button></div>';
   if(state.txnFiltersOpen){
-    h+='<div class="hairline-top" style="margin-top:12px;padding-top:12px;">';
-    h+='<div class="row between" style="margin-bottom:10px;"><span class="eyebrow">More filters</span><button data-action="set-txn-period" data-mode="all" class="btn-plain" style="font-size:13px;">'+(periodMode==='all'?'All time ✓':'All time')+'</button></div>';
+    h+='<div class="activity-filter-panel">';
+    h+='<div class="activity-filter-section"><div class="row between"><div class="eyebrow">Period</div><button data-action="set-txn-period" data-mode="all" class="btn-plain" style="font-size:12px;">'+(periodMode==='all'?'All time ✓':'All time')+'</button></div><div class="seg">';
+    [["week","Week"],["month","Month"],["year","Year"],["custom","Custom"]].forEach(function(opt){h+='<button class="seg-btn" role="tab" aria-selected="'+(periodMode===opt[0])+'" data-action="set-txn-period" data-mode="'+opt[0]+'">'+opt[1]+'</button>';});
+    h+='</div><div class="activity-filter-scroll" style="margin-top:7px;">';
+    [["last7","Last 7 days"],["last30","Last 30 days"]].forEach(function(opt){var sel=periodMode===opt[0];h+='<button data-action="set-txn-period" data-mode="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
+    h+='</div>';
+    if(periodMode==='custom') h+='<div class="row gap2" style="margin-top:8px;"><input id="txnPeriodFromInput" type="date" class="field mono" style="flex:1;font-size:13px;text-align:center;" value="'+esc(periodFrom)+'" max="'+todayStr()+'"/><input id="txnPeriodToInput" type="date" class="field mono" style="flex:1;font-size:13px;text-align:center;" value="'+esc(periodTo)+'" max="'+todayStr()+'"/></div>';
+    h+='</div>';
+    h+='<div class="activity-filter-section"><div class="eyebrow">Type</div><div class="activity-filter-scroll">';
+    [["all","All"],["expense","Spent"],["income","Income"]].forEach(function(opt){var sel=typeFilter===opt[0];h+='<button data-action="set-txn-type-filter" data-type="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
+    h+='</div></div>';
+    if(typeFilter!=="income"){
+      h+='<div class="activity-filter-section"><div class="eyebrow">Scope</div><div class="activity-filter-scroll">';
+      [["all","All"],["protected","Protected"],["unprotected","Unprotected"],["excluded","Outside"]].forEach(function(opt){var sel=budgetScopeFilter===opt[0];h+='<button data-action="set-txn-budget-scope" data-scope="'+opt[0]+'" class="chip" style="flex:0 0 auto;background:'+(sel?'var(--accent)':'var(--fill)')+';color:'+(sel?'var(--accent-ink)':'var(--text)')+';font-weight:'+(sel?'600':'500')+';">'+opt[1]+'</button>';});
+      h+='</div></div>';
+    }
+    h+='<div class="activity-filter-section"><div class="eyebrow">Details</div>';
     if(groups.length){h+='<select id="txnGroupFilterSelect" class="field" style="font-size:13px;margin-bottom:8px;"><option value="">All categories</option>';groups.forEach(function(g){h+='<option value="'+esc(g)+'"'+(groupFilter===g?' selected':'')+'>'+esc(g)+'</option>';});if((state.settings.categories||[]).some(function(c){return !categoryGroupOf(c);}))h+='<option value="__ungrouped__"'+(groupFilter==='__ungrouped__'?' selected':'')+'>Uncategorized</option>';h+='</select>';}
     var filterCats=!groupFilter?(state.settings.categories||[]).slice():(groupFilter==='__ungrouped__'?(state.settings.categories||[]).filter(function(c){return !categoryGroupOf(c);}):(state.settings.categories||[]).filter(function(c){return categoryGroupOf(c)===groupFilter;}));
     h+='<select id="txnCategoryFilterSelect" class="field" style="font-size:13px;margin-bottom:8px;"><option value="">All subcategories</option>';filterCats.forEach(function(c){h+='<option value="'+esc(c)+'"'+(categoryFilter===c?' selected':'')+'>'+esc(c)+'</option>';});h+='<option value="Uncategorised"'+(categoryFilter==='Uncategorised'?' selected':'')+'>Uncategorised</option></select>';
     if(people.length){h+='<select id="txnPersonFilterSelect" class="field" style="font-size:13px;margin-bottom:8px;"><option value="">All people</option>';people.forEach(function(p){h+='<option value="'+esc(p)+'"'+(personFilter===p?' selected':'')+'>'+esc(p)+'</option>';});h+='<option value="__unassigned__"'+(personFilter==='__unassigned__'?' selected':'')+'>Unassigned</option></select>';}
     var txnTagsForFilter=state.settings.transactionTags||[];
     if(txnTagsForFilter.length){h+='<select id="txnTagFilterSelect" class="field" style="font-size:13px;margin-bottom:8px;"><option value="">All tags</option>';txnTagsForFilter.forEach(function(tag){h+='<option value="'+esc(tag)+'"'+(tagFilter===tag?' selected':'')+'>'+esc(tag)+'</option>';});h+='</select>';}
-    h+='<div style="text-align:right;"><button data-action="clear-txn-filters" class="btn-plain" style="font-size:13px;">Reset filters</button></div></div>';
+    h+='<div style="text-align:right;"><button data-action="clear-txn-filters" class="btn-plain" style="font-size:13px;">Reset filters</button></div></div></div>';
   }
   h+='</div>';
 
@@ -5744,7 +5790,7 @@ function renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabe
   } else if (compareValues && compareValues.length === 1) compareD = "M "+xAt(0)+","+yAt(compareValues[0]);
   var ticksSet = {}; [0, Math.round(maxY/2), Math.round(maxY)].forEach(function(t){ ticksSet[t]=true; });
   var tickSvg = Object.keys(ticksSet).map(Number).map(function(t){
-    return '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yAt(t)+'" y2="'+yAt(t)+'" stroke="'+T.sep+'" stroke-dasharray="2,2"/>'
+    return '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yAt(t)+'" y2="'+yAt(t)+'" stroke="'+T.sep+'" stroke-opacity=".72" stroke-dasharray="3,4"/>'
       + '<text x="2" y="'+(yAt(t)+3)+'" font-size="9" fill="'+T.textMuted+'">'+fmt(t,0)+'</text>';
   }).join("");
   var targetSvg = "";
@@ -5759,12 +5805,12 @@ function renderForecastChart(rows, totalDays, target, projectedSpend, T, refLabe
     goalSvg='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+goalY+'" y2="'+goalY+'" stroke="'+T.amber+'" stroke-width="1.5" stroke-dasharray="6,3"/>'
       + '<text x="'+padL+'" y="'+Math.max(10,goalY-5)+'" font-size="8.5" font-weight="600" fill="'+T.amber+'">'+esc(goalLabel||"Savings target")+' – '+fmt(goalTarget,0)+' AED max spend</text>';
   }
-  return '<svg id="forecastChartSvg" viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'">'
+  return '<svg id="forecastChartSvg" viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'"><defs><linearGradient id="forecastActualGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+T.positive+'" stop-opacity=".22"/><stop offset="100%" stop-color="'+T.positive+'" stop-opacity=".025"/></linearGradient></defs>'
     + tickSvg + targetSvg + goalSvg
     + (compareD ? '<path d="'+compareD+'" fill="none" stroke="'+T.textMuted+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5,4"/>' : "")
-    + (areaD ? '<path d="'+areaD+'" fill="'+T.positive+'" fill-opacity="0.16" stroke="none"/>' : "")
+    + (areaD ? '<path d="'+areaD+'" fill="url(#forecastActualGrad)" stroke="none"/>' : "")
     + (curveD ? '<path d="'+curveD+'" fill="none" stroke="'+T.positive+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' : "")
-    + (forecastD ? '<path d="'+forecastD+'" fill="none" stroke="'+T.accent+'" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1,5"/>' : "")
+    + (forecastD ? '<path d="'+forecastD+'" fill="none" stroke="'+T.accent+'" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6,5"/>' : "")
     + todayMarker
     + '<line id="forecastChartCrosshair" x1="0" x2="0" y1="'+padT+'" y2="'+(h-padB)+'" stroke="'+T.text+'" stroke-width="1" opacity="0"/>'
     + '<circle id="forecastChartDot" r="4.5" fill="'+T.accent+'" stroke="'+T.bg+'" stroke-width="2" opacity="0"/>'
@@ -6759,7 +6805,7 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
     s += '<button class="seg-btn" role="tab" aria-selected="'+(compareMode===opt[0])+'" data-action="set-forecast-compare" data-mode="'+opt[0]+'">'+opt[1]+'</button>';
   });
   s += '</div>';
-  s += '<div id="forecastChartWrap" style="position:relative;">';
+  s += '<div id="forecastChartWrap" class="chart-shell" style="position:relative;padding:4px 4px 0;">';
   s += '<div id="forecastChartTip" class="mono footnote" style="position:absolute; top:0; left:0; background:var(--fill); border-radius:8px; padding:4px 9px; max-width:250px; opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:2;"></div>';
   s += renderForecastChart(scopedRows, totalDays, target, projectedSpend, T, refLabel, compareValues, pastDays, hasForecast, forecastValues, goalTarget, goalTarget!=null?(fmt(goalPct==null?savingsTargetPct():goalPct,0)+"% savings target"):null);
   s += '</div>';
@@ -6838,7 +6884,7 @@ function renderBudgetTrendChart(items, T) {
   function y(v){ return padT+plotH-(Math.max(0,v)/maxVal)*plotH; }
   function tick(v){ return v>=1000?(v/1000).toFixed(v>=10000?0:1)+'K':fmt(Math.round(v),0); }
   var grid='';
-  [0,.33,.66,1].forEach(function(fr){ var v=maxVal*fr, yy=y(v); grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+T.hairline+'" stroke-width="1" stroke-dasharray="3,3"/><text x="'+(padL-5)+'" y="'+(yy+3)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="end">'+tick(v)+'</text>'; });
+  [0,.33,.66,1].forEach(function(fr){ var v=maxVal*fr, yy=y(v); grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+T.hairline+'" stroke-opacity=".72" stroke-width="1" stroke-dasharray="3,4"/><text x="'+(padL-5)+'" y="'+(yy+3)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="end">'+tick(v)+'</text>'; });
   var n=items.length,slot=plotW/n,barW=Math.min(38,slot*.62);
   function statusColor(st){ return st==='rust'?T.rust:st==='amber'?T.amber:T.positive; }
   var bars='',targetPts=[];
@@ -6846,10 +6892,10 @@ function renderBudgetTrendChart(items, T) {
     var cx=padL+slot*i+slot/2, baseY=padT+plotH, color=statusColor(it.status);
     var total=Math.max(it.actual||0,it.displayTotal||0), totalY=y(total), actualY=y(it.actual||0);
     if (it.current && total>(it.actual||0)) {
-      bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+color+'" opacity="0.32" rx="5"/>';
-      bars+='<rect x="'+(cx-barW/2)+'" y="'+actualY+'" width="'+barW+'" height="'+Math.max(0,baseY-actualY)+'" fill="'+color+'" rx="5"/>';
+      bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+color+'" opacity="0.32" rx="7"/>';
+      bars+='<rect x="'+(cx-barW/2)+'" y="'+actualY+'" width="'+barW+'" height="'+Math.max(0,baseY-actualY)+'" fill="'+color+'" rx="7"/>';
     } else {
-      bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+color+'" rx="5"/>';
+      bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+color+'" rx="7"/>';
     }
     bars+='<text x="'+cx+'" y="'+(h-13)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="middle">'+esc(it.label)+'</text>';
     targetPts.push(cx+','+y(it.target||0));
@@ -6869,9 +6915,9 @@ function renderOverallTrendChart(items, T) {
   var maxVal=rawMax*1.12;
   function y(v){ return padT+plotH-(Math.max(0,v)/maxVal)*plotH; }
   function tick(v){ return v>=1000?(v/1000).toFixed(v>=10000?0:1)+'K':fmt(Math.round(v),0); }
-  var grid='';[0,.5,1].forEach(function(fr){var v=maxVal*fr,yy=y(v);grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+T.hairline+'" stroke-width="1" stroke-dasharray="3,3"/><text x="'+(padL-5)+'" y="'+(yy+3)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="end">'+tick(v)+'</text>';});
+  var grid='';[0,.5,1].forEach(function(fr){var v=maxVal*fr,yy=y(v);grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+T.hairline+'" stroke-opacity=".72" stroke-width="1" stroke-dasharray="3,4"/><text x="'+(padL-5)+'" y="'+(yy+3)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="end">'+tick(v)+'</text>';});
   var n=items.length,slot=plotW/n,barW=Math.min(38,slot*.62),bars='';
-  items.forEach(function(it,i){var cx=padL+slot*i+slot/2,baseY=padT+plotH,total=Math.max(it.actual||0,it.displayTotal||0),totalY=y(total),actualY=y(it.actual||0);if(it.current&&total>(it.actual||0)){bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+T.accent+'" opacity="0.28" rx="5"/><rect x="'+(cx-barW/2)+'" y="'+actualY+'" width="'+barW+'" height="'+Math.max(0,baseY-actualY)+'" fill="'+T.accent+'" rx="5"/>';}else{bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+T.accent+'" opacity="'+(it.current?'1':'0.68')+'" rx="5"/>';}bars+='<text x="'+cx+'" y="'+(h-11)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="middle">'+esc(it.label)+'</text>';});
+  items.forEach(function(it,i){var cx=padL+slot*i+slot/2,baseY=padT+plotH,total=Math.max(it.actual||0,it.displayTotal||0),totalY=y(total),actualY=y(it.actual||0);if(it.current&&total>(it.actual||0)){bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+T.accent+'" opacity="0.28" rx="7"/><rect x="'+(cx-barW/2)+'" y="'+actualY+'" width="'+barW+'" height="'+Math.max(0,baseY-actualY)+'" fill="'+T.accent+'" rx="7"/>';}else{bars+='<rect x="'+(cx-barW/2)+'" y="'+totalY+'" width="'+barW+'" height="'+Math.max(0,baseY-totalY)+'" fill="'+T.accent+'" opacity="'+(it.current?'1':'0.68')+'" rx="7"/>';}bars+='<text x="'+cx+'" y="'+(h-11)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="middle">'+esc(it.label)+'</text>';});
   lastOverallTrendChartData={items:items,w:w,h:h,padL:padL,padR:padR,padT:padT,padB:padB,slot:slot};
   return '<svg id="overallTrendChartSvg" viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="none">'+grid+bars
     +'<line id="overallTrendCrosshair" x1="0" x2="0" y1="'+padT+'" y2="'+(h-padB)+'" stroke="'+T.text+'" stroke-width="1" stroke-dasharray="2,2" opacity="0"/>'
@@ -6909,7 +6955,7 @@ function buildBudgetTrendCard(view, baseOffset, T) {
   s+='<div class="row between" style="margin-top:10px;"><span class="muted subhead">'+(cur.current?'Projected close':'Closed at')+'</span><span class="mono subhead" style="font-weight:600;">'+fmt(cur.displayTotal,0)+' AED</span></div>';
   s+='<div class="row between" style="margin-top:6px;"><span class="muted subhead">'+(cur.current?'Effective budget':'Budget')+'</span><span class="mono subhead">'+fmt(cur.target,0)+' AED</span></div>';
   s+='<div class="row between" style="margin-top:6px;"><span class="muted subhead">'+(diff>=0?'Projected saving':'Projected over')+'</span><span class="mono subhead" style="font-weight:600;color:'+(diff>=0?'var(--positive)':'var(--rust)')+';">'+fmt(Math.abs(diff),0)+' AED</span></div>';
-  s+='<div id="budgetTrendChartWrap" style="position:relative;margin-top:10px;"><div id="budgetTrendChartTip" class="footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:9px;padding:6px 9px;max-width:260px;opacity:0;pointer-events:none;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.2);"></div>'+renderBudgetTrendChart(items,T)+'</div>';
+  s+='<div id="budgetTrendChartWrap" class="chart-shell" style="position:relative;margin-top:10px;padding:4px 4px 0;"><div id="budgetTrendChartTip" class="footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:9px;padding:6px 9px;max-width:260px;opacity:0;pointer-events:none;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.2);"></div>'+renderBudgetTrendChart(items,T)+'</div>';
   s+='<div class="row" style="gap:12px;justify-content:center;flex-wrap:wrap;margin-top:4px;"><span class="caption" style="color:var(--positive);">● On track</span><span class="caption" style="color:var(--amber);">● Trending over</span><span class="caption" style="color:var(--rust);">● Over budget</span></div></div>';
   return s;
 }
@@ -6931,26 +6977,29 @@ function renderCashBalanceLineChart(rows, info, T) {
   });
   if (!pts.length) return "";
   var vals=pts.map(function(p){return p.balance;}).concat([Number(info.openingBalance)||0]);
-  var min=Math.min.apply(null,vals),max=Math.max.apply(null,vals);
-  if (max===min) { max+=1; min-=1; }
-  var margin=(max-min)*0.08; max+=margin; min-=margin;
+  var rawMin=Math.min.apply(null,vals),rawMax=Math.max.apply(null,vals);
+  var min=rawMin<0?rawMin:0, max=Math.max(0,rawMax);
+  if (max===min) { max=min+1; }
+  var margin=(max-min)*0.08;
+  max+=margin;
+  if(min<0) min-=margin*0.25;
   function xIdx(i){ return padL + (totalDays<=1 ? plotW/2 : (i/(totalDays-1))*plotW); }
   function y(v){ return padT + plotH - ((v-min)/(max-min))*plotH; }
   function tick(v){ var a=Math.abs(v); return a>=1000 ? ((v/1000).toFixed(a>=10000?0:1)+"K") : fmt(Math.round(v),0); }
   var grid="";
   [0,.25,.5,.75,1].forEach(function(fr){
-    var v=min+(max-min)*fr, yy=y(v);
-    grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+T.hairline+'" stroke-width="1" stroke-dasharray="3,3"/>';
+    var v=min+(max-min)*fr, yy=y(v),isZero=Math.abs(v)<Math.max(1,(max-min)*.005);
+    grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+yy+'" y2="'+yy+'" stroke="'+(isZero?T.textMuted:T.hairline)+'" stroke-opacity="'+(isZero?'.65':'.72')+'" stroke-width="'+(isZero?'1.2':'1')+'" stroke-dasharray="'+(isZero?'':'3,4')+'"/>';
     grid+='<text x="'+(padL-5)+'" y="'+(yy+3)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="end">'+tick(v)+'</text>';
   });
-  if (min<0 && max>0) grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+y(0)+'" y2="'+y(0)+'" stroke="'+T.textMuted+'" stroke-width="1.2"/>';
+  if (min<0 && max>0) grid+='<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+y(0)+'" y2="'+y(0)+'" stroke="'+T.textMuted+'" stroke-opacity=".65" stroke-width="1.2"/>';
   var xy=pts.map(function(p){return[xIdx(p.idx),y(p.balance)];});
   var curveD=xy.length>=2?smoothPathD(xy):"";
-  var baselineY=y(Math.max(min,Math.min(max,Number(info.openingBalance)||0)));
+  var baselineY=y(0);
   var areaD=xy.length>=2?(curveD+' L '+xy[xy.length-1][0]+','+baselineY+' L '+xy[0][0]+','+baselineY+' Z'):"";
   var lineColor=acc>=0?T.positive:T.rust;
   var line="";
-  if (xy.length>=2) line='<path d="'+areaD+'" fill="'+lineColor+'" fill-opacity="0.13" stroke="none"/><path d="'+curveD+'" fill="none" stroke="'+lineColor+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+  if (xy.length>=2) line='<path d="'+areaD+'" fill="url(#cashAreaGrad)" stroke="none"/><path d="'+curveD+'" fill="none" stroke="'+lineColor+'" stroke-width="2.65" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+xy[xy.length-1][0]+'" cy="'+xy[xy.length-1][1]+'" r="3.8" fill="'+lineColor+'" stroke="'+T.card+'" stroke-width="2"/>';
   else line='<circle cx="'+xy[0][0]+'" cy="'+xy[0][1]+'" r="4" fill="'+lineColor+'"/>';
   var axis="",labelCount=Math.min(5,totalDays),seen={};
   for(var i=0;i<labelCount;i++){
@@ -6965,7 +7014,7 @@ function renderCashBalanceLineChart(rows, info, T) {
     todayMark='<line x1="'+tx+'" x2="'+tx+'" y1="'+padT+'" y2="'+(h-padB)+'" stroke="'+T.hairline+'" stroke-dasharray="2,3"/><text x="'+tx+'" y="'+(padT+9)+'" font-size="8" fill="'+T.textMuted+'" text-anchor="middle">Today</text>';
   }
   lastCashBalanceChartData={points:pts,w:w,h:h,padL:padL,padR:padR,padT:padT,padB:padB,plotW:plotW,plotH:plotH,totalDays:totalDays,min:min,max:max,lineColor:lineColor};
-  return '<svg id="cashBalanceChartSvg" viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="none">'+grid+todayMark+line+axis
+  return '<svg id="cashBalanceChartSvg" viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="none"><defs><linearGradient id="cashAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+lineColor+'" stop-opacity=".20"/><stop offset="100%" stop-color="'+lineColor+'" stop-opacity=".025"/></linearGradient></defs>'+grid+todayMark+line+axis
     +'<line id="cashBalanceCrosshair" x1="0" x2="0" y1="'+padT+'" y2="'+(h-padB)+'" stroke="'+T.text+'" stroke-width="1" stroke-dasharray="2,2" opacity="0"/>'
     +'<circle id="cashBalanceDot" r="4.5" fill="'+lineColor+'" stroke="'+T.bg+'" stroke-width="2" opacity="0"/>'
     +'<rect id="cashBalanceChartHit" x="0" y="0" width="'+w+'" height="'+h+'" fill="transparent" style="touch-action:none;"/>'
@@ -6996,7 +7045,7 @@ function buildCashBalanceCard(T) {
   var s='<div class="card card-pad" style="margin-bottom:16px;">';
   s+='<div class="row between" style="align-items:center;gap:12px;"><div><div class="eyebrow">Cash balance</div><div class="mono" style="font-size:28px;font-weight:700;margin-top:4px;color:'+(balance>=0?'var(--positive)':'var(--rust)')+';">'+(balance<0?'−':'')+fmt(Math.abs(balance),0)+' AED</div></div>';
   s+='<div class="seg" style="width:168px;flex:0 0 168px;"><button class="seg-btn" role="tab" aria-selected="'+(info.mode==='tracking')+'" data-action="set-cash-balance-range" data-range="tracking">Since start</button><button class="seg-btn" role="tab" aria-selected="'+(info.mode==='30d')+'" data-action="set-cash-balance-range" data-range="30d">30 days</button></div></div>';
-  s+='<div id="cashBalanceChartWrap" style="position:relative;margin-top:12px;"><div id="cashBalanceChartTip" class="footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:9px;padding:6px 9px;white-space:nowrap;opacity:0;pointer-events:none;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.2);"></div>'+renderCashBalanceLineChart(cs.rows,info,T)+'</div>';
+  s+='<div id="cashBalanceChartWrap" class="chart-shell" style="position:relative;margin-top:12px;padding:4px 4px 0;"><div id="cashBalanceChartTip" class="footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:9px;padding:6px 9px;white-space:nowrap;opacity:0;pointer-events:none;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.2);"></div>'+renderCashBalanceLineChart(cs.rows,info,T)+'</div>';
   s+='<div class="muted caption" style="margin-top:4px;">'+(info.mode==='30d'?'30-day view carries forward your earlier balance.':'Starts from '+fmt(info.startingBalance,0)+' AED on '+esc(shortLabel(info.trackingStart))+'.')+'</div></div>';
   return s;
 }
@@ -7015,7 +7064,7 @@ function buildOverallTrendCard(info, cs, T, scope) {
   var cur=items[items.length-1],prevRows=previousPeriodRows(info.mode,state.analysisOffset,info.start,info.end,scope),sameDays=Math.min(cs.elapsedDays,prevRows.length),prevSame=prevRows.slice(0,sameDays).reduce(function(t,r){return t+r.spent;},0),pct=prevSame>0?Math.round((cs.spent-prevSame)/prevSame*100):null;
   var s='<div class="card card-pad" style="margin-bottom:16px;"><div class="eyebrow">Spend trend</div><div class="row between" style="align-items:flex-end;margin-top:6px;"><div><div class="muted caption">SPENT</div><div class="mono" style="font-size:28px;font-weight:700;">'+fmt(cur.actual,0)+' AED</div></div><div style="text-align:right;"><div class="muted caption">VS PREVIOUS</div><div class="mono subhead" style="font-weight:600;">'+(pct==null?'—':((pct>0?'+':'')+pct+'%'))+'</div></div></div>';
   if(cur.current&&cur.displayTotal!==cur.actual)s+='<div class="row between hairline-top" style="margin-top:12px;padding-top:10px;"><span class="muted subhead">Projected close</span><span class="mono subhead" style="font-weight:600;">'+fmt(cur.displayTotal,0)+' AED</span></div>';
-  s+='<div id="overallTrendChartWrap" style="position:relative;margin-top:8px;"><div id="overallTrendChartTip" class="footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:9px;padding:6px 9px;max-width:240px;opacity:0;pointer-events:none;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.2);"></div>'+renderOverallTrendChart(items,T)+'</div><div class="muted caption" style="text-align:center;margin-top:2px;">Lighter part of the current bar is forecast.</div></div>';
+  s+='<div id="overallTrendChartWrap" class="chart-shell" style="position:relative;margin-top:8px;padding:4px 4px 0;"><div id="overallTrendChartTip" class="footnote" style="position:absolute;top:0;left:0;background:var(--fill);border-radius:9px;padding:6px 9px;max-width:240px;opacity:0;pointer-events:none;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.2);"></div>'+renderOverallTrendChart(items,T)+'</div><div class="muted caption" style="text-align:center;margin-top:2px;">Lighter part of the current bar is forecast.</div></div>';
   return s;
 }
 
@@ -7280,7 +7329,7 @@ function renderAnalysisBody(T) {
         var gapColor=goal.gap>=0?'var(--positive)':'var(--amber)';
         s+='<div class="hairline-top" style="margin-top:14px;padding-top:11px;"><div class="row between"><span class="muted subhead">Annualized saving target · '+fmt(goal.pct,0)+'%</span><span class="mono subhead" style="font-weight:650;">'+fmt(goal.targetSaving,0)+' AED</span></div><div class="row between" style="margin-top:7px;"><span class="muted subhead">Projected saving</span><span class="mono subhead" style="font-weight:650;color:'+gapColor+';">'+(goal.projectedSaving>=0?'+':'−')+fmt(Math.abs(goal.projectedSaving||0),0)+' AED · '+(goal.projectedSavingPct==null?'—':goal.projectedSavingPct.toFixed(0)+'%')+'</span></div><div class="row between" style="margin-top:7px;"><span class="muted subhead">Gap to target</span><span class="mono subhead" style="font-weight:700;color:'+gapColor+';">'+(goal.gap>=0?('+'+fmt(goal.gap,0)+' AED ahead'):('−'+fmt(Math.abs(goal.gap),0)+' AED short'))+'</span></div></div>';
       }else{
-        s+='<div class="hairline-top" style="margin-top:14px;padding-top:11px;"><div class="row between"><span class="muted subhead">Projected saving this month</span><span class="mono subhead" style="font-weight:650;color:'+(goal.projectedSaving>=0?'var(--positive)':'var(--rust)')+';">'+(goal.projectedSaving>=0?'+':'−')+fmt(Math.abs(goal.projectedSaving||0),0)+' AED · '+(goal.projectedSavingPct==null?'—':goal.projectedSavingPct.toFixed(0)+'%')+'</span></div><div class="muted caption" style="margin-top:7px;line-height:1.35;">Annualized savings target: '+fmt(goal.pct,0)+'%. A single month may be above or below it because annual bills and installment timing are allowed to vary.</div></div>';
+        s+='<div class="hairline-top" style="margin-top:14px;padding-top:11px;"><div class="row between"><span class="muted subhead">Projected saving this month</span><span class="mono subhead" style="font-weight:650;color:'+(goal.projectedSaving>=0?'var(--positive)':'var(--rust)')+';">'+(goal.projectedSaving>=0?'+':'−')+fmt(Math.abs(goal.projectedSaving||0),0)+' AED · '+(goal.projectedSavingPct==null?'—':goal.projectedSavingPct.toFixed(0)+'%')+'</span></div></div>';
       }
     }
     return s+'</div>';
@@ -7593,7 +7642,7 @@ function renderBottomNav() {
 }
 
 function statBlock(label, value, color) {
-  return '<div><div class="eyebrow">'+esc(label)+'</div><div class="mono" style="font-size:14px; margin-top:2px; color:'+color+';">'+value+'</div></div>';
+  return '<div class="stat-block"><div class="eyebrow stat-block-label">'+esc(label)+'</div><div class="mono stat-block-value" style="color:'+color+';">'+value+'</div></div>';
 }
 
 /* ---------------- actions ---------------- */
