@@ -318,6 +318,18 @@
   .cashflow-progress-fill { position:absolute; top:0; left:0; height:100%; border-radius:999px; }
   .cashflow-progress-forecast { background:color-mix(in srgb, var(--accent) 32%, var(--surface-2)); }
   .cashflow-progress-fill { background:var(--accent); }
+  /* v112.43: Cash Flow tracks the month-specific cash-spend target rather
+     than income. This stays informative in payment months where both actual
+     and projected spend can legitimately exceed 100% of monthly income. */
+  .cashflow-target-track { position:relative; height:10px; margin-top:12px; border-radius:999px; background:var(--surface-2); box-shadow:var(--inset-stroke); overflow:visible; }
+  .cashflow-target-forecast, .cashflow-target-actual { position:absolute; left:0; top:0; height:100%; border-radius:999px; }
+  .cashflow-target-forecast { background:color-mix(in srgb,var(--accent) 30%,var(--surface-2)); }
+  .cashflow-target-forecast.over { background:color-mix(in srgb,var(--rust) 30%,var(--surface-2)); }
+  .cashflow-target-actual { background:var(--accent); }
+  .cashflow-target-marker { position:absolute; top:-4px; width:2px; height:18px; border-radius:2px; background:var(--text); transform:translateX(-1px); opacity:.78; z-index:3; }
+  .cashflow-target-marker::after { content:""; position:absolute; width:6px; height:6px; border-radius:50%; left:50%; top:-1px; transform:translate(-50%,-50%); background:var(--text); }
+  .cashflow-target-marker-label { position:absolute; right:0; top:15px; color:var(--text-muted); font-size:9.5px; line-height:1; font-weight:760; letter-spacing:.045em; text-transform:uppercase; white-space:nowrap; }
+  .cashflow-target-track-wrap { position:relative; padding-bottom:15px; }
   html.simple-home .app-topbar { margin-bottom:8px; }
   html.simple-home .simple-budget-card .hairline-top { margin-top:9px !important; padding-top:8px !important; }
   @media (max-width:360px) {
@@ -1220,6 +1232,10 @@
   }
 
 
+  /* ===== v112.43 Home cash-target clarity + dynamic subcategory ranking ===== */
+  /* Cash Flow now compares against the month-specific cash target, and Add Transaction
+     ranks subcategories by real usage frequency with recent-use tie breaking. */
+
   /* ===== v112.40 Demo / Showcase mode ===== */
   .demo-mode-badge {
     display:inline-flex;align-items:center;justify-content:center;min-height:22px;padding:4px 8px;border-radius:999px;
@@ -1234,6 +1250,58 @@
   .demo-mode-notice-copy { margin-top:5px;color:var(--text-muted);font-size:12px;line-height:1.4; }
   .demo-action-grid { display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px; }
   @media(max-width:360px){ .demo-action-grid { grid-template-columns:1fr; } }
+
+
+  /* ===== v112.42 Home decision-first forecast positions =====
+     Home now surfaces the decision gap rather than repeating full forecast
+     totals already available on Budget / Insights. Projected Saving stays
+     above the compact cash-target reference, and the Home FAB is smaller so
+     it does not compete with the final Cash Flow rows. */
+  html.simple-home .app-fab {
+    width:52px; height:52px; border-radius:18px;
+    right:calc(env(safe-area-inset-right,0px) + 16px);
+    bottom:calc(max(env(safe-area-inset-bottom,0px), 10px) + 84px);
+  }
+  html.simple-home .home-target-reference {
+    margin-top:9px; padding:9px 58px 9px 11px;
+  }
+  html.simple-home .home-target-reference .cash-target-details { margin-top:6px; padding-top:6px; }
+  html.simple-home .home-projected-saving .simple-saving-target-line { margin-top:3px; }
+  @media(max-width:390px){
+    html.simple-home .home-target-reference { padding-right:54px; }
+  }
+
+  /* v112.45 — Native-feeling category allocations and monthly balances. */
+  .cb-category-card{padding:16px;margin-bottom:12px;}
+  .cb-category-head{display:flex;align-items:center;gap:11px;width:100%;border:0;background:none;padding:0;text-align:left;color:var(--text);min-height:46px;}
+  .cb-category-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;font-size:16px;font-weight:750;overflow-wrap:anywhere;}
+  .cb-category-title .caption{font-weight:500;}
+  .cb-category-pct{flex-shrink:0;font-size:21px;font-weight:750;}
+  .cb-category-track{height:7px;background:var(--fill);border-radius:99px;overflow:hidden;margin:14px 0 10px;}
+  .cb-category-track>span{display:block;height:100%;border-radius:99px;}
+  .cb-category-values{display:flex;justify-content:space-between;gap:12px;}
+  .cb-category-meta{line-height:1.4;margin-top:7px;overflow-wrap:anywhere;}
+  .cb-category-detail{margin-top:12px;padding-top:6px;}
+  .cb-detail-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:11px 0;background:none;border:0;border-bottom:1px solid var(--sep);text-align:left;color:var(--text);}
+  .cb-detail-row:last-child{border-bottom:0;}
+  .cb-detail-amount{display:flex;flex-direction:column;text-align:right;gap:4px;flex-shrink:0;}
+  .cb-detail-row>span:first-child{min-width:0;overflow-wrap:anywhere;}
+  .cb-warning{font-size:13px;line-height:1.45;color:var(--rust);background:var(--fill);padding:12px;border-radius:14px;margin-bottom:12px;}
+  .cb-warning .btn-plain{font-size:13px;min-height:36px;padding:4px 0;}
+  .cb-edit-row{padding:15px;margin-bottom:12px;}
+  .cb-amount-label{width:128px;flex:0 0 128px;display:flex;flex-direction:column;gap:5px;text-align:right;}
+  .cb-amount-label input{text-align:right;font-size:17px;font-weight:700;}
+  .cb-edit-options{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-top:13px;}
+  .cb-edit-options>label:first-child{flex:1;min-width:145px;display:flex;flex-direction:column;gap:5px;}
+  .cb-check{display:flex;align-items:center;gap:7px;min-height:44px;cursor:pointer;}
+  .cb-check input{width:20px;height:20px;accent-color:var(--accent);}
+  .cb-move{margin-bottom:14px;}
+  .cb-total-value{font-size:30px;font-weight:750;margin-top:7px;line-height:1.3;}
+  .cb-buffer-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--fill);color:var(--accent);border-radius:12px;}
+  .cb-buffer-icon svg{width:20px;height:20px;}
+  .cb-home-context{font-size:11px;line-height:1.35;margin-top:9px;color:var(--text-muted);}
+  @media(max-width:360px){.cb-category-card{padding:13px;}.cb-amount-label{width:110px;flex-basis:110px;}.cb-category-pct{font-size:19px;}.cb-detail-amount .caption{font-size:11px;}.cb-edit-options{gap:7px;}.cb-check .subhead{font-size:12px;}}
+
 </style>
 </head>
 <body>
@@ -1245,13 +1313,14 @@
 var REAL_STORAGE_KEY = "ledger-data";
 var DEMO_STORAGE_KEY = "ledger-demo-data";
 var DEMO_MODE_FLAG_KEY = "ledger-demo-active";
+var DEMO_DATA_VERSION = "v11245-dubai-category-budgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v112.40";
+var APP_VERSION = "v112.45";
 var FORECAST_MODEL_VERSION = "v11238-periodic-cash-1";
 var TEST_KEY = "ledger-selftest";
-var DEFAULT_SETTINGS = { weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true };
+var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true };
 /* Forecast backtesting is independent of the removed Accounts feature.
    Keep its saved snapshots normalized on every boot so an older/corrupt
    snapshot can never prevent the ledger itself from opening. */
@@ -1922,6 +1991,188 @@ function annualReserveCashTimingForMonth(startStr,endStr){
   var normalizedTotal=round2(rows.reduce(function(sum,x){return sum+x.normalized;},0)),cashTotal=round2(rows.reduce(function(sum,x){return sum+x.cash;},0));
   return {normalized:normalizedTotal,cash:cashTotal,adjustment:round2(cashTotal-normalizedTotal),breakdown:rows};
 }
+/* v112.45 — Category budgets. All amounts are canonical AED.
+   Rollover is derived from closed months, never a fake income/expense or an
+   increment-on-open counter. Backdated edits replay the same ledger. */
+var CB_BUFFER = "__ledger_buffer__", CB_UNGROUPED = "__ledger_ungrouped__";
+var categoryBudgetCache = null, cbLastRenderDate = "";
+function cbMonth(v){var s=String(v||"").slice(0,7);return /^\d{4}-(0[1-9]|1[0-2])$/.test(s)?s:"";}
+function cbNextMonth(m,n){return toStr(addMonths(parseD(m+"-01"),n==null?1:n)).slice(0,7);}
+function cbMoney(v){var n=Number(v);return round2(isFinite(n)?Math.max(0,n):0);}
+function cbGroupLabel(g){return g===CB_BUFFER?"Buffer":g===CB_UNGROUPED?"Uncategorized":g;}
+function normalizeCategoryBudgetPlans(list){
+  var byMonth=Object.create(null);
+  (Array.isArray(list)?list:[]).forEach(function(p){
+    var from=cbMonth(p&&p.from);if(!from)return;
+    var seen=Object.create(null),rows=[];
+    (Array.isArray(p.rows)?p.rows:[]).forEach(function(r){
+      var g=String(r&&r.group||"").trim();if(!g||g===CB_BUFFER||seen[g])return;
+      seen[g]=true;rows.push({group:g,amount:cbMoney(r.amount),daily:r.daily===true,rollover:r.rollover===true});
+    });
+    byMonth[from]={from:from,rows:rows};
+  });
+  return Object.keys(byMonth).sort().map(function(k){return byMonth[k];});
+}
+function cbPlanForMonth(settings,mk){var selected=null;normalizeCategoryBudgetPlans(settings.categoryBudgetPlans).forEach(function(p){if(p.from<=mk)selected=p;});return selected;}
+function categoryBudgetsEnabled(){return !!cbPlanForMonth(state.settings,cbMonth(todayStr()));}
+function cbCurrentClassification(settings){
+  var groupOf=Object.assign({},settings.categoryGroupOf||{}),excluded=Object.assign({},settings.categoryExcludeFromBudget||{});
+  (settings.annualReserves||[]).forEach(function(r){
+    if(!r||r.active===false||!(Number(r.annualAmount)>0))return;
+    if(r.category&&!r.group)excluded[r.category]=true;
+    if(r.group)Object.keys(groupOf).forEach(function(c){if(groupOf[c]===r.group)excluded[c]=true;});
+  });
+  return {groupOf:groupOf,excluded:excluded};
+}
+function normalizeCategoryBudgetFunding(list){
+  var byMonth=Object.create(null);
+  (Array.isArray(list)?list:[]).forEach(function(r){var mk=cbMonth(r&&r.month);if(!mk)return;
+    byMonth[mk]={month:mk,cap:r.cap==null?null:cbMoney(r.cap)};
+  });return Object.keys(byMonth).sort().map(function(k){return byMonth[k];});
+}
+function normalizeCategoryBudgetTransfers(list){
+  var seen=Object.create(null),out=[];
+  (Array.isArray(list)?list:[]).forEach(function(t){
+    if(!t)return;var month=cbMonth(t.month),id=String(t.id||""),from=String(t.from||""),to=String(t.to||""),amount=cbMoney(t.amount);
+    if(!month||!id||seen[id]||!from||!to||from===to||!(amount>0))return;
+    seen[id]=true;out.push({id:id,month:month,from:from,to:to,amount:amount,date:String(t.date||month+"-01")});
+  });return out;
+}
+function cbConfiguredBudget(settings,mk){
+  var chosen=null,ds=mk+"-01";
+  normalizeMonthlyBudgetHistory(settings.monthlyBudgetHistory).forEach(function(x){if(x.from<=ds)chosen=x;});
+  if(chosen)return cbMoney(chosen.monthlyBudget);
+  if(settings.monthlyBudget!=null)return cbMoney(settings.monthlyBudget);
+  return cbMoney((Number(settings.weeklyTarget)||0)/7*daysInMonth(parseD(ds)));
+}
+/* Largest remainder allocation in integer fils. Exactly conserves the pool;
+   each recipient is capped at its positive unspent balance. */
+function cbAllocateRollover(rows,surplus){
+  var eligible=rows.filter(function(r){return r.rollover&&r.remaining>0;}),total=eligible.reduce(function(s,r){return s+Math.round(r.remaining*100);},0);
+  var cents=Math.min(Math.max(0,Math.round(surplus*100)),total),out=Object.create(null),used=0;
+  var shares=eligible.map(function(r,i){var cap=Math.round(r.remaining*100),exact=total?cents*cap/total:0,take=Math.min(cap,Math.floor(exact));used+=take;out[r.group]=take;return {group:r.group,fraction:exact-take,cap:cap,index:i};});
+  shares.sort(function(a,b){return b.fraction-a.fraction||a.index-b.index;});
+  for(var i=0;used<cents&&i<shares.length;i++){var x=shares[i];if(out[x.group]<x.cap){out[x.group]++;used++;}}
+  Object.keys(out).forEach(function(g){out[g]=out[g]/100;});return {byGroup:out,total:used/100};
+}
+function computeCategoryBudgetLedger(settings,entries,asOf,options){
+  options=options||{};asOf=asOf||todayStr();var endMonth=cbMonth(asOf),plans=normalizeCategoryBudgetPlans(settings.categoryBudgetPlans),funding=normalizeCategoryBudgetFunding(settings.categoryBudgetFunding),transfers=normalizeCategoryBudgetTransfers(settings.categoryBudgetTransfers);
+  if(!plans.length||plans[0].from>endMonth)return {months:[],byMonth:Object.create(null),current:null};
+  var currentClass=cbCurrentClassification(settings),expenses=Object.create(null),tracking=String(settings.trackingStartDate||"1900-01-01");
+  Object.keys(entries||{}).sort().forEach(function(ds){
+    if(ds>asOf||ds<tracking)return;var mk=cbMonth(ds);if(!mk||mk<plans[0].from)return;
+    ((entries[ds]&&entries[ds].items)||[]).forEach(function(it){if(isExpenseItem(it)){if(!expenses[mk])expenses[mk]=[];expenses[mk].push({date:ds,item:it});}});
+  });
+  var months=[],byMonth=Object.create(null),opening=Object.create(null),mk=plans[0].from,guard=0;
+  while(mk<=endMonth&&guard++<2400){
+    var plan=cbPlanForMonth(settings,mk),basis=null;
+    funding.forEach(function(r){if(r.month<=mk)basis=r;});
+    var cls=currentClass,configured=cbConfiguredBudget(settings,mk),cap=basis?basis.cap:null;
+    var monthStart=mk+"-01",monthEnd=toStr(endOfMonth(parseD(monthStart))),dim=daysInMonth(parseD(monthStart));
+    var trackedDays=tracking>monthEnd?0:(tracking>monthStart?daysBetween(tracking,monthEnd)+1:dim),fraction=Math.max(0,trackedDays/dim);
+    var base=round2(Math.min(configured,cap==null?configured:cap)*fraction);
+    if(mk===endMonth&&options.currentBase!=null)base=cbMoney(options.currentBase);
+    var rows=[],byGroup=Object.create(null),allocated=0;
+    function rowFor(group){
+      if(!byGroup[group]){var r={group:group,base:0,opening:cbMoney(opening[group]),transfer:0,spent:0,spentToday:0,daily:false,rollover:cbMoney(opening[group])>0,subcategories:Object.create(null)};byGroup[group]=r;rows.push(r);}return byGroup[group];
+    }
+    var allocationRows=(plan?plan.rows:[]),prorated=cbAllocateRollover(allocationRows.map(function(a){return {group:a.group,remaining:a.amount,rollover:true};}),round2(allocationRows.reduce(function(t,a){return t+a.amount;},0)*fraction)).byGroup;
+    allocationRows.forEach(function(a){var r=rowFor(a.group);r.base=prorated[a.group]||0;r.daily=a.daily;r.rollover=a.rollover;allocated=round2(allocated+r.base);});
+    rowFor(CB_BUFFER).base=round2(Math.max(0,base-allocated));byGroup[CB_BUFFER].rollover=false;
+    Object.keys(opening).forEach(function(g){if(opening[g]>0)rowFor(g);});
+    transfers.filter(function(t){return t.month===mk;}).forEach(function(t){rowFor(t.from).transfer=round2(rowFor(t.from).transfer-t.amount);rowFor(t.to).transfer=round2(rowFor(t.to).transfer+t.amount);});
+    (expenses[mk]||[]).forEach(function(x){
+      var it=x.item,c=String(it.category||""),amount=cbMoney(it.amount);if(cls.excluded&&cls.excluded[c])return;
+      var g=(cls.groupOf&&cls.groupOf[c])||CB_UNGROUPED,r=rowFor(g);r.spent=round2(r.spent+amount);if(x.date===asOf)r.spentToday=round2(r.spentToday+amount);
+      var key=c||"Uncategorized";r.subcategories[key]=round2((r.subcategories[key]||0)+amount);
+    });
+    var openingTotal=0,spent=0,dailyAvailable=0,dailySpent=0,dailyToday=0,deficits=0,nonDailyDeficits=0;
+    rows.forEach(function(r){
+      r.available=round2(r.base+r.opening+r.transfer);r.remaining=round2(r.available-r.spent);r.pct=r.available>0?r.spent/r.available*100:(r.spent>0?100:0);
+      openingTotal=round2(openingTotal+r.opening);spent=round2(spent+r.spent);
+      if(r.group!==CB_BUFFER&&r.remaining<0){deficits=round2(deficits-r.remaining);if(!r.daily)nonDailyDeficits=round2(nonDailyDeficits-r.remaining);}
+      if(r.daily){dailyAvailable=round2(dailyAvailable+r.available);dailySpent=round2(dailySpent+r.spent);dailyToday=round2(dailyToday+r.spentToday);}
+    });
+    var available=round2(base+openingTotal),remaining=round2(available-spent),allocationShortfall=round2(Math.max(0,allocated-base));
+    var rollover=cbAllocateRollover(rows,Math.max(0,remaining)),buffer=byGroup[CB_BUFFER],hold=round2(Math.max(0,nonDailyDeficits+allocationShortfall-Math.max(0,buffer.remaining)+Math.max(0,-buffer.remaining)));
+    rows.forEach(function(r){r.rolloverOut=rollover.byGroup[r.group]||0;});
+    var month={month:mk,start:monthStart,end:monthEnd,closed:mk<endMonth,configuredBudget:configured,baseBudget:base,allocated:allocated,openingTotal:openingTotal,available:available,spent:spent,remaining:remaining,rows:rows,byGroup:byGroup,rolloverTotal:rollover.total,generalSavings:round2(Math.max(0,remaining)-rollover.total),overspent:round2(Math.max(0,-remaining)),allocationShortfall:allocationShortfall,categoryDeficits:deficits,dailyHold:hold,dailyTarget:round2(Math.max(0,dailyAvailable-hold)),dailyAvailable:dailyAvailable,dailySpent:dailySpent,dailyToday:dailyToday,classification:cls};
+    months.push(month);byMonth[mk]=month;
+    opening=rollover.byGroup;mk=cbNextMonth(mk);
+  }
+  return {months:months,byMonth:byMonth,current:byMonth[endMonth]||null};
+}
+function currentCategoryBudgetLedger(base){
+  var today=todayStr();if(categoryBudgetCache&&categoryBudgetCache.settings===state.settings&&categoryBudgetCache.entries===state.entries&&categoryBudgetCache.date===today&&categoryBudgetCache.base===base)return categoryBudgetCache.value;
+  var value=computeCategoryBudgetLedger(state.settings,state.entries,today,{currentBase:base});
+  categoryBudgetCache={settings:state.settings,entries:state.entries,date:today,base:base,value:value};return value;
+}
+function refreshCategoryBudgetFunding(){
+  if(!categoryBudgetsEnabled())return false;
+  var comparison=currentSavingsBudgetComparison(),mk=cbMonth(todayStr());
+  var row={month:mk,cap:comparison?comparison.compatibleBudget:null};
+  var history=normalizeCategoryBudgetFunding(state.settings.categoryBudgetFunding),old=history.find(function(r){return r.month===mk;});
+  if(old&&JSON.stringify(old)===JSON.stringify(row))return false;
+  history=history.filter(function(r){return r.month!==mk;}).concat([row]);
+  state.settings=Object.assign({},state.settings,{categoryBudgetFunding:normalizeCategoryBudgetFunding(history)});categoryBudgetCache=null;return true;
+}
+function categoryBudgetDailyCategory(cat){
+  if(categoryExcludedFromBudget(cat))return false;
+  var plan=cbPlanForMonth(state.settings,cbMonth(todayStr())),g=categoryGroupOf(cat)||CB_UNGROUPED;
+  return !!(plan&&plan.rows.some(function(r){return r.group===g&&r.daily;}));
+}
+function categoryBudgetDailyName(){
+  var plan=cbPlanForMonth(state.settings,cbMonth(todayStr()));if(!plan)return "Safe to spend";
+  var daily=plan.rows.filter(function(r){return r.daily;});if(daily.length===1)return /food|dining/i.test(daily[0].group)?"Food":cbGroupLabel(daily[0].group);return "Daily spending";
+}
+function cbDailySignatureForPlan(plan,settings){
+  if(!plan)return "legacy";var cls=cbCurrentClassification(settings),groups=plan.rows.filter(function(r){return r.daily;}).map(function(r){return r.group;});
+  return JSON.stringify((settings.categories||[]).filter(function(c){return !cls.excluded[c]&&groups.indexOf(cls.groupOf[c]||CB_UNGROUPED)>=0;}).sort());
+}
+function categoryBudgetDailySignature(){return cbDailySignatureForPlan(cbPlanForMonth(state.settings,cbMonth(todayStr())),state.settings);}
+function categoryBudgetFundingForRange(startStr,endStr,info){
+  if(!info||!info.categoryBudget)return null;
+  var start=effectiveRangeStart(startStr);if(start>endStr)return 0;
+  var ledger=currentCategoryBudgetLedger(info.baseEffectiveBudget),startMonth=cbMonth(start),endMonth=cbMonth(endStr),sum=0,mk=startMonth;
+  while(mk<=endMonth){
+    var first=mk+"-01",last=toStr(endOfMonth(parseD(first))),a=start>first?start:first,b=endStr<last?endStr:last,month=ledger.byMonth[mk];
+    var base=month?month.baseBudget:cbConfiguredBudget(state.settings,mk);
+    var trackedStart=state.settings.trackingStartDate&&state.settings.trackingStartDate>first?state.settings.trackingStartDate:first;
+    var denominator=month?Math.max(1,daysBetween(trackedStart,last)+1):daysInMonth(parseD(first));
+    if(a<=b)sum+=base*(daysBetween(a,b)+1)/denominator;
+    /* Opening funds enter a range once, never at every internal month edge. */
+    if(mk===startMonth&&month&&start===first)sum+=month.openingTotal;
+    mk=cbNextMonth(mk);
+  }
+  return round2(sum);
+}
+function categoryBudgetCashTimingForMonth(startStr,endStr){
+  if(cbMonth(startStr)!==cbMonth(endStr)||!categoryBudgetsEnabled())return {adjustment:0,breakdown:[]};
+  var info=currentEffectiveBudgetInfo(),ledger=currentCategoryBudgetLedger(info.baseEffectiveBudget),month=ledger.byMonth[cbMonth(startStr)];
+  if(!month||!(month.openingTotal>0))return {adjustment:0,breakdown:[]};
+  var used=round2(Math.min(month.openingTotal,Math.max(0,month.spent-month.baseBudget)));
+  return {adjustment:used,breakdown:used>0?[{name:"Category rollover used",cash:used,normalized:0,adjustment:used}]:[]};
+}
+function renameCategoryBudgetData(settings,oldName,newName,kind){
+  var next=Object.assign({},settings);
+  if(kind==="group"){
+    next.categoryBudgetPlans=normalizeCategoryBudgetPlans(settings.categoryBudgetPlans).map(function(p){return {from:p.from,rows:p.rows.map(function(r){return Object.assign({},r,{group:r.group===oldName?newName:r.group});})};});
+    next.categoryBudgetTransfers=normalizeCategoryBudgetTransfers(settings.categoryBudgetTransfers).map(function(t){return Object.assign({},t,{from:t.from===oldName?newName:t.from,to:t.to===oldName?newName:t.to});});
+  }
+  return next;
+}
+
+function cbMonthlyAllocationCapacity(info){
+  info=info||currentEffectiveBudgetInfo();var mk=cbMonth(todayStr()),start=mk+'-01',end=toStr(endOfMonth(parseD(start))),tracking=state.settings.trackingStartDate||start;
+  var fraction=tracking>start?Math.max(0,(daysBetween(tracking,end)+1)/daysInMonth(parseD(start))):1;
+  var capacity=fraction>0?Math.min(currentMonthlyBudget(),Math.ceil(info.baseEffectiveBudget/fraction*100)/100):0;
+  if(round2(capacity*fraction)>info.baseEffectiveBudget+.005)capacity=round2(capacity-.01);return Math.max(0,capacity);
+}
+
+function cbCheckCalendar(){if(!document.hidden&&cbLastRenderDate&&cbLastRenderDate!==todayStr())render();}
+window.addEventListener('pageshow',cbCheckCalendar);
+document.addEventListener('visibilitychange',cbCheckCalendar);
+
 function categoryExcludedFromBudget(catName) {
   if (!catName) return false;
   if (annualReserveForCategory(catName)) return true;
@@ -2407,7 +2658,7 @@ function normalizeSafeSpendHistory(v){
     if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||"")))return;
     var opening=Number(x.openingSafe), sustainable=Number(x.sustainableDaily);
     if(!isFinite(opening)||!isFinite(sustainable))return;
-    byDate[x.date]={date:x.date,openingSafe:round2(Math.max(0,opening)),sustainableDaily:round2(Math.max(0,sustainable)),flexibilityPct:clampPct(x.flexibilityPct),maxFlexibilityPct:clampPct(x.maxFlexibilityPct==null?x.flexibilityPct:x.maxFlexibilityPct),effectiveBudget:round2(Math.max(0,Number(x.effectiveBudget)||0)),futureReserve:round2(Math.max(0,Number(x.futureReserve)||0))};
+    byDate[x.date]={date:x.date,scopeKey:String(x.scopeKey||"legacy"),openingSafe:round2(Math.max(0,opening)),sustainableDaily:round2(Math.max(0,sustainable)),flexibilityPct:clampPct(x.flexibilityPct),maxFlexibilityPct:clampPct(x.maxFlexibilityPct==null?x.flexibilityPct:x.maxFlexibilityPct),effectiveBudget:round2(Math.max(0,Number(x.effectiveBudget)||0)),futureReserve:round2(Math.max(0,Number(x.futureReserve)||0))};
   });
   return Object.keys(byDate).sort().map(function(k){return byDate[k];}).slice(-120);
 }
@@ -2461,9 +2712,10 @@ function homeOpeningMetricRow(date,current){
 function safeOpeningAtCurrentBudget(date,current){
   var row=safeSpendHistory().find(function(x){return x.date===date;})||null;
   if(!row)return null;
+  if(String(row.scopeKey||"legacy")!==categoryBudgetDailySignature())return null;
   var opening=Number(row.openingSafe),sourceBudget=Number(row.effectiveBudget),currentBudget=Number(current&&current.effectiveBudget);
   if(!isFinite(opening))return null;
-  if(current&&date>=current.periodStart&&date<=current.periodEnd&&isFinite(sourceBudget)&&sourceBudget>0&&isFinite(currentBudget)&&currentBudget>=0){
+  if(current&&date>=current.periodStart&&date<=current.periodEnd&&isFinite(sourceBudget)&&sourceBudget>=0&&isFinite(currentBudget)&&currentBudget>=0){
     var daysLeft=Math.max(1,daysBetween(date,current.periodEnd)+1);
     opening+=round2((currentBudget-sourceBudget)/daysLeft);
   }
@@ -2480,8 +2732,10 @@ function homeOpeningMetricDeltasAndRecord(current){
   var modelEpoch=String(state.settings.homeDeltaModelEpochV11219||"");
   var modelComparable=!modelEpoch||yesterday>=modelEpoch;
   var todaySafe=safeOpeningAtCurrentBudget(date,current),yesterdaySafe=safeOpeningAtCurrentBudget(yesterday,current);
-  if(todaySafe==null&&todayOpening)todaySafe=todayOpening.safeToSpend;
-  if(yesterdaySafe==null&&yesterdayOpening)yesterdaySafe=yesterdayOpening.safeToSpend;
+  if(!categoryBudgetsEnabled()){
+    if(todaySafe==null&&todayOpening)todaySafe=todayOpening.safeToSpend;
+    if(yesterdaySafe==null&&yesterdayOpening)yesterdaySafe=yesterdayOpening.safeToSpend;
+  }
   return {
     safeToSpend:(!modelComparable||todaySafe==null||yesterdaySafe==null)?null:round2(todaySafe-yesterdaySafe),
     projectedBudgetSpend:(!modelComparable||!samePeriod||todayOpening.projectedBudgetSpend==null||yesterdayOpening.projectedBudgetSpend==null)?null:round2(todayOpening.projectedBudgetSpend-yesterdayOpening.projectedBudgetSpend),
@@ -2505,7 +2759,7 @@ function ensureSafeSpendSnapshot(){
   var pacing=liveBudgetPacing(), m=pacing&&pacing.month;
   if(!m||m.openingSafe==null||m.sustainableDaily==null)return false;
   var info=currentEffectiveBudgetInfo();
-  hist.push({date:date,openingSafe:round2(Math.max(0,m.openingSafe)),sustainableDaily:round2(Math.max(0,m.sustainableDaily)),flexibilityPct:0,maxFlexibilityPct:0,effectiveBudget:info?info.effectiveBudget:0,futureReserve:m.futureReserve||0});
+  hist.push({date:date,scopeKey:categoryBudgetDailySignature(),openingSafe:round2(Math.max(0,m.openingSafe)),sustainableDaily:round2(Math.max(0,m.sustainableDaily)),flexibilityPct:0,maxFlexibilityPct:0,effectiveBudget:info?(info.categoryBudget?info.categoryBudget.dailyAvailable:info.effectiveBudget):0,futureReserve:m.futureReserve||0});
   var nextSettings=Object.assign({},state.settings,{safeSpendHistory:normalizeSafeSpendHistory(hist)});
   persistAll(nextSettings,state.entries,"Safe-to-Spend history");
   return true;
@@ -2755,6 +3009,8 @@ function effectiveMonthlyCashSavingsTarget(startStr,endStr,projectedIncome){
   if(base==null)return {base:null,effective:null,effectiveSavingPct:null,timing:{normalized:0,cash:0,adjustment:0,breakdown:[],yearlyBills:{normalized:0,cash:0,adjustment:0,breakdown:[]},periodicPlans:{normalized:0,cash:0,adjustment:0,breakdown:[]},annualReserves:{normalized:0,cash:0,adjustment:0,breakdown:[]}}};
   var yearly=yearlyBillCashTimingForMonth(startStr,endStr), periodic=periodicPlanCashTimingForMonth(startStr,endStr), reserves=annualReserveCashTimingForMonth(startStr,endStr);
   var timing={normalized:round2(yearly.normalized+periodic.normalized+reserves.normalized),cash:round2(yearly.cash+periodic.cash+reserves.cash),adjustment:round2(yearly.adjustment+periodic.adjustment+reserves.adjustment),breakdown:(yearly.breakdown||[]).concat(periodic.breakdown||[]).concat(reserves.breakdown||[]),yearlyBills:yearly,periodicPlans:periodic,annualReserves:reserves};
+  var categoryTiming=categoryBudgetCashTimingForMonth(startStr,endStr);
+  timing.categoryRollover=categoryTiming;timing.adjustment=round2(timing.adjustment+categoryTiming.adjustment);timing.breakdown=(timing.breakdown||[]).concat(categoryTiming.breakdown||[]);
   var effective=round2(Math.max(0,base+timing.adjustment));
   var effectiveSavingPct=projectedIncome>0?((projectedIncome-effective)/projectedIncome*100):null;
   return {base:base,effective:effective,effectiveSavingPct:effectiveSavingPct,timing:timing,targetSaving:goal?goal.targetSaving:null,recurringIncome:goal?goal.recurringIncome:null,extraIncome:goal?goal.extraIncome:null};
@@ -2831,6 +3087,7 @@ function flexibleBudgetSpendForRange(startStr,endStr,protectedMap){
     var ds=toStr(d), e=state.entries[ds];
     (e&&e.items||[]).forEach(function(it){
       if(!isExpenseItem(it)||!itemCountsTowardBudget(it))return;
+      if(categoryBudgetsEnabled()&&!categoryBudgetDailyCategory(it.category))return;
       var k=subcategoryKey(it);
       if(it.recurringId&&subcategoryEssentialForSafeSpend(k))return;
       if(protectedMap[k])return;
@@ -2867,13 +3124,14 @@ function currentEffectiveBudgetInfo(){
   var pace=currentBudgetSpendPaceStats();
   var monthStats=periodStatsBudget(per.startStr,per.endStr);
   var daysLeft=Math.max(1,daysBetween(todayStr(),per.endStr)+1);
-  var lowerDaily=round2((lower-monthStats.spent)/daysLeft);
+  var categoryLedger=currentCategoryBudgetLedger(lower),categoryBudget=categoryLedger.current,carried=categoryBudget?categoryBudget.openingTotal:0,available=round2(lower+carried);
+  var lowerDaily=round2((available-monthStats.spent)/daysLeft);
   var higherDaily=round2((higher-monthStats.spent)/daysLeft);
   var paceReference=pace&&pace.paceReference!=null?Math.max(0,pace.paceReference):null;
   
   return {
     monthStart:per.startStr,monthEnd:per.endStr,configuredBudget:configured,
-    effectiveBudget:lower,baseEffectiveBudget:lower,higherBudget:higher,
+    effectiveBudget:available,baseEffectiveBudget:lower,higherBudget:round2(higher+carried),categoryBudget:categoryBudget,carriedBudget:carried,
     comparison:comparison,savingsTight:!!(comparison&&lowerSource==="savings"&&lower<configured-0.5),
     activeSource:lowerSource,lowerSource:lowerSource,higherSource:higherSource,
     adaptiveOverride:false,lowerDailyAllowance:lowerDaily,
@@ -2999,6 +3257,7 @@ function adaptiveBudgetPositionData(rows,info){
 
 function effectiveBudgetTargetForRange(startStr,endStr,info){
   info=info||currentEffectiveBudgetInfo();
+  var categoryTarget=categoryBudgetFundingForRange(startStr,endStr,info);if(categoryTarget!=null)return categoryTarget;
   /* A live effective target must obey Tracking Start Date just like periodStats
      and the historical period target. Otherwise This Year silently budgets the
      months before tracking began. */
@@ -3142,26 +3401,38 @@ function demoMonthDate(offset,day){
   var base=addMonths(startOfMonth(new Date()),offset), last=daysInMonth(base);
   return toStr(new Date(base.getFullYear(),base.getMonth(),Math.min(day,last)));
 }
+function demoLedgerNeedsRefresh(){
+  try {
+    var raw=localStorage.getItem(DEMO_STORAGE_KEY);
+    if(!raw)return true;
+    var parsed=JSON.parse(raw);
+    return !(parsed&&parsed.settings&&parsed.settings.demoDataVersion===DEMO_DATA_VERSION);
+  } catch(e){ return true; }
+}
 function buildDemoLedger(){
   var settings=JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-  var now=new Date(), today=todayStr(), start=toStr(addDays(now,-74));
+  var now=new Date(), today=todayStr(), start=demoMonthDate(-3,1);
+  settings.demoDataVersion=DEMO_DATA_VERSION;
   settings.trackingStartDate=start;
-  settings.monthlyBudget=6800;
-  settings.monthlyBudgetHistory=[{from:start,monthlyBudget:6800}];
-  settings.weeklyTarget=1580;
-  settings.rateHistory=[{from:"1900-01-01",weeklyTarget:1580}];
-  settings.incomeMode="monthly"; settings.incomeAmount=28000;
-  settings.incomeHistory=[{from:start,mode:"monthly",amount:28000}];
-  settings.savingsTargetPct=25;
+  /* A realistic, intentionally fictional Dubai lifestyle on 10,000 AED/month.
+     The flexible budget is sized to leave room for quarterly rent, normal
+     utilities/communications, a modest travel provision and some saving. */
+  settings.monthlyBudget=3200;
+  settings.monthlyBudgetHistory=[{from:start,monthlyBudget:3200}];
+  settings.weeklyTarget=750;
+  settings.rateHistory=[{from:"1900-01-01",weeklyTarget:750}];
+  settings.incomeMode="monthly"; settings.incomeAmount=10000;
+  settings.incomeHistory=[{from:start,mode:"monthly",amount:10000}];
+  settings.savingsTargetPct=15;
   settings.homeSimpleView=true;
   settings.people=["Alex","Sam"];
   settings.personColors={Alex:"#0A84FF",Sam:"#AF52DE"};
   settings.defaultPerson="Alex";
   settings.transactionTags=["Work","Family","Reimbursable"];
   settings.transactionTagColors={Work:"#5856D6",Family:"#34C759",Reimbursable:"#FF9F0A"};
-  settings.startingCashBalance=42000;
+  settings.startingCashBalance=16000;
 
-  var outside=["Rent","Mortgage","Home Internet","Phone Bill","Subscriptions","Car Insurance","Fitness & Gym","Electricity / Utilities","Maid"];
+  var outside=["Rent","Home Internet","Phone Bill","Subscriptions","Car Insurance","Fitness & Gym","Electricity / Utilities"];
   settings.categoryExcludeFromBudget=Object.assign({},settings.categoryExcludeFromBudget||{});
   outside.forEach(function(c){settings.categoryExcludeFromBudget[c]=true;});
   settings.safeSpendPriorities={};
@@ -3172,17 +3443,20 @@ function buildDemoLedger(){
   settings.categoryForecastBehavior["Home Internet"]="monthly";
   settings.categoryForecastBehavior["Phone Bill"]="monthly";
   settings.categoryForecastBehavior["Electricity / Utilities"]="monthly";
-  settings.categoryForecastBehavior["Fitness & Gym"]="yearly";
+  settings.categoryForecastBehavior["Fitness & Gym"]="monthly";
   settings.categoryForecastBehavior["Car Insurance"]="yearly";
-  settings.categoryYearlyBillSettings={"Fitness & Gym":{amount:2400},"Car Insurance":{amount:1800}};
-  settings.annualReserves=[{id:"travel",name:"Travel & Trips",category:"",group:"Travel",annualAmount:12000,active:true}];
+  settings.categoryYearlyBillSettings={"Car Insurance":{amount:1800}};
+  settings.annualReserves=[{id:"travel",name:"Travel & Trips",category:"",group:"Travel",annualAmount:3000,active:true}];
 
-  var rentId="demo-rent-plan", mortgageId="demo-mortgage-plan", internetId="demo-internet-plan", tabbyId="demo-tabby-plan";
+  var rentId="demo-rent-plan", salaryId="demo-salary-plan", internetId="demo-internet-plan", gymId="demo-gym-plan", tabbyId="demo-tabby-plan";
   settings.recurringRules=[
-    {id:rentId,kind:"recurring",entryKind:"expense",amount:27000,splitTotal:null,category:"Rent",person:"",note:"Home rent",frequency:"semiannual",startDate:demoMonthDate(2,15),endDate:null,occurrencesTotal:null,occurrencesLogged:0,active:true},
-    {id:mortgageId,kind:"recurring",entryKind:"expense",amount:7500,splitTotal:null,category:"Mortgage",person:"",note:"Mortgage",frequency:"quarterly",startDate:demoMonthDate(1,5),endDate:null,occurrencesTotal:null,occurrencesLogged:0,active:true},
-    {id:internetId,kind:"recurring",entryKind:"expense",amount:420,splitTotal:null,category:"Home Internet",person:"",note:"Home internet",frequency:"monthly",startDate:demoMonthDate(1,1),endDate:null,occurrencesTotal:null,occurrencesLogged:0,active:true},
-    {id:tabbyId,kind:"recurring",paymentPlanType:"tabby",entryKind:"expense",amount:225,splitTotal:900,category:"Electronics",person:"Alex",note:"Headphones",frequency:"monthly",startDate:toStr(addDays(now,-35)),endDate:null,occurrencesTotal:4,occurrencesLogged:2,active:true}
+    /* 10,500 every quarter = 3,500/month normalized housing cost. This mirrors
+       the common Dubai cheque-style rent pattern while keeping cash timing real. */
+    {id:rentId,kind:"recurring",entryKind:"expense",amount:10500,splitTotal:null,category:"Rent",person:"",note:"Apartment rent",frequency:"quarterly",startDate:demoMonthDate(1,5),endDate:null,occurrencesTotal:null,occurrencesLogged:0,active:true},
+    {id:salaryId,kind:"recurring",entryKind:"income",amount:10000,splitTotal:null,category:"",person:"",note:"Salary",frequency:"monthly",startDate:demoMonthDate(1,1),endDate:null,occurrencesTotal:null,occurrencesLogged:0,active:true},
+    {id:internetId,kind:"recurring",entryKind:"expense",amount:250,splitTotal:null,category:"Home Internet",person:"",note:"Home internet",frequency:"monthly",startDate:demoMonthDate(1,1),endDate:null,occurrencesTotal:null,occurrencesLogged:0,active:true},
+    {id:gymId,kind:"recurring",entryKind:"expense",amount:220,splitTotal:null,category:"Fitness & Gym",person:"Alex",note:"Gym membership",frequency:"monthly",startDate:demoMonthDate(1,2),endDate:null,occurrencesTotal:null,occurrencesLogged:0,active:true},
+    {id:tabbyId,kind:"recurring",paymentPlanType:"tabby",entryKind:"expense",amount:200,splitTotal:800,category:"Electronics",person:"Alex",note:"Wireless earbuds",frequency:"monthly",startDate:toStr(addDays(now,-35)),endDate:null,occurrencesTotal:4,occurrencesLogged:2,active:true}
   ];
 
   var entries={}, seq=0;
@@ -3192,40 +3466,56 @@ function buildDemoLedger(){
     if(extra)Object.keys(extra).forEach(function(k){if(k!=="kind")item[k]=extra[k];});
     if(!entries[ds])entries[ds]={items:[]}; entries[ds].items.push(item);
   }
+
+  /* At least three full calendar months of daily-life history, plus the
+     current month. Amounts are Dubai-plausible but intentionally fictional. */
   var d=parseD(start), i=0;
   while(toStr(d)<=today){
     var ds=toStr(d), dow=d.getDay(), dom=d.getDate();
-    if(i%2===0)add(ds,42+((i*17)%49),"Restaurants",i%8===0?"Dinner":"Lunch",i%4===0?"Sam":"Alex");
-    if(i%3===0)add(ds,12+((i*11)%24),"Cafés & Snacks","Coffee",i%2?"Sam":"Alex");
-    if(i%7===1)add(ds,95+((i*19)%85),"Groceries","Weekly groceries","Sam",{tags:["Family"]});
-    if(i%9===2)add(ds,205+((i*13)%48),"Fuel","Fuel","Alex");
-    if(i%23===5)add(ds,145+((i*9)%70),"Health","Pharmacy","Sam");
-    if(i%17===8)add(ds,165+((i*5)%55),"Home Cleaning","Home supplies","Sam");
-    if(i%31===9)add(ds,420+((i*7)%120),"Car Maintenance","Routine service","Alex");
-    if(i%12===6)add(ds,12,"Parking","Parking","Alex");
-    if(dow===6 && i%2===0)add(ds,120+((i*3)%80),"Entertainment","Weekend activity","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}]});
+    if(i%3===0)add(ds,38+((i*13)%38),"Restaurants",i%12===0?"Casual dinner":"Lunch",i%6===0?"Sam":"Alex");
+    if(i%4===1)add(ds,14+((i*7)%15),"Cafés & Snacks","Coffee","Alex");
+    if(i%7===2)add(ds,115+((i*17)%58),"Groceries","Weekly groceries","Sam",{tags:["Family"]});
+    if(i%12===4)add(ds,185+((i*11)%52),"Fuel","Fuel","Alex");
+    if(i%5===3)add(ds,8+((i*3)%11),"Parking","Parking","Alex");
+    if(i%10===6)add(ds,16+((i*2)%13),"Salik","Salik","Alex");
+    if(i%25===7)add(ds,90+((i*5)%65),"Health","Pharmacy","Sam");
+    if(i%30===9)add(ds,110+((i*7)%55),"Home Cleaning","Home supplies","Sam");
+    if(i%18===11)add(ds,35,"Car Wash","Car wash","Alex");
+    if(i%40===14)add(ds,145+((i*9)%90),"Clothes","Clothing","Alex");
+    if(i%15===5)add(ds,90+((i*4)%75),"Entertainment",dow===6?"Weekend outing":"Cinema & activity","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}],tags:["Family"]});
     if(dom===1){
-      add(ds,28000,"","Salary","",{kind:"income"});
-      add(ds,420,"Home Internet","Home internet","Alex");
-      add(ds,860+((i*3)%90),"Electricity / Utilities","Utilities","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}]});
-      add(ds,1450,"Maid","Maid","Sam",{tags:["Family"]});
+      add(ds,10000,"","Salary","",{kind:"income"});
+      add(ds,250,"Home Internet","Home internet","Alex");
+      add(ds,410+((i*5)%95),"Electricity / Utilities","DEWA / utilities","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}]});
     }
-    if(dom===4)add(ds,210,"Phone Bill","Mobile plans","Alex");
-    if(dom===7)add(ds,119,"Subscriptions","Streaming & apps","Alex");
+    if(dom===2)add(ds,220,"Fitness & Gym","Gym membership","Alex");
+    if(dom===4)add(ds,150,"Phone Bill","Mobile plan","Alex");
+    if(dom===7)add(ds,89,"Subscriptions","Streaming & apps","Alex");
     d=addDays(d,1);i++;
   }
-  var priorRent=demoMonthDate(-2,15); add(priorRent,27000,"Rent","Home rent","",{periodicTimingPlanId:rentId});
-  var priorMortgage=demoMonthDate(-2,5); add(priorMortgage,7500,"Mortgage","Mortgage","",{periodicTimingPlanId:mortgageId});
-  add(demoMonthDate(-1,8),2400,"Fitness & Gym","Annual gym membership","Alex");
-  add(demoMonthDate(-2,20),1800,"Car Insurance","Annual car insurance","Alex");
-  var tripMonth=-1;
-  add(demoMonthDate(tripMonth,10),2200,"Flights","Weekend trip flights","Alex",{currency:"USD",originalAmount:599,fxRate:3.6725,fxSource:"Demo rate",fxDate:demoMonthDate(tripMonth,10),tags:["Family"]});
-  add(demoMonthDate(tripMonth,11),1650,"Hotels & Accommodation","Hotel","Sam",{tags:["Family"]});
-  add(demoMonthDate(tripMonth,12),420,"Food & Dining","Trip dining","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}],tags:["Family"]});
-  add(demoMonthDate(tripMonth,13),310,"Activities & Attractions","Museum & tickets","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}],tags:["Family"]});
-  add(demoMonthDate(tripMonth,13),260,"Shopping & Souvenirs","Souvenirs","Sam",{tags:["Family"]});
-  var tabbyRule=settings.recurringRules.find(function(r){return r.id===tabbyId;}); add(recurringOccurrenceDate(tabbyRule,0),225,"Electronics","Headphones","Alex",{recurringId:tabbyId,seq:1,seqTotal:4}); add(recurringOccurrenceDate(tabbyRule,1),225,"Electronics","Headphones","Alex",{recurringId:tabbyId,seq:2,seqTotal:4});
 
+  /* One quarterly rent cheque in the history; the active Plan points to the
+     next real cheque, so the demo shows both cash timing and normalization. */
+  var priorRent=demoMonthDate(-2,5); add(priorRent,10500,"Rent","Quarterly apartment rent","",{periodicTimingPlanId:rentId});
+  add(demoMonthDate(-3,18),1800,"Car Insurance","Annual car insurance","Alex");
+  add(demoMonthDate(-2,22),460,"Car Maintenance","Routine service","Alex");
+
+  /* A modest short trip demonstrates the annual Travel reserve without making
+     the 10k-income household look implausibly affluent. */
+  var tripMonth=-1;
+  add(demoMonthDate(tripMonth,10),620,"Flights","Weekend trip flight","Alex",{currency:"USD",originalAmount:169,fxRate:3.6686,fxSource:"Demo rate",fxDate:demoMonthDate(tripMonth,10),tags:["Family"]});
+  add(demoMonthDate(tripMonth,11),420,"Hotels & Accommodation","Hotel","Sam",{tags:["Family"]});
+  add(demoMonthDate(tripMonth,12),160,"Food & Dining","Trip dining","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}],tags:["Family"]});
+  add(demoMonthDate(tripMonth,12),90,"Local Transport / Car Rental","Local transport","Alex",{tags:["Family"]});
+  add(demoMonthDate(tripMonth,13),110,"Activities & Attractions","Tickets","",{personSplit:[{person:"Alex",pct:50},{person:"Sam",pct:50}],tags:["Family"]});
+  add(demoMonthDate(tripMonth,13),80,"Shopping & Souvenirs","Souvenirs","Sam",{tags:["Family"]});
+
+  var tabbyRule=settings.recurringRules.find(function(r){return r.id===tabbyId;});
+  add(recurringOccurrenceDate(tabbyRule,0),200,"Electronics","Wireless earbuds","Alex",{recurringId:tabbyId,seq:1,seqTotal:4});
+  add(recurringOccurrenceDate(tabbyRule,1),200,"Electronics","Wireless earbuds","Alex",{recurringId:tabbyId,seq:2,seqTotal:4});
+
+  settings.categoryBudgetPlans=[{from:start.slice(0,7),rows:[{group:"Food & Drinks",amount:1600,daily:true,rollover:false},{group:"Shopping",amount:500,daily:false,rollover:true},{group:"Vehicle",amount:450,daily:false,rollover:true},{group:"Life",amount:400,daily:false,rollover:true},{group:"Home",amount:150,daily:false,rollover:false},{group:"Other",amount:100,daily:false,rollover:false}]}];
+  settings.categoryBudgetFunding=[{month:start.slice(0,7),cap:null}];
   return {settings:settings,entries:entries};
 }
 function writeFreshDemoLedger(){
@@ -3234,7 +3524,7 @@ function writeFreshDemoLedger(){
   return demo;
 }
 function enterDemoMode(){
-  try { if(!localStorage.getItem(DEMO_STORAGE_KEY))writeFreshDemoLedger(); localStorage.setItem(DEMO_MODE_FLAG_KEY,"1"); location.reload(); }
+  try { if(demoLedgerNeedsRefresh())writeFreshDemoLedger(); localStorage.setItem(DEMO_MODE_FLAG_KEY,"1"); location.reload(); }
   catch(e){ showToast("Demo mode needs local storage"); }
 }
 function exitDemoMode(){
@@ -3251,7 +3541,7 @@ async function resetDemoData(){
   } catch(e){ showToast("Could not reset demo data"); }
 }
 function renderFirstRunShowcase(){
-  return '<div class="card demo-welcome-card"><div class="demo-welcome-icon">'+ICONS.insightsNav+'</div><div class="eyebrow">WELCOME TO THE LEDGER</div><div class="title2" style="margin-top:7px;">Start clean or explore first</div><div class="muted subhead" style="margin-top:9px;line-height:1.5;">Your real ledger is stored only on this device. Explore a fully populated fictional ledger without entering any personal financial data.</div><div class="demo-action-grid"><button data-action="first-run-start" class="btn-outline">Start my Ledger</button><button data-action="enter-demo-mode" class="btn-accent">Explore Demo</button></div><div class="muted caption" style="margin-top:11px;">Demo Mode uses a separate sandbox and never copies your real data.</div></div>';
+  return '<div class="card demo-welcome-card"><div class="demo-welcome-icon">'+ICONS.insightsNav+'</div><div class="eyebrow">WELCOME TO THE LEDGER</div><div class="title2" style="margin-top:7px;">Start clean or explore first</div><div class="muted subhead" style="margin-top:9px;line-height:1.5;">Your real ledger is stored only on this device. Explore a fully populated fictional Dubai ledger with a 10,000 AED monthly income and more than three months of history, without entering any personal financial data.</div><div class="demo-action-grid"><button data-action="first-run-start" class="btn-outline">Start my Ledger</button><button data-action="enter-demo-mode" class="btn-accent">Explore Demo</button></div><div class="muted caption" style="margin-top:11px;">Demo Mode uses a separate sandbox and never copies your real data.</div></div>';
 }
 async function performFactoryReset() {
   if(IS_DEMO_MODE){ await resetDemoData(); return; }
@@ -3527,7 +3817,7 @@ function loadInitial() {
   var v1119SafeHistoryMigrationNeeded=false, v11110YearlyAutoMigrationNeeded=false, v11111YearlyBackgroundMigrationNeeded=false, v11114StableSafeMigrationNeeded=false, v11115MonthlyBillActualMigrationNeeded=false, v11219CadenceBoundaryMigrationNeeded=false, v11224TravelTaxonomyMigrationNeeded=false, v11225TravelOutsideBudgetMigrationNeeded=false, v11237PeriodicAlignmentMigrationNeeded=false, v11238PeriodicForecastMatchMigrationNeeded=false;
   primaryStorageHealth="missing";
   try {
-    if(IS_DEMO_MODE && !localStorage.getItem(DEMO_STORAGE_KEY)) writeFreshDemoLedger();
+    if(IS_DEMO_MODE && demoLedgerNeedsRefresh()) writeFreshDemoLedger();
     var raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       var parsed = JSON.parse(raw);
@@ -3660,6 +3950,9 @@ function loadInitial() {
   var yearlyBillSettingsBeforeNormalize = JSON.stringify(state.settings.categoryYearlyBillSettings||null);
   state.settings.categoryYearlyBillSettings = normalizeCategoryYearlyBillSettings(state.settings.categoryYearlyBillSettings, state.settings.categories);
   var yearlyBillSettingsMigrationChanged = yearlyBillSettingsBeforeNormalize !== JSON.stringify(state.settings.categoryYearlyBillSettings);
+  state.settings.categoryBudgetPlans=normalizeCategoryBudgetPlans(state.settings.categoryBudgetPlans);
+  state.settings.categoryBudgetFunding=normalizeCategoryBudgetFunding(state.settings.categoryBudgetFunding);
+  state.settings.categoryBudgetTransfers=normalizeCategoryBudgetTransfers(state.settings.categoryBudgetTransfers);
   state.settings.safeSpendPriorities = normalizeSafeSpendPriorities(state.settings.safeSpendPriorities, state.settings.categories);
   state.settings.peopleAnalysisExcluded = normalizePeopleAnalysisExcluded(state.settings.peopleAnalysisExcluded, state.settings.categories);
   state.settings.defaultPerson = normalizeDefaultPerson(state.settings.defaultPerson, state.settings.people);
@@ -3708,6 +4001,8 @@ function loadInitial() {
 function persistAll(nextSettings, nextEntries, label) {
   state.settings = nextSettings;
   state.entries = nextEntries;
+  categoryBudgetCache=null;
+  if(refreshCategoryBudgetFunding())nextSettings=state.settings;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ settings: nextSettings, entries: nextEntries }));
     state.saveError = null;
@@ -3741,6 +4036,7 @@ function fullPeriodTarget(startStr, endStr) {
    part of the allowance being paced against, so they mustn't shape the pace. */
 function expenseCountsForScope(it, scope) {
   if (!isExpenseItem(it)) return false;
+  if (scope === "daily") return categoryBudgetDailyCategory(it.category);
   if (scope === "budget") return itemCountsTowardBudget(it);
   if (scope === "excluded") return !itemCountsTowardBudget(it);
   return true;
@@ -3756,6 +4052,7 @@ function scheduledExpenseByDate(afterStr, throughStr, scope) {
   var out = {};
   (state.settings.recurringRules||[]).forEach(function(rule){
     if (!rule.active || rule.entryKind === "income") return;
+    if (scope === "daily" && !categoryBudgetDailyCategory(rule.category)) return;
     if (scope === "budget" && categoryExcludedFromBudget(rule.category)) return;
     if (scope === "excluded" && !categoryExcludedFromBudget(rule.category)) return;
     var n = rule.occurrencesLogged || 0, guard = 0;
@@ -3778,6 +4075,7 @@ function scheduledExpenseBreakdown(afterStr, throughStr, scope) {
   var out = {};
   (state.settings.recurringRules||[]).forEach(function(rule){
     if (!rule.active || rule.entryKind === "income") return;
+    if (scope === "daily" && !categoryBudgetDailyCategory(rule.category)) return;
     if (scope === "budget" && categoryExcludedFromBudget(rule.category)) return;
     if (scope === "excluded" && !categoryExcludedFromBudget(rule.category)) return;
     var n = rule.occurrencesLogged || 0, guard = 0;
@@ -3846,6 +4144,37 @@ function medianNumber(values) {
   return a.length%2?a[m]:(a[m-1]+a[m])/2;
 }
 function subcategoryKey(it){ return (it && it.category) ? it.category : "__uncategorised__"; }
+/* v112.43: Transaction-entry subcategories are ranked dynamically by actual
+   use. Frequency is the primary sort key; the most recently used category
+   wins ties, then the configured category order keeps unused items stable. */
+function categoryUsageStats(){
+  var out={};
+  Object.keys(state.entries||{}).sort().forEach(function(ds){
+    ((state.entries[ds]&&state.entries[ds].items)||[]).forEach(function(it){
+      if(!isExpenseItem(it)||!it.category)return;
+      var row=out[it.category]||(out[it.category]={count:0,lastDate:'',lastTime:'',lastId:0});
+      row.count++;
+      var tm=String(it.time||'');
+      var idk=itemTimeKey(it);
+      if(ds>row.lastDate || (ds===row.lastDate && (tm>row.lastTime || (tm===row.lastTime && idk>row.lastId)))){
+        row.lastDate=ds;row.lastTime=tm;row.lastId=idk;
+      }
+    });
+  });
+  return out;
+}
+function categoriesSortedByUsage(list,stats){
+  list=(list||[]).slice(); stats=stats||categoryUsageStats();
+  var original={};list.forEach(function(c,i){original[c]=i;});
+  return list.sort(function(a,b){
+    var sa=stats[a]||{count:0,lastDate:'',lastTime:'',lastId:0}, sb=stats[b]||{count:0,lastDate:'',lastTime:'',lastId:0};
+    if(sb.count!==sa.count)return sb.count-sa.count;
+    if(sb.lastDate!==sa.lastDate)return sb.lastDate>sa.lastDate?1:-1;
+    if(sb.lastTime!==sa.lastTime)return sb.lastTime>sa.lastTime?1:-1;
+    if(sb.lastId!==sa.lastId)return sb.lastId-sa.lastId;
+    return original[a]-original[b];
+  });
+}
 /* Forecast person bucket: a split transaction is intentionally ONE shared
    occurrence event rather than one event per person. This prevents a 50/50
    grocery purchase from teaching the model that two grocery trips happened.
@@ -4914,6 +5243,7 @@ function renderTxnDeleteConfirmation() {
 }
 
 function render() {
+  cbLastRenderDate=todayStr();
   var root = document.getElementById("root");
   var T = effectivePalette();
   applyTheme(T);
@@ -4945,6 +5275,8 @@ function render() {
     root.innerHTML = '<div class="row" style="min-height:100vh; align-items:center; justify-content:center;"><div class="muted" style="font-size:14px;">Loading your ledger…</div></div>';
     return;
   }
+
+  if(refreshCategoryBudgetFunding())persistAll(state.settings,state.entries,"category budget funding");
 
   /* Capture at most one opening Safe-to-Spend point per calendar day. */
   try { ensureSafeSpendSnapshot(); } catch(ignoreSafeHistory) {}
@@ -5116,9 +5448,9 @@ function liveBudgetPacing() {
     var per = getPeriodBounds(mode, 0, currentWeeklyTarget(), dailyAllowance());
     if (today < per.startStr || today > per.endStr) return {mode:mode,scope:scope,avg:null,openingRemaining:null,currentRemaining:null,days:0,safe:null,rawSafe:null,openingSafe:null,adjustmentNeeded:null,futureReserve:null,flexiblePool:null,forecast:null,todayFlexibleSpent:0,todayCadenceSpent:0,cadenceAdjustment:0,spentTodayScope:0};
 
-    var stats = scope === "budget" ? periodStatsBudget(per.startStr, per.endStr) : periodStatsOverall(per.startStr, per.endStr);
+    var stats = scope === "budget" ? periodStatsBudget(per.startStr, per.endStr) : (scope === "daily" ? periodStatsForScope(per.startStr,per.endStr,"daily") : periodStatsOverall(per.startStr, per.endStr));
     var target = targetOverride != null ? Math.max(0,Number(targetOverride)||0) : per.target;
-    var spentTodayScope = scope === "budget" ? spentTodayBudget : spentTodayAll;
+    var spentTodayScope = scope === "daily" ? round2(todayItems.reduce(function(sum,it){return sum+(expenseCountsForScope(it,"daily")?(Number(it.amount)||0):0);},0)) : (scope === "budget" ? spentTodayBudget : spentTodayAll);
     var currentRemaining = round2(target - stats.spent);
     var openingRemaining = round2(currentRemaining + spentTodayScope);
     var days = daysBetween(today, per.endStr) + 1;
@@ -5174,8 +5506,9 @@ function liveBudgetPacing() {
       }
     });
     
-    if(scope==="budget"){
+    if(scope==="budget"||scope==="daily"){
       yearlyReserveBreakdownForRange(today,per.endStr).forEach(function(yr){
+        if(scope==="daily"&&!categoryBudgetDailyCategory(yr.category))return;
         var a=round2(yr.amount||0);if(!(a>0))return;
         openingCadenceReserve+=a;
         addReserveBreakdown(yr.category,a,"annual",{kind:"annual",expectedAmount:a,protectedAmount:a,likelyAmount:round2((yr.config&&yr.config.amount)||0),profile:null,reason:"Monthly reserve"});
@@ -5311,8 +5644,9 @@ function liveBudgetPacing() {
   var monthPer=getPeriodBounds("month",0,currentWeeklyTarget(),dailyAllowance());
   var weekTarget=effectiveBudgetTargetForRange(weekPer.startStr,weekPer.endStr,effectiveInfo);
   var monthTarget=effectiveInfo.effectiveBudget;
-  var week=horizon("week","budget",weekTarget);
-  var month=horizon("month","budget",monthTarget);
+  var categoryMonth=effectiveInfo.categoryBudget;
+  var week=categoryMonth?horizon("week","daily",categoryMonth.dailyTarget/daysInMonth(new Date())*7):horizon("week","budget",weekTarget);
+  var month=categoryMonth?horizon("month","daily",categoryMonth.dailyTarget):horizon("month","budget",monthTarget);
 
   var savings=null, savingsPct=savingsTargetPct();
   if(savingsPct>0){
@@ -5325,7 +5659,7 @@ function liveBudgetPacing() {
   }
 
   var dailyAverage=month&&month.avg!=null?month.avg:null;
-  var limitingHorizon=effectiveInfo.savingsTight?"effective":"month";
+  var limitingHorizon=categoryMonth?"category":(effectiveInfo.savingsTight?"effective":"month");
   var limitingObj=month;
   var rawSafeToday=month&&month.rawSafe!=null?round2(month.rawSafe):null;
   var safeToday=rawSafeToday==null?null:round2(Math.max(0,rawSafeToday));
@@ -5335,7 +5669,7 @@ function liveBudgetPacing() {
   var adjustmentNeeded=limitingObj&&limitingObj.adjustmentNeeded!=null?round2(limitingObj.adjustmentNeeded):null;
   var overSafeToday=rawSafeToday!=null?round2(Math.max(0,-rawSafeToday)):null;
 
-  return {week:week,month:month,effective:month,effectiveInfo:effectiveInfo,savings:savings,dailyAverage:dailyAverage,spentToday:spentTodayBudget,spentTodayAll:spentTodayAll,spentTodayForLimit:spentTodayBudget,rawSafeToday:rawSafeToday,safeToday:safeToday,openingSafeToday:openingSafeToday,safeTodayOpeningRatio:safeTodayOpeningRatio,overSafeToday:overSafeToday,adjustmentNeeded:adjustmentNeeded,limitingHorizon:limitingHorizon};
+  return {week:week,month:month,effective:month,effectiveInfo:effectiveInfo,savings:savings,dailyAverage:dailyAverage,spentToday:categoryMonth?categoryMonth.dailyToday:spentTodayBudget,spentTodayAll:spentTodayAll,spentTodayForLimit:categoryMonth?categoryMonth.dailyToday:spentTodayBudget,rawSafeToday:rawSafeToday,safeToday:safeToday,openingSafeToday:openingSafeToday,safeTodayOpeningRatio:safeTodayOpeningRatio,overSafeToday:overSafeToday,adjustmentNeeded:adjustmentNeeded,limitingHorizon:limitingHorizon};
 }
 
 function renderHomeBody(T, da) {
@@ -5378,7 +5712,7 @@ function renderHomeBody(T, da) {
   var projectedCashSaving = incomeReference > 0 ? round2(incomeReference - projected) : null;
   var projectedCashSavingPct = incomeReference > 0 ? (projectedCashSaving / incomeReference * 100) : null;
   var simpleSaving = projectedCashSaving != null ? projectedCashSaving : projectedSaving;
-  var homeMetricDeltas=homeOpeningMetricDeltasAndRecord({periodStart:month.startStr,periodEnd:month.endStr,effectiveBudget:homeEffectiveInfo.effectiveBudget,safeToSpend:safeToday,projectedBudgetSpend:projectedBudgetSpend,projectedSaving:simpleSaving,projectedIncome:incomeReference});
+  var homeMetricDeltas=homeOpeningMetricDeltasAndRecord({periodStart:month.startStr,periodEnd:month.endStr,effectiveBudget:homeEffectiveInfo.categoryBudget?homeEffectiveInfo.categoryBudget.dailyAvailable:homeEffectiveInfo.effectiveBudget,safeToSpend:safeToday,projectedBudgetSpend:projectedBudgetSpend,projectedSaving:simpleSaving,projectedIncome:incomeReference});
   var safeDeltaHtml=homeMetricDeltaHtml(homeMetricDeltas.safeToSpend,true);
   var projectedBudgetDeltaHtml=homeMetricDeltaHtml(homeMetricDeltas.projectedBudgetSpend,false);
   var projectedSavingDeltaHtml=homeMetricDeltaHtml(homeMetricDeltas.projectedSaving,true);
@@ -5402,11 +5736,18 @@ function renderHomeBody(T, da) {
     var pw = Math.max(0, Math.min(100, pct || 0));
     return '<div class="simple-progress"><span style="width:' + pw + '%;background:' + (over ? 'var(--rust)' : 'var(--accent)') + ';"></span></div>';
   }
-  function cashFlowProgressBar(actualPct, forecastPct) {
-    var actual=Math.max(0,Math.min(100,Number(actualPct)||0));
-    var forecast=Math.max(actual,Math.min(100,Number(forecastPct)||0));
-    var label='Spent '+actual.toFixed(0)+'%; forecast '+forecast.toFixed(0)+'%';
-    return '<div class="simple-progress cashflow-progress" role="img" aria-label="'+esc(label)+'"><span class="cashflow-progress-forecast" style="width:'+forecast+'%;"></span><span class="cashflow-progress-fill" style="width:'+actual+'%;"></span></div>';
+  function cashFlowTargetBar(actualSpend, forecastSpend, cashTarget) {
+    var actual=Math.max(0,Number(actualSpend)||0), forecast=Math.max(actual,Number(forecastSpend)||0), targetValue=Math.max(0,Number(cashTarget)||0);
+    if(!(targetValue>0)) return '';
+    /* Leave a little breathing room beyond whichever of forecast or target is
+       farther right, so the target marker never sits on the rounded endpoint. */
+    var scale=Math.max(actual,forecast,targetValue,1)*1.055;
+    var actualPct=Math.max(0,Math.min(100,actual/scale*100));
+    var forecastPct=Math.max(actualPct,Math.min(100,forecast/scale*100));
+    var targetPct=Math.max(0,Math.min(100,targetValue/scale*100));
+    var over=forecast>targetValue+0.5;
+    var label='Spent '+fmt(actual,0)+' AED; projected '+fmt(forecast,0)+' AED; cash target '+fmt(targetValue,0)+' AED';
+    return '<div class="cashflow-target-track-wrap" role="img" aria-label="'+esc(label)+'"><div class="cashflow-target-track"><span class="cashflow-target-forecast'+(over?' over':'')+'" style="width:'+forecastPct.toFixed(2)+'%;"></span><span class="cashflow-target-actual" style="width:'+actualPct.toFixed(2)+'%;"></span><span class="cashflow-target-marker" style="left:'+targetPct.toFixed(2)+'%;"></span></div><span class="cashflow-target-marker-label">Target</span></div>';
   }
   function paceBadge(value) {
     var c = value > 0 ? 'var(--positive)' : (value < 0 ? 'var(--rust)' : 'var(--text-muted)');
@@ -5415,7 +5756,7 @@ function renderHomeBody(T, da) {
   }
 
   var limitingLabel = (pacing.limitingHorizon || 'budget');
-  limitingLabel = limitingLabel === 'effective' ? 'Effective budget' : (limitingLabel === 'savings' ? 'Savings goal' : (limitingLabel.charAt(0).toUpperCase() + limitingLabel.slice(1)));
+  limitingLabel = limitingLabel === 'category' ? categoryBudgetDailyName() : (limitingLabel === 'effective' ? 'Effective budget' : (limitingLabel === 'savings' ? 'Savings goal' : (limitingLabel.charAt(0).toUpperCase() + limitingLabel.slice(1))));
   var simpleStatus = '', simpleStatusColor = 'var(--text-muted)';
   if (overSafeToday > 0) {
     simpleStatus = 'Over today\'s safe allowance by ' + fmt(overSafeToday, 0) + ' AED · ' + limitingLabel + ' is limiting';
@@ -5429,28 +5770,33 @@ function renderHomeBody(T, da) {
   var simpleCards = {};
 
   var hero = '<div class="card simple-metric-card simple-hero"><div class="simple-hero-grid">';
-  hero += '<div class="simple-hero-cell"><div class="muted caption">SAFE TO SPEND TODAY</div><div class="mono simple-hero-value home-metric-value-line" style="color:' + safeTodayColor + ';"><span class="home-metric-primary">' + (safeToday == null ? '—' : (fmt(safeToday, 0) + ' <span class="muted simple-metric-unit">AED</span>')) + '</span>' + safeDeltaHtml + '</div></div>';
-  hero += '<div class="simple-hero-cell"><div class="muted caption">SPENT TODAY</div><div class="mono simple-hero-value simple-hero-value-muted" style="color:' + (safeToday != null && spentToday > safeToday ? 'var(--rust)' : 'var(--text-muted)') + ';">' + fmt(spentToday, 0) + ' <span class="muted simple-metric-unit">AED</span></div></div></div>';
+  hero += '<div class="simple-hero-cell"><div class="muted caption">' + (homeEffectiveInfo.categoryBudget ? esc(categoryBudgetDailyName().toUpperCase())+' AVAILABLE TODAY' : 'SAFE TO SPEND TODAY') + '</div><div class="mono simple-hero-value home-metric-value-line" style="color:' + safeTodayColor + ';"><span class="home-metric-primary">' + (safeToday == null ? '—' : (fmt(safeToday, 0) + ' <span class="muted simple-metric-unit">AED</span>')) + '</span>' + safeDeltaHtml + '</div></div>';
+  hero += '<div class="simple-hero-cell"><div class="muted caption">' + (homeEffectiveInfo.categoryBudget ? esc(categoryBudgetDailyName().toUpperCase())+' SPENT TODAY' : 'SPENT TODAY') + '</div><div class="mono simple-hero-value simple-hero-value-muted" style="color:' + (!homeEffectiveInfo.categoryBudget && safeToday != null && spentToday > safeToday ? 'var(--rust)' : 'var(--text-muted)') + ';">' + fmt(spentToday, 0) + ' <span class="muted simple-metric-unit">AED</span></div></div></div>';
+  if(homeEffectiveInfo.categoryBudget){
+    hero+='<div class="cb-home-context">'+fmt(homeEffectiveInfo.categoryBudget.dailyAvailable,0)+' AED allocated to daily spending · other categories are tracked monthly</div>';
+    if(homeEffectiveInfo.categoryBudget.dailyHold>0)hero+='<div class="simple-status" style="color:var(--rust);">'+fmt(homeEffectiveInfo.categoryBudget.dailyHold,0)+' AED needs covering elsewhere. <button data-action="go-page" data-page="budget" class="btn-plain">View budgets</button></div>';
+  }
   if (simpleStatus) hero += '<div class="simple-status" style="color:' + simpleStatusColor + ';">' + esc(simpleStatus) + '</div>';
   simpleCards.hero = hero + '</div>';
 
   var projectedBudgetPct = target > 0 ? (projectedBudgetSpend / target * 100) : null;
   var projectedBudgetGap = target > 0 ? round2(projectedBudgetSpend - target) : null;
-  var projectedBudgetColor = projectedBudgetPct == null ? 'var(--text)' : (projectedBudgetPct > 108 ? 'var(--rust)' : (projectedBudgetPct > 100 ? 'var(--amber)' : 'var(--text)'));
-  var projectedBudgetGapColor = projectedBudgetGap == null ? 'var(--text-muted)' : (projectedBudgetGap > 0 ? 'var(--rust)' : 'var(--positive)');
-  var projectedBudgetGapText = projectedBudgetGap == null ? '' : (projectedBudgetGap > 0 ? (fmt(projectedBudgetGap,0)+' over limit') : (projectedBudgetGap < 0 ? (fmt(Math.abs(projectedBudgetGap),0)+' under limit') : 'On limit'));
+  var projectedBudgetGapColor = projectedBudgetGap == null ? 'var(--text-muted)' : (projectedBudgetGap > 0 ? 'var(--rust)' : (projectedBudgetGap < 0 ? 'var(--positive)' : 'var(--text)'));
+  var projectedBudgetGapValue = projectedBudgetGap == null ? '—' : (projectedBudgetGap === 0 ? 'On limit' : (fmt(Math.abs(projectedBudgetGap),0) + ' <span class="simple-budget-unit">AED ' + (projectedBudgetGap > 0 ? 'over' : 'under') + '</span>'));
   var budgetHeaderContext = (Math.abs((configuredBudgetHome||0)-target)>0.5)
     ? ('SET <strong class="mono">'+fmt(configuredBudgetHome,0)+' AED</strong> · EFFECTIVE <strong class="mono">'+fmt(target,0)+' AED</strong>')
     : ('LIMIT <strong class="mono">'+fmt(target,0)+' AED</strong>');
+  if(homeEffectiveInfo.categoryBudget)budgetHeaderContext='BASE <strong class="mono">'+fmt(homeEffectiveInfo.baseEffectiveBudget,0)+'</strong> + CARRY <strong class="mono">'+fmt(homeEffectiveInfo.carriedBudget,0)+' AED</strong>';
   var budgetStatus = '<div class="card simple-budget-card"><div class="home-card-heading"><div class="eyebrow">Budget</div><div class="home-card-context">' + budgetHeaderContext + '</div></div><div class="simple-outlook-grid" style="margin-top:8px;">';
   budgetStatus += '<div><div class="simple-outlook-label">SPENT SO FAR</div><div class="mono simple-outlook-value">' + fmt(budget.spent, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (target > 0 ? budgetPctRaw.toFixed(0) + '% of limit' : '—') + '</div></div>';
-  budgetStatus += '<div><div class="simple-outlook-label">PROJECTED MONTH-END</div><div class="mono simple-outlook-value home-metric-value-line" style="color:' + projectedBudgetColor + ';"><span class="home-metric-primary">' + fmt(projectedBudgetSpend, 0) + ' <span class="simple-budget-unit">AED</span></span>' + projectedBudgetDeltaHtml + '</div><div class="home-projection-note" style="color:' + projectedBudgetGapColor + ';">' + (projectedBudgetPct == null ? '—' : (projectedBudgetPct.toFixed(0) + '% · ' + projectedBudgetGapText)) + '</div></div></div>';
-  budgetStatus += pctBar(progress, budgetPctRaw > 100) + '<div class="simple-budget-meta"><span><strong style="color:' + (remaining >= 0 ? 'var(--text)' : 'var(--rust)') + ';">' + (remaining < 0 ? '−' : '') + fmt(Math.abs(remaining), 0) + '</strong> left now</span><span> · ' + monthDaysLeft + ' day' + (monthDaysLeft === 1 ? '' : 's') + '</span></div>' + paceBadge(monthBudgetPosition);
+  budgetStatus += '<div><div class="simple-outlook-label">PROJECTED POSITION</div><div class="mono simple-outlook-value home-metric-value-line" style="color:' + projectedBudgetGapColor + ';"><span class="home-metric-primary">' + projectedBudgetGapValue + '</span>' + projectedBudgetDeltaHtml + '</div><div class="home-projection-note" style="color:var(--text-muted);">' + (projectedBudgetPct == null ? '—' : (projectedBudgetPct.toFixed(0) + '% projected')) + '</div></div></div>';
+  budgetStatus += pctBar(progress, budgetPctRaw > 100) + '<div class="simple-budget-meta"><span><strong style="color:' + (remaining >= 0 ? 'var(--text)' : 'var(--rust)') + ';">' + (remaining < 0 ? '−' : '') + fmt(Math.abs(remaining), 0) + '</strong> left now</span><span> · ' + monthDaysLeft + ' day' + (monthDaysLeft === 1 ? '' : 's') + '</span></div>' + (homeEffectiveInfo.categoryBudget ? '' : paceBadge(monthBudgetPosition));
   if (flexible30 != null || flexible7 != null) {
     var flexibleTrendColor = flexibleTrend == null ? 'var(--text-muted)' : (flexibleTrend > 0 ? 'var(--rust)' : (flexibleTrend < 0 ? 'var(--positive)' : 'var(--text-muted)'));
     var flexibleTrendText = flexibleTrend == null ? '' : ((flexibleTrend > 0 ? '+' : '') + fmt(flexibleTrend, 0) + '%');
-    budgetStatus += '<div class="home-flex-pace hairline-top"><div class="row between home-flex-pace-head"><span class="eyebrow">Flexible daily average</span></div><div class="home-flex-pace-grid"><div><div class="muted caption">30D</div><div class="mono home-flex-pace-value">' + (flexible30 == null ? '—' : (fmt(flexible30,0) + ' <span>AED</span>')) + '</div></div><div><div class="muted caption">7D</div><div class="mono home-flex-pace-value home-flex-pace-inline" style="color:' + flexibleTrendColor + ';">' + (flexible7 == null ? '—' : (fmt(flexible7,0) + ' <span>AED</span>')) + (flexibleTrendText ? '<span class="mono home-flex-pace-trend" style="color:' + flexibleTrendColor + ';">(' + esc(flexibleTrendText) + ')</span>' : '') + '</div></div></div></div>';
+    budgetStatus += '<div class="home-flex-pace hairline-top"><div class="row between home-flex-pace-head"><span class="eyebrow">' + (homeEffectiveInfo.categoryBudget ? esc(categoryBudgetDailyName())+' daily average' : 'Flexible daily average') + '</span></div><div class="home-flex-pace-grid"><div><div class="muted caption">30D</div><div class="mono home-flex-pace-value">' + (flexible30 == null ? '—' : (fmt(flexible30,0) + ' <span>AED</span>')) + '</div></div><div><div class="muted caption">7D</div><div class="mono home-flex-pace-value home-flex-pace-inline" style="color:' + flexibleTrendColor + ';">' + (flexible7 == null ? '—' : (fmt(flexible7,0) + ' <span>AED</span>')) + (flexibleTrendText ? '<span class="mono home-flex-pace-trend" style="color:' + flexibleTrendColor + ';">(' + esc(flexibleTrendText) + ')</span>' : '') + '</div></div></div></div>';
   }
+  budgetStatus+='<button data-action="'+(homeEffectiveInfo.categoryBudget?'go-page':'open-category-budgets')+'" data-page="budget" class="btn-plain" style="margin-top:10px;font-size:12px;">'+(homeEffectiveInfo.categoryBudget?'View category budgets':'Set up category budgets')+'</button>';
   simpleCards.budgetStatus = budgetStatus + '</div>';
 
   var todayActivity = [];
@@ -5479,27 +5825,26 @@ function renderHomeBody(T, da) {
   var homeEffectiveCashGoal=(incomeReference>0&&homeSavingsPct>0)?effectiveMonthlyCashSavingsTarget(month.startStr,month.endStr,incomeReference):null;
   var homeRangeGoal=(incomeReference>0&&homeSavingsPct>0)?savingsGoalForRange(month.startStr,month.endStr,incomeReference):null;
   var maxSpendForSavings = homeEffectiveCashGoal&&homeEffectiveCashGoal.effective!=null?homeEffectiveCashGoal.effective:(homeRangeGoal?homeRangeGoal.spendCeiling:null);
-  var projectedSpendTargetGapPct = maxSpendForSavings > 0 ? ((projected - maxSpendForSavings) / maxSpendForSavings * 100) : null;
-  var projectedSpendColor = 'var(--text)';
-  if (maxSpendForSavings != null && projected > maxSpendForSavings) projectedSpendColor = projectedSpendTargetGapPct != null && projectedSpendTargetGapPct >= 10 ? 'var(--rust)' : 'var(--amber)';
   var simpleSavingPct = projectedCashSaving != null ? projectedCashSavingPct : null;
   var effectiveSavingTargetPct = homeEffectiveCashGoal&&homeEffectiveCashGoal.effectiveSavingPct!=null?homeEffectiveCashGoal.effectiveSavingPct:null;
   var simpleSavingBelowTarget = simpleSavingPct!=null&&effectiveSavingTargetPct!=null&&simpleSavingPct+0.05<effectiveSavingTargetPct;
   var simpleSavingColor = simpleSaving < 0 ? 'var(--rust)' : (simpleSavingBelowTarget?'var(--amber)':'var(--positive)');
   var simpleSavingPctText = simpleSavingPct==null?'—':((simpleSavingPct<0?'−':'')+Math.abs(simpleSavingPct).toFixed(1)+'%');
   var cashSpendGap=(maxSpendForSavings!=null)?round2(projected-maxSpendForSavings):null;
-  var cashSpendGapColor=cashSpendGap==null?'var(--text-muted)':(cashSpendGap>0?'var(--amber)':'var(--positive)');
-  var cashSpendGapText=cashSpendGap==null?'':(cashSpendGap>0?(fmt(cashSpendGap,0)+' over target'):(cashSpendGap<0?(fmt(Math.abs(cashSpendGap),0)+' under target'):'On target'));
+  var cashSpendGapColor=cashSpendGap==null?'var(--text-muted)':(cashSpendGap>0?'var(--rust)':(cashSpendGap<0?'var(--positive)':'var(--text)'));
+  var cashSpendGapValue=cashSpendGap==null?'—':(cashSpendGap===0?'On target':(fmt(Math.abs(cashSpendGap),0)+' <span class="simple-budget-unit">AED</span>'));
+  var cashSpendGapState=cashSpendGap==null?'':(cashSpendGap>0?'over target':(cashSpendGap<0?'under target':''));
   var homeCashTimingAdjustment=homeEffectiveCashGoal&&homeEffectiveCashGoal.timing?round2(Number(homeEffectiveCashGoal.timing.adjustment)||0):0;
   var homeMonthMode=Math.abs(homeCashTimingAdjustment)<0.5?'Normal month':(homeCashTimingAdjustment>0?'Payment month':'Reserve-building month');
   var homeMonthModeClass=homeCashTimingAdjustment>0.5?' payment':(homeCashTimingAdjustment<-0.5?' reserve':'');
   var outlook = '<div class="card simple-outlook-card"><div class="home-card-heading"><div class="eyebrow">Cash flow</div><div class="home-month-mode'+homeMonthModeClass+'">'+esc(homeMonthMode)+'</div></div><div class="simple-outlook-grid">';
-  outlook += '<div><div class="simple-outlook-label">SPENT SO FAR</div><div class="mono simple-outlook-value">' + fmt(overall.spent, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (spentVsIncomePct == null ? '—' : spentVsIncomePct.toFixed(0) + '%') + '</div></div>';
-  outlook += '<div><div class="simple-outlook-label">PROJECTED SPEND</div><div class="mono simple-outlook-value" style="color:' + projectedSpendColor + ';">' + fmt(projected, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (projectedSpendVsIncomePct == null ? '—' : projectedSpendVsIncomePct.toFixed(0) + '%') + '</div></div></div>';
-  if (incomeReference > 0) outlook += cashFlowProgressBar(spentVsIncomePct, projectedSpendVsIncomePct);
+  var cashTargetUsedPct=maxSpendForSavings>0?(overall.spent/maxSpendForSavings*100):null;
+  outlook += '<div><div class="simple-outlook-label">SPENT SO FAR</div><div class="mono simple-outlook-value">' + fmt(overall.spent, 0) + ' <span class="simple-budget-unit">AED</span></div><div class="simple-outlook-sub">' + (cashTargetUsedPct == null ? (spentVsIncomePct == null ? '—' : spentVsIncomePct.toFixed(0) + '% of income') : cashTargetUsedPct.toFixed(0) + '% of cash target') + '</div></div>';
+  outlook += '<div><div class="simple-outlook-label">PROJECTED POSITION</div><div class="mono simple-outlook-value" style="color:' + cashSpendGapColor + ';">' + cashSpendGapValue + '</div><div class="simple-outlook-sub" style="color:' + cashSpendGapColor + ';font-weight:700;">' + esc(cashSpendGapState) + '</div></div></div>';
+  if (maxSpendForSavings != null) outlook += cashFlowTargetBar(overall.spent, projected, maxSpendForSavings);
   var effectiveSavingTargetAmount=(incomeReference>0&&maxSpendForSavings!=null)?round2(incomeReference-maxSpendForSavings):null;
+  var targetBridgeHtml='';
   if(maxSpendForSavings!=null){
-    var targetBridgeHtml='';
     if(homeEffectiveCashGoal&&effectiveSavingTargetAmount!=null){
       var baseSaving=round2(Number(homeEffectiveCashGoal.targetSaving)||0), bridgeRows=[];
       function pushSavingBridge(label,adjustment){
@@ -5519,18 +5864,14 @@ function renderHomeBody(T, da) {
       bridgeRows.forEach(function(r){targetBridgeHtml+='<div class="cash-target-bridge-row"><span class="cash-target-bridge-label">'+esc(r.label)+'</span><span class="mono cash-target-bridge-value">'+bridgeMoney(r.delta)+'</span></div>';});
       targetBridgeHtml+='<div class="cash-target-bridge-row cash-target-bridge-total"><span>This month cash-saving target</span><span class="mono">'+bridgeMoney(effectiveSavingTargetAmount)+'</span></div></div></details>';
     }
-    outlook += '<div class="home-target-summary"><div class="home-target-summary-row"><span class="home-target-summary-label">MAX SPEND THIS MONTH</span><span class="mono home-target-summary-value">' + fmt(maxSpendForSavings,0) + ' AED</span></div><div class="home-target-summary-sub" style="color:' + cashSpendGapColor + ';">Projected ' + esc(cashSpendGapText) + '</div>'+targetBridgeHtml+'</div>';
   }
-  var effectiveSavingGap=(effectiveSavingTargetAmount!=null&&simpleSaving!=null)?round2(simpleSaving-effectiveSavingTargetAmount):null;
-  var effectiveSavingGapText='';
-  if(effectiveSavingGap!=null){effectiveSavingGapText=effectiveSavingGap>=0?(fmt(effectiveSavingGap,0)+' ahead'):(fmt(Math.abs(effectiveSavingGap),0)+' short');}
-  var savingTargetLine='';
-  if(effectiveSavingTargetAmount!=null&&effectiveSavingTargetPct!=null){
-    savingTargetLine='Cash-saving target '+fmt(effectiveSavingTargetAmount,0)+' AED ('+fmt(effectiveSavingTargetPct,1)+'%)';
-    if(effectiveSavingGapText)savingTargetLine+=' · '+effectiveSavingGapText;
+  var effectiveSavingTargetPctText=effectiveSavingTargetPct==null?'':((effectiveSavingTargetPct<0?'−':'')+Math.abs(effectiveSavingTargetPct).toFixed(1)+'%');
+  var savingPctComparison='<span class="mono">'+esc(simpleSavingPctText)+'</span> projected';
+  if(effectiveSavingTargetPctText) savingPctComparison+=' <span style="color:var(--text-muted);">·</span> <span class="mono">'+esc(effectiveSavingTargetPctText)+'</span> target this month';
+  outlook += '<div class="hairline-top home-projected-saving" style="margin-top:11px;padding-top:11px;"><div class="simple-outlook-label">PROJECTED SAVING</div><div class="simple-saving-main"><div class="mono simple-outlook-value home-metric-value-line" style="color:' + simpleSavingColor + ';"><span class="home-metric-primary">' + (simpleSaving >= 0 ? '+' : '−') + fmt(Math.abs(simpleSaving), 0) + ' <span class="simple-budget-unit">AED</span></span>' + projectedSavingDeltaHtml + '</div><div class="simple-outlook-sub" style="color:var(--text-muted);font-weight:650;">' + savingPctComparison + '</div></div></div>';
+  if(maxSpendForSavings!=null){
+    outlook += '<div class="home-target-summary home-target-reference"><div class="home-target-summary-row"><span class="home-target-summary-label">MAX SPEND THIS MONTH</span><span class="mono home-target-summary-value">' + fmt(maxSpendForSavings,0) + ' AED</span></div>'+targetBridgeHtml+'</div>';
   }
-  var annualTargetLine=(homeSavingsPct>0&&effectiveSavingTargetPct!=null&&Math.abs(homeSavingsPct-effectiveSavingTargetPct)>=0.05)?('Annual savings goal '+fmt(homeSavingsPct,2)+'% · monthly cash target adjusts for payment timing'):'';
-  outlook += '<div class="hairline-top" style="margin-top:12px;padding-top:12px;"><div class="simple-outlook-label">PROJECTED SAVING</div><div class="simple-saving-main"><div class="mono simple-outlook-value home-metric-value-line" style="color:' + simpleSavingColor + ';"><span class="home-metric-primary">' + (simpleSaving >= 0 ? '+' : '−') + fmt(Math.abs(simpleSaving), 0) + ' <span class="simple-budget-unit">AED</span></span>' + projectedSavingDeltaHtml + '</div><div class="simple-outlook-sub" style="color:var(--text-muted);font-weight:650;"><span class="mono">' + esc(simpleSavingPctText) + '</span> projected</div>' + (savingTargetLine?('<div class="simple-saving-target-line" style="color:'+simpleSavingColor+';">'+esc(savingTargetLine)+'</div>'):'') + (annualTargetLine?('<div class="simple-saving-target-line">'+esc(annualTargetLine)+'</div>'):'') + '</div></div>';
   simpleCards.outlook = outlook + '</div>';
 
   var simpleOrder = ['hero','budgetStatus','outlook','today'];
@@ -5586,8 +5927,11 @@ function renderBudgetBody(T) {
   lastForecastChartData=null;lastChartData=null;lastBudgetTrendChartData=null;
   var da=dailyAllowance(),period=getPeriodBounds(state.view,state.offset,currentWeeklyTarget(),da),stats=periodStatsBudget(period.startStr,period.endStr);
   var isCurrent=state.offset===0,isClosed=period.endStr<todayStr(),effectiveInfo=isCurrent?currentEffectiveBudgetInfo():null;
+  var categoryInfo=effectiveInfo||currentEffectiveBudgetInfo(),categoryLedger=currentCategoryBudgetLedger(categoryInfo.baseEffectiveBudget),categoryMonth=categoryLedger.byMonth[cbMonth(period.startStr)];
+  if(state.view==='month'&&categoryMonth)return renderCategoryMonthBudget(T,categoryMonth,stats,period,categoryInfo);
   var configuredPeriodTarget=period.target;
-  var target=isCurrent?effectiveBudgetTargetForRange(period.startStr,period.endStr,effectiveInfo):period.target;
+  var categoryPeriodTarget=categoryBudgetFundingForRange(period.startStr,period.endStr,categoryInfo);
+  var target=categoryPeriodTarget!=null?categoryPeriodTarget:(isCurrent?effectiveBudgetTargetForRange(period.startStr,period.endStr,effectiveInfo):period.target);
   var remaining=round2(target-stats.spent);
   var livePacing=isCurrent?liveBudgetPacing():null,overSafeToday=livePacing?(livePacing.overSafeToday||0):0,adjustmentNeeded=livePacing?(livePacing.adjustmentNeeded||0):0,limitingHorizon=livePacing?livePacing.limitingHorizon:null;
   var budgetSavingsComparison=(isCurrent&&state.view==='month')?(effectiveInfo?effectiveInfo.comparison:currentSavingsBudgetComparison()):null;
@@ -5627,6 +5971,7 @@ function renderBudgetBody(T) {
   h+='<div class="seg" style="margin-bottom:12px;">';['week','month','year'].forEach(function(v){h+='<button class="seg-btn" role="tab" aria-selected="'+(state.view===v)+'" data-action="switch-view" data-view="'+v+'" style="text-transform:capitalize;">'+v+'</button>';});h+='</div>';
   h+='<div class="row between card" style="padding:8px 10px;margin-bottom:12px;"><button data-action="nav-offset" data-delta="-1" class="icon-btn" style="border-radius:10px;">'+ICONS.chevronLeft+'</button><div style="text-align:center;"><div class="subhead" style="font-weight:600;">'+esc(period.title)+'</div><div class="muted caption">'+esc(period.sub)+(isClosed?' · closed':'')+'</div></div><button data-action="nav-offset" data-delta="1" class="icon-btn" style="border-radius:10px;'+(isCurrent?'opacity:.3;pointer-events:none;':'')+'">'+ICONS.chevronRight+'</button></div>';
 
+  if(!categoryBudgetsEnabled()&&isCurrent)h+=cbSetupCard();
   var sections={};
   var budgetUsedPct = target>0 ? (stats.spent/target*100) : 0;
   var summary='<div class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="align-items:baseline;"><div><div class="muted caption">'+(state.view==='week'?'WEEKLY PACE SPENT':(isCurrent?'EFFECTIVE BUDGET SPENT':'BUDGET SPENT'))+'</div><div class="mono" style="font-size:30px;font-weight:700;margin-top:2px;">'+fmt(stats.spent,0)+' AED</div></div><div style="text-align:right;"><div class="mono muted subhead">of '+fmt(target,0)+' AED</div><div class="mono caption" style="margin-top:3px;font-weight:700;color:'+(budgetUsedPct>100?'var(--rust)':'var(--text-muted)')+';">'+budgetUsedPct.toFixed(0)+'% used</div></div></div><div style="height:10px;background:var(--fill);border-radius:999px;overflow:hidden;margin:12px 0 14px;"><div style="height:100%;width:'+progress+'%;background:'+(stats.spent>target?'var(--rust)':'var(--accent)')+';"></div></div><div class="stat-grid">';
@@ -5729,6 +6074,7 @@ function renderBudgetBody(T) {
   sections.category=catCard;
   var personCard='';if((state.settings.people||[]).length){var pt={};stats.rows.forEach(function(r){(r.items||[]).forEach(function(it){if(!isExpenseItem(it)||!itemCountsTowardBudget(it)||!catMatch(it))return;if(it.personSplit&&it.personSplit.length)it.personSplit.forEach(function(ps){pt[ps.person]=(pt[ps.person]||0)+round2(it.amount*ps.pct/100);});else{var pk=it.person||'Unassigned';pt[pk]=(pt[pk]||0)+it.amount;}});});var pslices=Object.keys(pt).map(function(k){return{label:k,value:pt[k]};}).sort(function(a,b){return b.value-a.value;});pslices.forEach(function(sl){sl.color=sl.label==='Unassigned'?'#8595B5':personColor(sl.label);});if(pslices.length){var ptotal=pslices.reduce(function(t,x){return t+x.value;},0);personCard='<div class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="margin-bottom:10px;"><span class="eyebrow">Budget spend by person</span><span class="muted caption">'+(personFilter?'Tap to clear':'Tap to filter')+'</span></div><div style="display:flex;justify-content:center;margin-bottom:12px;">'+renderPieChart(pslices,T,personFilter||null,'Budget',ptotal,'filter-budget-person','person')+'</div>';pslices.forEach(function(sl,i){var p=ptotal?sl.value/ptotal*100:0,isSel=personFilter===sl.label;personCard+='<button data-action="filter-budget-person" data-person="'+esc(sl.label)+'" class="row between" style="width:100%;background:none;border:none;padding:8px 0;'+(i?'border-top:1px solid var(--sep);':'')+(personFilter&&!isSel?'opacity:.45;':'')+'"><span>'+(sl.label==='Unassigned'?'<span class="subhead">Unassigned</span>':personChip(sl.label))+'</span><span class="row" style="gap:10px;"><span class="mono subhead">'+fmt(sl.value,0)+'</span><span class="muted mono caption" style="width:36px;text-align:right;">'+p.toFixed(0)+'%</span></span></button>';});personCard+='</div>';}}sections.person=personCard;
 
+  if(categoryBudgetsEnabled())sections.progress='';
   var order=['summary','forecast','category','progress','spendTrend','person'];
   h+='<div style="display:flex;flex-direction:column;">';
   order.filter(function(id){return !!sections[id];}).forEach(function(id,idx){h+='<div style="order:'+idx+';">'+sections[id]+'</div>';});
@@ -5736,9 +6082,164 @@ function renderBudgetBody(T) {
   return h;
 }
 
+function cbBudgetGroups(){
+  var groups=[],categories=state.settings.categories||[];
+  (state.settings.categoryGroups||[]).forEach(function(g){if(categories.some(function(c){return categoryGroupOf(c)===g&&!categoryExcludedFromBudget(c);}))groups.push(g);});
+  if(categories.some(function(c){return !categoryGroupOf(c)&&!categoryExcludedFromBudget(c);}))groups.push(CB_UNGROUPED);
+  return groups;
+}
+function cbPrepareDraft(){
+  var mk=cbMonth(todayStr()),plan=cbPlanForMonth(state.settings,mk),groups=cbBudgetGroups(),info=currentEffectiveBudgetInfo();
+  if(plan)plan.rows.forEach(function(r){if(groups.indexOf(r.group)<0)groups.push(r.group);});
+  var weights=Object.create(null),total=0,start=toStr(addDays(parseD(todayStr()),-89));
+  Object.keys(state.entries||{}).forEach(function(ds){if(ds<start||ds>todayStr())return;((state.entries[ds]&&state.entries[ds].items)||[]).forEach(function(it){if(!isExpenseItem(it)||!itemCountsTowardBudget(it))return;var g=categoryGroupOf(it.category)||CB_UNGROUPED,a=cbMoney(it.amount);weights[g]=(weights[g]||0)+a;total+=a;});});
+  var dailyGroup=groups.find(function(g){return /food|dining/i.test(g)||(state.settings.categories||[]).some(function(c){return categoryGroupOf(c)===g&&/^(Groceries|Restaurants|Cafés & Snacks)$/.test(c);});})||groups[0];
+  var suggested=Object.create(null);
+  if(!plan&&total>0){var used=0,full=Math.round(cbMonthlyAllocationCapacity(info)*100);groups.forEach(function(g,i){var cents=Math.floor(full*(weights[g]||0)/total);suggested[g]=cents/100;used+=cents;});if(dailyGroup)suggested[dailyGroup]=round2((suggested[dailyGroup]||0)+(full-used)/100);}
+  state.cbDraft=groups.map(function(g){var r=plan&&plan.rows.find(function(x){return x.group===g;});var canonical=r?r.amount:(suggested[g]||0),shown=String(round2(toReporting(canonical)));return {group:g,amount:shown,initialAmount:shown,canonicalAmount:canonical,daily:r?r.daily:g===dailyGroup,rollover:r?r.rollover:g!==dailyGroup};});
+  state.cbDraftSuggested=!plan&&total>0;state.cbDraftError="";state.cbDraftCurrency=reportingCurrency();
+}
+function cbEditorTotals(){
+  var total=0,daily=0;(state.cbDraft||[]).forEach(function(r){var a=cbDraftAmount(r);total+=a;if(r.daily)daily+=a;});
+  var info=currentEffectiveBudgetInfo(),capacity=cbMonthlyAllocationCapacity(info),remaining=round2(capacity-total);
+  return {total:round2(total),daily:round2(daily),available:capacity,remaining:remaining};
+}
+function cbUpdateEditorTotals(){
+  if(!state.cbDraft)return;var t=cbEditorTotals(),amount=document.getElementById("cbDraftRemaining"),daily=document.getElementById("cbDraftDaily"),label=document.getElementById("cbDraftRemainingLabel");
+  if(amount){amount.textContent=fmt(Math.abs(t.remaining),0)+" "+reportingCurrency();amount.style.color=t.remaining<-.005?"var(--rust)":"var(--accent)";}
+  if(label)label.textContent=t.remaining<-.005?"Over allocated":"Buffer";
+  if(daily)daily.textContent=fmt(t.daily/daysInMonth(new Date()),0)+" "+reportingCurrency()+"/day before upcoming essentials";
+}
+function renderCategoryBudgetEditor(){
+  if(!state.cbDraft||state.cbDraftCurrency!==reportingCurrency())cbPrepareDraft();
+  var t=cbEditorTotals(),mk=cbMonth(todayStr()),enabled=categoryBudgetsEnabled();
+  var h='<div class="cb-editor-summary card card-pad"><div class="row between"><span class="subhead">Available to allocate</span><strong class="mono">'+fmt(t.available,0)+' AED</strong></div><div class="caption muted" style="margin-top:5px;">Full monthly allocation after the savings target. Carried money is added separately; a partial first tracking month is prorated.</div><div class="row between hairline-top" style="margin-top:12px;padding-top:12px;"><span id="cbDraftRemainingLabel" class="subhead">'+(t.remaining<0?'Over allocated':'Buffer')+'</span><strong id="cbDraftRemaining" class="mono" style="color:'+(t.remaining<0?'var(--rust)':'var(--accent)')+';">'+fmt(Math.abs(t.remaining),0)+' AED</strong></div><div id="cbDraftDaily" class="caption muted" style="margin-top:8px;">'+fmt(t.daily/daysInMonth(new Date()),0)+' AED/day before upcoming essentials</div></div>';
+  h+='<div class="caption muted" style="margin:12px 2px;">'+(state.cbDraftSuggested?'Suggested from your last 90 days of recorded spending. Adjust the amounts before saving.':'Choose a monthly amount for each category. Any unassigned amount stays in Buffer.')+'</div>';
+  (state.cbDraft||[]).forEach(function(r,i){
+    var name=cbGroupLabel(r.group),members=(state.settings.categories||[]).filter(function(c){return (categoryGroupOf(c)||CB_UNGROUPED)===r.group&&!categoryExcludedFromBudget(c);});
+    h+='<div class="card cb-edit-row"><div class="row between" style="gap:12px;"><div style="min-width:0;"><div class="subhead" style="font-weight:750;">'+esc(name)+'</div><div class="caption muted" style="margin-top:4px;">'+(members.length?members.length+' budget subcategor'+(members.length===1?'y':'ies'):'No budget subcategories linked')+'</div></div><label class="cb-amount-label"><span class="caption muted">'+reportingCurrency()+' / month</span><input data-cb-field="amount" data-index="'+i+'" aria-label="'+esc(name)+' monthly allocation" type="number" inputmode="decimal" min="0" step="0.01" class="field mono" value="'+esc(r.amount)+'" /></label></div>';
+    h+='<div class="cb-edit-options"><label><span class="caption muted">Spending rhythm</span><select class="field" data-cb-field="daily" data-index="'+i+'" aria-label="'+esc(name)+' spending rhythm"><option value="monthly"'+(!r.daily?' selected':'')+'>Monthly balance</option><option value="daily"'+(r.daily?' selected':'')+'>Daily allowance</option></select></label><label class="cb-check"><input type="checkbox" data-cb-field="rollover" data-index="'+i+'"'+(r.rollover?' checked':'')+'/><span class="subhead">Roll over unused</span></label></div></div>';
+  });
+  if(!state.cbDraft.length)h+='<div class="card card-pad caption">Add a budget-counted category in Settings → Categories first.</div>';
+  h+='<div class="caption muted" style="margin:12px 2px;">Rollover is shared in proportion to unused amounts, capped by the surplus across the whole budget. Categories with rollover off reset each month.</div>';
+  if(state.cbDraftError)h+='<div class="cb-warning" role="alert">'+esc(state.cbDraftError)+'</div>';
+  h+='<button data-action="save-category-budgets" class="btn-accent" style="width:100%;margin:4px 0 8px;">'+(enabled?'Save allocations':'Start category budgets')+'</button><div class="caption muted" style="margin:0 2px 18px;">Applies from '+esc(parseD(mk+'-01').toLocaleDateString('en-GB',{month:'long',year:'numeric'}))+'. Earlier months keep their saved allocations. One-month budget moves remain in place.</div>';
+  return h;
+}
+function cbSetupCard(){return '<div class="card card-pad" style="margin-bottom:14px;"><div class="subhead" style="font-weight:750;">Give each category its own budget</div><div class="caption muted" style="margin:6px 0 12px;">Keep Food available daily and track Shopping and other spending by month.</div><button data-action="open-category-budgets" class="btn-accent" style="width:100%;">Set up category budgets</button></div>';}
+function cbWarningsHtml(month){
+  var h='';if(month.allocationShortfall>0)h+='<div class="cb-warning">Allocations exceed this month’s funding by <strong class="mono">'+fmt(month.allocationShortfall,0)+' AED</strong>. <button class="btn-plain" data-action="open-category-budgets">Adjust allocations</button></div>';
+  if(month.categoryDeficits>0){h+='<div class="cb-warning"><strong class="mono">'+fmt(month.categoryDeficits,0)+' AED</strong> needs covering across overspent categories.'+(month.dailyHold>0?' Daily spending is reduced until this is covered.':' Buffer can help cover it.')+' <button class="btn-plain" data-action="toggle-category-budget-move">Move budget</button></div>';}
+  return h;
+}
+function renderCategoryBudgetMove(month){
+  if(!state.cbMoveOpen)return '';
+  var donors=month.rows.filter(function(r){return r.remaining>.005;}).sort(function(a,b){if(a.group===CB_BUFFER)return -1;if(b.group===CB_BUFFER)return 1;return Number(a.daily)-Number(b.daily);}),recipients=month.rows;
+  var h='<div class="card card-pad cb-move"><div class="subhead" style="font-weight:750;">Move budget this month</div><div class="caption muted" style="margin:5px 0 12px;">Moves change category allowances without changing your total budget or recording an expense.</div><label class="eyebrow" for="cbMoveFrom">From</label><select id="cbMoveFrom" class="field" style="margin:6px 0 12px;">';
+  donors.forEach(function(r){h+='<option value="'+esc(r.group)+'">'+esc(cbGroupLabel(r.group))+' · '+fmt(r.remaining,0)+' AED left</option>';});
+  h+='</select><label class="eyebrow" for="cbMoveTo">To</label><select id="cbMoveTo" class="field" style="margin:6px 0 12px;">';
+  var firstOver=recipients.find(function(r){return r.remaining<0;});
+  recipients.forEach(function(r){h+='<option value="'+esc(r.group)+'"'+(firstOver&&firstOver.group===r.group?' selected':'')+'>'+esc(cbGroupLabel(r.group))+'</option>';});
+  h+='</select><label class="eyebrow" for="cbMoveAmount">Amount ('+reportingCurrency()+')</label><input id="cbMoveAmount" class="field mono" type="number" inputmode="decimal" min="0.01" step="0.01" style="margin:6px 0 12px;"/><button data-action="save-category-budget-move" class="btn-accent" style="width:100%;">Move amount</button>';
+  if(state.cbMoveError)h+='<div class="cb-warning" role="alert">'+esc(state.cbMoveError)+'</div>';
+  return h+'</div>';
+}
+function cbForecastByGroup(month,forecast){
+  var out=Object.create(null);(forecast&&forecast.forecastBreakdown||[]).forEach(function(x){var cat=x.label||'',g=(month.classification.groupOf||{})[cat]||CB_UNGROUPED;if((month.classification.excluded||{})[cat])return;if(!out[g])out[g]={total:0,rows:[]};out[g].total=round2(out[g].total+cbMoney(x.amount));out[g].rows.push(x);});return out;
+}
+function renderCategoryBudgetCards(month,forecast){
+  var future=month.closed?Object.create(null):cbForecastByGroup(month,forecast),h='',daysLeft=Math.max(1,daysBetween(todayStr(),month.end)+1);
+  var rows=month.rows.slice().sort(function(a,b){if(a.group===CB_BUFFER)return 1;if(b.group===CB_BUFFER)return -1;if(a.daily!==b.daily)return a.daily?-1:1;return 0;});
+  rows.forEach(function(r){
+    if(r.group===CB_BUFFER&&r.available===0&&r.remaining===0)return;
+    var name=cbGroupLabel(r.group),isBuffer=r.group===CB_BUFFER,expanded=!!(state.cbExpanded&&state.cbExpanded[r.group]),over=r.remaining<0,pct=Math.max(0,Math.min(100,r.pct));
+    var icon=isBuffer?'<span class="cb-buffer-icon">'+ICONS.wallet+'</span>':(r.group===CB_UNGROUPED?'':categoryGroupIconCircle(r.group));
+    var upcoming=future[r.group],projected=round2(r.spent+(upcoming?upcoming.total:0));
+    h+='<div class="card cb-category-card"><button data-action="toggle-category-budget-card" data-group="'+esc(r.group)+'" class="cb-category-head" aria-expanded="'+expanded+'">'+icon+'<span class="cb-category-title"><span>'+esc(name)+'</span><span class="caption muted">'+(isBuffer?'Unassigned budget':(r.daily?'Daily allowance':'Monthly balance'))+'</span></span><span class="mono cb-category-pct" style="color:'+(over?'var(--rust)':'var(--text)')+';">'+(isBuffer?fmt(r.remaining,0)+' AED':r.pct.toFixed(0)+'%')+'</span></button>';
+    if(!isBuffer){
+      h+='<div class="cb-category-track" role="progressbar" aria-label="'+esc(name)+' budget used" aria-valuenow="'+Math.round(r.pct)+'" aria-valuemin="0" aria-valuemax="'+Math.max(100,Math.round(r.pct))+'"><span style="width:'+pct+'%;background:'+(over?'var(--rust)':'var(--accent)')+';"></span></div><div class="cb-category-values"><span class="caption"><strong class="mono">'+fmt(r.spent,0)+'</strong> spent</span><span class="caption" style="color:'+(over?'var(--rust)':'var(--text)')+';"><strong class="mono">'+fmt(Math.abs(r.remaining),0)+'</strong> '+(over?'over':'left')+'</span></div>';
+    }
+    h+='<div class="cb-category-meta caption muted">'+fmt(r.base,0)+' base'+(r.opening>0?' + '+fmt(r.opening,0)+' carried':'')+(r.transfer?(' · '+(r.transfer>0?'+':'−')+fmt(Math.abs(r.transfer),0)+' moved'):'')+' · '+fmt(r.available,0)+' AED available</div>';
+    if(!isBuffer)h+='<div class="cb-category-meta caption" style="color:'+(projected>r.available+.5&&!month.closed?'var(--amber)':'var(--text-muted)')+';">'+(month.closed?('Carried forward '+fmt(r.rolloverOut,0)+' AED'):(r.rollover?'Rollover on':'Resets monthly'))+(upcoming&&upcoming.total>0?' · '+fmt(projected,0)+' AED projected':'')+'</div>';
+    if(expanded){
+      h+='<div class="cb-category-detail hairline-top">';
+      var cats=Object.keys(r.subcategories).sort(function(a,b){return r.subcategories[b]-r.subcategories[a];});
+      if(!cats.length)h+='<div class="caption muted" style="padding:8px 0;">'+(isBuffer?'Move part of this buffer to a category when needed.':'No spending this month.')+'</div>';
+      cats.forEach(function(c){var used=r.subcategories[c],part=r.available>0?used/r.available*100:0;h+='<button data-action="category-budget-activity" data-cat="'+esc(c)+'" data-month="'+month.month+'" class="cb-detail-row"><span class="subhead">'+esc(c)+'</span><span class="cb-detail-amount"><strong class="mono subhead">'+fmt(used,0)+' AED</strong><span class="caption muted">'+part.toFixed(0)+'% of category budget</span></span></button>';});
+      if(upcoming&&upcoming.rows.length){h+='<div class="eyebrow" style="margin:12px 0 4px;">Upcoming forecast</div>';upcoming.rows.forEach(function(x){h+='<div class="row between caption" style="gap:12px;padding:7px 0;"><span>'+esc(x.label||'Other')+'</span><strong class="mono">≈ '+fmt(x.amount,0)+' AED</strong></div>';});}
+      h+='</div>';
+    }
+    h+='</div>';
+  });return h;
+}
+function renderCategoryMonthBudget(T,month,stats,period,info){
+  var current=!month.closed,forecast=current?periodForecast(stats,period.startStr,period.endStr,'budget',false).forecast:null;
+  var h='<div class="row between page-heading-row"><div class="title2">Budget</div><button data-action="open-category-budgets" class="btn-outline compact-action">Allocations</button></div>';
+  h+='<div class="seg" style="margin-bottom:12px;">';['week','month','year'].forEach(function(v){h+='<button class="seg-btn" role="tab" aria-selected="'+(state.view===v)+'" data-action="switch-view" data-view="'+v+'" style="text-transform:capitalize;">'+v+'</button>';});h+='</div>';
+  h+='<div class="row between card" style="padding:8px 10px;margin-bottom:12px;"><button data-action="nav-offset" data-delta="-1" class="icon-btn" aria-label="Previous month">'+ICONS.chevronLeft+'</button><div style="text-align:center;"><div class="subhead" style="font-weight:650;">'+esc(period.title)+'</div><div class="caption muted">'+(current?'This month':'Closed month')+'</div></div><button data-action="nav-offset" data-delta="1" class="icon-btn" aria-label="Next month"'+(current?' disabled':'')+'>'+ICONS.chevronRight+'</button></div>';
+  var pct=month.available>0?month.spent/month.available*100:0;
+  h+='<div class="card card-pad" style="margin-bottom:14px;"><div class="row between" style="align-items:baseline;"><span class="eyebrow">Total budget used</span><strong class="mono subhead" style="color:'+(month.remaining<0?'var(--rust)':'var(--text)')+';">'+pct.toFixed(0)+'%</strong></div><div class="cb-total-value mono">'+fmt(month.spent,0)+' <span class="muted subhead">/ '+fmt(month.available,0)+' AED</span></div><div class="cb-category-track"><span style="width:'+Math.min(100,Math.max(0,pct))+'%;background:'+(month.remaining<0?'var(--rust)':'var(--accent)')+';"></span></div><div class="row between"><span class="caption muted">'+fmt(month.baseBudget,0)+' base + '+fmt(month.openingTotal,0)+' carried</span><strong class="mono subhead" style="color:'+(month.remaining<0?'var(--rust)':'var(--text)')+';">'+fmt(Math.abs(month.remaining),0)+' '+(month.remaining<0?'over':'left')+'</strong></div>';
+  if(month.configuredBudget>month.baseBudget+.5)h+='<div class="caption muted" style="margin-top:8px;">Configured '+fmt(month.configuredBudget,0)+' AED · spendable funding follows your savings target and tracking period.</div>';
+  if(forecast){var gap=round2(forecast.projectedSpend-month.available);h+='<div class="hairline-top row between" style="margin-top:12px;padding-top:12px;"><span class="caption">Projected month end</span><strong class="mono caption" style="color:'+(gap>0?'var(--rust)':'var(--positive)')+';">'+fmt(Math.abs(gap),0)+' AED '+(gap>0?'over':'under')+'</strong></div>';}
+  h+='</div>';
+  if(current){h+=cbWarningsHtml(month);h+='<div class="row between" style="margin:8px 2px 12px;"><span class="eyebrow">Category budgets</span><button data-action="toggle-category-budget-move" class="btn-plain">'+(state.cbMoveOpen?'Close move':'Move budget')+'</button></div>'+renderCategoryBudgetMove(month);}
+  h+=renderCategoryBudgetCards(month,forecast)+renderCategoryBudgetPeople(month,stats,T);
+  if(month.closed){
+    h+='<div class="card card-pad" style="margin-bottom:14px;"><div class="eyebrow">Month-end allocation</div><div class="row between" style="margin-top:12px;"><span class="subhead">Carried into next month</span><strong class="mono">'+fmt(month.rolloverTotal,0)+' AED</strong></div><div class="row between" style="margin-top:9px;"><span class="subhead">Left unallocated</span><strong class="mono">'+fmt(month.generalSavings,0)+' AED</strong></div><div class="caption muted" style="margin-top:10px;">'+(month.overspent>0?'The total budget was exceeded by '+fmt(month.overspent,0)+' AED. Nothing rolled forward.':'Rollover is limited by the net budget surplus. Unallocated surplus remains in general savings.')+'</div></div>';
+  }else if(forecast){
+    h+=buildForecastCard(stats.rows,Math.max(1,daysBetween(effectiveRangeStart(period.startStr),period.endStr)+1),month.available,effectiveRangeStart(period.startStr),T,'Available budget','month',previousPeriodRows('month',0,period.startStr,period.endStr,'budget'),'budget');
+  }
+  var moves=normalizeCategoryBudgetTransfers(state.settings.categoryBudgetTransfers).filter(function(t){return t.month===month.month;});
+  if(moves.length){h+='<details class="card card-pad" style="margin-bottom:14px;"><summary class="subhead">Budget moves · '+moves.length+'</summary>';moves.forEach(function(t){h+='<div class="caption" style="margin-top:10px;">'+esc(cbGroupLabel(t.from))+' → '+esc(cbGroupLabel(t.to))+' <strong class="mono">'+fmt(t.amount,0)+' AED</strong></div>';});h+='</details>';}
+  return h;
+}
+function saveCategoryBudgetDraft(){
+  var t=cbEditorTotals(),draft=state.cbDraft||[],error='',eligible=cbBudgetGroups();
+  draft.forEach(function(r){var n=Number(r.amount);if(!isFinite(n)||n<0)error='Enter a valid non-negative amount for every category.';if(n>0&&eligible.indexOf(r.group)<0)error=cbGroupLabel(r.group)+' has no budget-counted subcategories. Set its allocation to zero or update its categories.';});
+  if(t.remaining<-.005)error='Reduce allocations by '+fmt(-t.remaining,2)+' '+reportingCurrency()+' to fit the available budget.';
+  if(!draft.length)error='Add a budget-counted main category first.';
+  if(error){state.cbDraftError=error;render();return false;}
+  var oldKey=categoryBudgetDailySignature(),from=cbMonth(todayStr()),rows=draft.map(function(r){return {group:r.group,amount:cbDraftAmount(r),daily:r.daily,rollover:r.rollover};});
+  var plans=normalizeCategoryBudgetPlans(state.settings.categoryBudgetPlans).filter(function(p){return p.from!==from;}).concat([{from:from,rows:rows}]);
+  var settings=Object.assign({},state.settings,{categoryBudgetPlans:normalizeCategoryBudgetPlans(plans)});
+  var newKey=cbDailySignatureForPlan({rows:rows},settings);
+  if(oldKey!==newKey)settings.safeSpendHistory=normalizeSafeSpendHistory(settings.safeSpendHistory).filter(function(r){return r.date!==todayStr();});
+  persistAll(settings,state.entries,'your category budgets');state.cbDraft=null;state.cbDraftError='';state.showSettings=false;state.settingsSection=null;state.page='budget';state.view='month';state.offset=0;showToast('Category budgets saved');render();return true;
+}
+function saveCategoryBudgetMove(){
+  var from=document.getElementById('cbMoveFrom'),to=document.getElementById('cbMoveTo'),amount=document.getElementById('cbMoveAmount'),a=fromReporting(Number(amount&&amount.value)||0);
+  var info=currentEffectiveBudgetInfo(),month=info.categoryBudget,error='';
+  if(!month||!from||!to||!from.value||!to.value)error='Choose both categories.';
+  else if(from.value===to.value)error='Choose two different categories.';
+  else if(!isFinite(a)||!(a>0))error='Enter an amount greater than zero.';
+  else if(!month.byGroup[from.value]||a>month.byGroup[from.value].remaining+.005)error='The source category does not have that much available.';
+  if(error){state.cbMoveError=error;render();return false;}
+  var moves=normalizeCategoryBudgetTransfers(state.settings.categoryBudgetTransfers);moves.push({id:Date.now()+'-cb-'+Math.random().toString(36).slice(2,7),month:month.month,from:from.value,to:to.value,amount:round2(a),date:todayStr()});
+  persistAll(Object.assign({},state.settings,{categoryBudgetTransfers:moves}),state.entries,'your budget move');state.cbMoveOpen=false;state.cbMoveError='';showToast('Budget moved');render();return true;
+}
+
+function renderCategoryBudgetPeople(month,stats,T){
+  if(!(state.settings.people||[]).length)return '';
+  var totals=Object.create(null);
+  (stats.rows||[]).forEach(function(r){(r.items||[]).forEach(function(it){
+    if(!isExpenseItem(it)||!itemCountsTowardBudget(it))return;
+    if(it.personSplit&&it.personSplit.length)it.personSplit.forEach(function(ps){totals[ps.person]=round2((totals[ps.person]||0)+Number(it.amount||0)*Number(ps.pct||0)/100);});
+    else {var person=it.person||'Unassigned';totals[person]=round2((totals[person]||0)+Number(it.amount||0));}
+  });});
+  var names=Object.keys(totals).sort(function(a,b){return totals[b]-totals[a];});if(!names.length)return '';
+  var h='<details class="card card-pad" style="margin-bottom:14px;"><summary class="subhead" style="font-weight:700;">Spend by person</summary>';
+  names.forEach(function(person){h+='<button data-action="category-budget-person-activity" data-person="'+esc(person)+'" data-month="'+month.month+'" class="cb-detail-row"><span>'+esc(person)+'</span><strong class="mono">'+fmt(totals[person],0)+' AED</strong></button>';});return h+'</details>';
+}
+function openCategoryBudgetActivity(month,category,person){
+  var mk=cbMonth(month)||cbMonth(todayStr());
+  state.txnCategoryFilter=category==='Uncategorized'?'Uncategorised':(category||'');state.txnGroupFilter='';state.txnPersonFilter=person||'';state.txnTagFilter='';state.txnSearch='';state.txnTypeFilter='expense';state.txnBudgetScopeFilter='budget';state.txnPeriodMode='custom';state.txnPeriodFrom=mk+'-01';state.txnPeriodTo=toStr(endOfMonth(parseD(mk+'-01')));state.page='transactions';render();
+}
+
+function cbDraftAmount(row){return row.initialAmount!=null&&String(row.amount)===row.initialAmount?cbMoney(row.canonicalAmount):round2(fromReporting(Number(row.amount)||0));}
+
 function renderSettingsPage() {
   var section = state.settingsSection || "";
-  var titles = { budget:"Monthly budget", savings:"Savings target", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast accuracy", categories:"Categories", people:"People", tags:"Transaction tags", theme:"Appearance", tracking:"Tracking start", backup:"Data & Backup", clearEntries:"Clear all entries", factoryReset:"Reset app to defaults", demo:"Demo & showcase" };
+  var titles = { categoryBudgets:"Category budgets", budget:"Monthly budget", savings:"Savings target", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast accuracy", categories:"Categories", people:"People", tags:"Transaction tags", theme:"Appearance", tracking:"Tracking start", backup:"Data & Backup", clearEntries:"Clear all entries", factoryReset:"Reset app to defaults", demo:"Demo & showcase" };
   var categoryHeaderTitle = "Categories";
   if (section === "categories") {
     if (state.settingsSubcategorySelected) categoryHeaderTitle = state.settingsSubcategorySelected;
@@ -5764,6 +6265,7 @@ function renderSettingsPage() {
 
     h += '<div class="settings-group-title">Budgeting</div><div class="settings-list">';
     h += '<button class="settings-row" data-action="settings-section" data-section="budget"><span class="settings-row-main"><span class="settings-row-label">Monthly budget</span><span class="settings-row-sub">Your controllable spending limit</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(monthlyNow,0)+' AED</span>'+ICONS.chevronRight+'</span></button>';
+    h+='<button class="settings-row" data-action="open-category-budgets"><span class="settings-row-main"><span class="settings-row-label">Category budgets</span><span class="settings-row-sub">Allocations, daily spending and rollover</span></span><span>'+ICONS.chevronRight+'</span></button>';
     var rootSavingsPct=savingsTargetPct(), rootSavingsHundredths=Math.round(rootSavingsPct*100), rootSavingsDp=(rootSavingsHundredths%10?2:(rootSavingsHundredths%100?1:0));
     h += '<button class="settings-row" data-action="settings-section" data-section="savings"><span class="settings-row-main"><span class="settings-row-label">Savings target</span><span class="settings-row-sub">Long-term share of income to keep</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(rootSavingsPct,rootSavingsDp)+'%</span>'+ICONS.chevronRight+'</span></button>';
     var annualReserveTotalRoot=activeAnnualReserves().reduce(function(sum,r){return sum+r.annualAmount;},0);
@@ -5798,6 +6300,7 @@ function renderSettingsPage() {
   }
 
   h += '<div class="settings-detail settings-detail-'+section+'">';
+  if(section === "categoryBudgets")h+=renderCategoryBudgetEditor();
   if (section === "budget") {
     var curMonthly = currentMonthlyBudget();
     var monthBounds = getPeriodBounds("month", 0, currentWeeklyTarget(), dailyAllowance());
@@ -5813,6 +6316,7 @@ function renderSettingsPage() {
     h += '<button data-action="apply-budget" data-scope="all" class="btn-outline" style="width:100%; margin-bottom:8px;">All periods, past and future</button>';
     h += '<div class="muted" style="font-size:11px;">Use this only when correcting the budget itself; historical days will be re-judged against the new monthly amount.</div>';
   }
+  if(section === "budget")h+='<button data-action="open-category-budgets" class="btn-outline" style="width:100%;margin-top:20px;">Allocate by category</button>';
   if (section === "savings") {
     var savePct=savingsTargetPct();
     h += '<label class="eyebrow">Target saving</label>';
@@ -6056,10 +6560,10 @@ function renderSettingsPage() {
 
   if (section === "demo") {
     if(IS_DEMO_MODE){
-      h += '<div class="card card-pad"><div class="eyebrow">DEMO MODE ACTIVE</div><div class="headline" style="margin-top:6px;">Safe to hand over your phone</div><div class="muted subhead" style="margin-top:8px;line-height:1.5;">Everything you see here is fictional and stored in a separate sandbox. Your real transactions, budgets, plans, backups and recovery snapshots are not being read or changed.</div><div class="demo-action-grid"><button data-action="exit-demo-mode" class="btn-accent">Exit Demo</button><button data-action="reset-demo-data" class="btn-outline">Reset Demo Data</button></div></div>';
+      h += '<div class="card card-pad"><div class="eyebrow">DEMO MODE ACTIVE</div><div class="headline" style="margin-top:6px;">Safe to hand over your phone</div><div class="muted subhead" style="margin-top:8px;line-height:1.5;">Everything you see here is fictional and stored in a separate sandbox. The showcase uses a 10,000 AED monthly income and more than three months of Dubai-style spending history. Your real transactions, budgets, plans, backups and recovery snapshots are not being read or changed.</div><div class="demo-action-grid"><button data-action="exit-demo-mode" class="btn-accent">Exit Demo</button><button data-action="reset-demo-data" class="btn-outline">Reset Demo Data</button></div></div>';
       h += '<div class="card card-pad" style="margin-top:14px;"><div class="eyebrow">WHAT THE DEMO INCLUDES</div><div class="muted subhead" style="margin-top:8px;line-height:1.55;">Sample budget and savings targets, fictional people, recurring Rent and Mortgage cycles, an annual Travel reserve, foreign-currency travel spending, tags, Tabby installments and enough transaction history for charts and forecasting.</div></div>';
     } else {
-      h += '<div class="card card-pad"><div class="eyebrow">SHOWCASE SAFELY</div><div class="headline" style="margin-top:6px;">Explore a fictional Ledger</div><div class="muted subhead" style="margin-top:8px;line-height:1.5;">Demo Mode opens a completely separate populated ledger. It does not copy, mask or expose your real data. Changes made while demonstrating stay inside the demo sandbox.</div><button data-action="enter-demo-mode" class="btn-accent" style="width:100%;margin-top:18px;">Enter Demo Mode</button><div class="muted caption" style="margin-top:10px;">A DEMO badge stays visible so you always know which ledger is open.</div></div>';
+      h += '<div class="card card-pad"><div class="eyebrow">SHOWCASE SAFELY</div><div class="headline" style="margin-top:6px;">Explore a fictional Dubai Ledger</div><div class="muted subhead" style="margin-top:8px;line-height:1.5;">Demo Mode opens a completely separate populated ledger built around a fictional 10,000 AED monthly income and more than three months of Dubai-style spending history. It does not copy, mask or expose your real data. Changes made while demonstrating stay inside the demo sandbox.</div><button data-action="enter-demo-mode" class="btn-accent" style="width:100%;margin-top:18px;">Enter Demo Mode</button><div class="muted caption" style="margin-top:10px;">A DEMO badge stays visible so you always know which ledger is open.</div></div>';
     }
   }
 
@@ -6113,7 +6617,8 @@ function renderSettingsPage() {
 }
 
 function renderTxnCategoryPickerPage() {
-  var cats=(state.settings.categories||[]).slice();
+  var usageStats=categoryUsageStats();
+  var cats=categoriesSortedByUsage((state.settings.categories||[]).slice(),usageStats);
   var groups=state.settings.categoryGroups||[];
   var selected=state.entryCategoryDraft||"";
   var q=String(state.txnCategoryPickerSearch||"").trim().toLowerCase();
@@ -6171,25 +6676,13 @@ function renderAddTxnPage() {
   var fxSourceShown = state.entryFxSourceDraft != null ? state.entryFxSourceDraft : (editingItem && editingItem.fxSource ? editingItem.fxSource : "");
   var parsedShown = parseFloat(amountShown);
 
-  /* Most-used categories become one-tap choices. The full category hierarchy
-     is still available behind More, but common entries no longer require a
-     group dropdown followed by a category dropdown. */
-  var usage = {};
-  Object.keys(state.entries).forEach(function(d){
-    (state.entries[d].items||[]).forEach(function(it){ if (it.category) usage[it.category]=(usage[it.category]||0)+1; });
-  });
-  function sortedCats(list){
-    var original = list.slice();
-    return list.slice().sort(function(a,b){
-      var diff=(usage[b]||0)-(usage[a]||0);
-      return diff || (original.indexOf(a)-original.indexOf(b));
-    });
-  }
-  var quickCats = sortedCats(cats).slice(0,8);
-  if (selectedCat && quickCats.indexOf(selectedCat)===-1) {
-    quickCats.unshift(selectedCat);
-    quickCats = quickCats.slice(0,8);
-  }
+  /* Most-used categories become one-tap choices. Ranking is recomputed from
+     the live ledger on every render, so every newly saved expense can change
+     the order immediately. The selected category is appended only when it is
+     outside the top eight, preserving the usage ranking itself. */
+  var usageStats = categoryUsageStats();
+  var quickCats = categoriesSortedByUsage(cats,usageStats).slice(0,8);
+  if (selectedCat && quickCats.indexOf(selectedCat)===-1) quickCats.push(selectedCat);
 
   var h = '<div class="txn-entry-page"><div class="txn-entry-shell">';
   h += '<div class="txn-entry-header">';
@@ -6243,6 +6736,7 @@ function renderAddTxnPage() {
     });
     h += '<button data-action="open-txn-category-picker" style="flex:0 0 auto;min-width:70px;background:var(--fill);border:none;border-radius:12px;padding:9px 10px;color:var(--text-muted);font-size:12px;font-weight:650;">More</button>';
     h += '</div>';
+    if(selectedCat&&categoryBudgetsEnabled()&&!categoryExcludedFromBudget(selectedCat)){var cbTxnInfo=currentEffectiveBudgetInfo(),cbTxnMonth=currentCategoryBudgetLedger(cbTxnInfo.baseEffectiveBudget).byMonth[cbMonth(formDate)],cbTxnGroup=categoryGroupOf(selectedCat)||CB_UNGROUPED,cbTxnRow=cbTxnMonth&&cbTxnMonth.byGroup[cbTxnGroup];if(cbTxnRow)h+='<div class="caption muted" style="margin:6px 2px 10px;">'+esc(cbGroupLabel(cbTxnGroup))+' · '+fmt(Math.abs(cbTxnRow.remaining),0)+' AED '+(cbTxnRow.remaining<0?'over budget':'left this month')+'</div>';}
     h += '<input id="entryCategoryInput" type="hidden" value="'+esc(selectedCat)+'" />';
   } else {
     h += '<input id="entryCategoryInput" type="hidden" value="" />';
@@ -6637,7 +7131,7 @@ function renameCategoryGroup(oldName, newName) {
   if (state.txnGroupFilter === oldName) state.txnGroupFilter = newName;
   if (state.analysisFrequencySelectedGroup === oldName) state.analysisFrequencySelectedGroup = newName;
   var reserves=(state.settings.annualReserves||[]).map(function(r){return r&&r.group===oldName?Object.assign({},r,{group:newName}):r;});
-  persistAll(Object.assign({}, state.settings, { categoryGroups:groups, categoryGroupOf:groupOf, categoryGroupStyles:styles, annualReserves:reserves }), state.entries, "your categories");
+  persistAll(Object.assign(renameCategoryBudgetData(state.settings,oldName,newName,"group"), { categoryGroups:groups, categoryGroupOf:groupOf, categoryGroupStyles:styles, annualReserves:reserves }), state.entries, "your categories");
   return true;
 }
 function catIconCircle(categoryName) {
@@ -6956,6 +7450,7 @@ function buildAnalysisForecastCard(info, cs, T, scope) {
     }
   }
   var incomeTarget = null;
+  if(scope==="budget"&&categoryBudgetsEnabled())incomeTarget=effectiveBudgetTargetForRange(info.start,info.end,currentEffectiveBudgetInfo());
 
   var periodWord = info.mode === "week" ? "week"
     : info.mode === "month" ? "month"
@@ -6976,7 +7471,7 @@ function buildAnalysisForecastCard(info, cs, T, scope) {
     incomeTarget,
     forecastStart,
     T,
-    "Income",
+    scope==="budget"&&incomeTarget!=null?"Available budget":"Income",
     periodWord,
     compareRows,
     scope,
@@ -7016,7 +7511,7 @@ function forecastCategoryProfiles(scope, asOfDate) {
     });
   });
   (state.settings.categories||[]).forEach(function(c){
-    if(categoryForecastBehavior(c)==="yearly"&&!maps[c])maps[c]={daily:{},txnCount:0,timedCount:0,txnAmounts:[]};
+    if((scope!=="daily"||categoryBudgetDailyCategory(c))&&categoryForecastBehavior(c)==="yearly"&&!maps[c])maps[c]={daily:{},txnCount:0,timedCount:0,txnAmounts:[]};
   });
   var out={};
   Object.keys(maps).forEach(function(k){
@@ -7966,7 +8461,8 @@ function buildBudgetTrendCard(view, baseOffset, T) {
     var st=periodStatsBudget(per.startStr,per.endStr);
     var isLive=off===0 && per.endStr>=todayStr(), projected=st.spent;
     var trendTarget=per.target;
-    if(isLive){var ei=currentEffectiveBudgetInfo();trendTarget=effectiveBudgetTargetForRange(per.startStr,per.endStr,ei);}
+    var ei=currentEffectiveBudgetInfo(),cbTrend=categoryBudgetFundingForRange(per.startStr,per.endStr,ei);
+    if(cbTrend!=null)trendTarget=cbTrend;else if(isLive)trendTarget=effectiveBudgetTargetForRange(per.startStr,per.endStr,ei);
     if(isLive&&st.rows.length){var start=effectiveRangeStart(per.startStr),days=daysBetween(start,per.endStr)+1,fc=computeForecastNumbers(st.rows,days,start,'budget');if(fc)projected=fc.projectedSpend;}
     var status=(st.spent>trendTarget)?'rust':(isLive&&projected>trendTarget?'amber':'positive');
     items.push({label:trendPeriodLabel(per,view),actual:st.spent,displayTotal:isLive?projected:st.spent,target:trendTarget,status:status,current:isLive});
@@ -9118,6 +9614,9 @@ function handleRestore() {
     nextSettings.personColors = normalizePersonColors(nextSettings.personColors, nextSettings.people);
     nextSettings.categoryExcludeFromBudget = normalizeCategoryExcludeFromBudget(nextSettings.categoryExcludeFromBudget, nextSettings.categories);
     nextSettings.annualReserves = normalizeAnnualReserves(nextSettings.annualReserves, nextSettings.categories, nextSettings.categoryGroups);
+    nextSettings.categoryBudgetPlans=normalizeCategoryBudgetPlans(nextSettings.categoryBudgetPlans);
+    nextSettings.categoryBudgetFunding=normalizeCategoryBudgetFunding(nextSettings.categoryBudgetFunding);
+    nextSettings.categoryBudgetTransfers=normalizeCategoryBudgetTransfers(nextSettings.categoryBudgetTransfers);
     nextSettings.safeSpendPriorities = normalizeSafeSpendPriorities(nextSettings.safeSpendPriorities, nextSettings.categories);
     nextSettings.peopleAnalysisExcluded = normalizePeopleAnalysisExcluded(nextSettings.peopleAnalysisExcluded, nextSettings.categories);
     nextSettings.defaultPerson = normalizeDefaultPerson(nextSettings.defaultPerson, nextSettings.people);
@@ -9148,6 +9647,16 @@ document.addEventListener("click", function(e) {
   if (!el) return;
   var action = el.dataset.action;
   switch(action) {
+    case "open-category-budgets":
+      cbPrepareDraft();settingsRootSnapshot=captureTxnVisual();settingsNavStack=[];state.settingsSection="categoryBudgets";state.showSettings=true;render();break;
+    case "save-category-budgets":saveCategoryBudgetDraft();break;
+    case "toggle-category-budget-card":
+      state.cbExpanded=Object.assign({},state.cbExpanded||{});state.cbExpanded[el.dataset.group]=!state.cbExpanded[el.dataset.group];render();break;
+    case "toggle-category-budget-move":state.cbMoveOpen=!state.cbMoveOpen;state.cbMoveError="";render();break;
+    case "save-category-budget-move":saveCategoryBudgetMove();break;
+    case "category-budget-activity":
+      openCategoryBudgetActivity(el.dataset.month,el.dataset.cat,'');break;
+    case "category-budget-person-activity":openCategoryBudgetActivity(el.dataset.month,'',el.dataset.person);break;
     case "enter-demo-mode": enterDemoMode(); break;
     case "exit-demo-mode": exitDemoMode(); break;
     case "reset-demo-data": resetDemoData(); break;
@@ -10090,6 +10599,7 @@ document.addEventListener("click", function(e) {
    a color is picked, without waiting for Apply or a full re-render (which
    would rebuild the sheet mid-pick and could interrupt the native picker). */
 document.addEventListener("input", function(e) {
+  if(e.target&&e.target.dataset&&e.target.dataset.cbField==='amount'&&state.cbDraft){var cbRow=state.cbDraft[Number(e.target.dataset.index)];if(cbRow){cbRow.amount=e.target.value;cbUpdateEditorTotals();}return;}
   if (e.target && e.target.id === "clearConfirmInput") {
     var cb=document.getElementById("clearConfirmBtn"), ok=String(e.target.value||"").trim().toUpperCase()==="CLEAR";
     if(cb){cb.disabled=!ok;cb.style.opacity=ok?"1":".4";}
@@ -10270,6 +10780,7 @@ document.addEventListener("input", function(e) {
 });
 
 document.addEventListener("change", function(e) {
+  if(e.target&&e.target.dataset&&e.target.dataset.cbField&&state.cbDraft){var cbChangedRow=state.cbDraft[Number(e.target.dataset.index)];if(cbChangedRow){if(e.target.dataset.cbField==='daily')cbChangedRow.daily=e.target.value==='daily';if(e.target.dataset.cbField==='rollover')cbChangedRow.rollover=e.target.checked;cbUpdateEditorTotals();}return;}
   if (e.target && e.target.id === "recurringFrequencyInput") {
     var recurringPreview=document.getElementById("recurringNormalizedPreview");
     if(recurringPreview){
