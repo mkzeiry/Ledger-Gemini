@@ -1431,7 +1431,7 @@
   .cb-auto-reallocated.out{background:var(--fill);color:var(--text-muted);}
 
 
-/* v113.1 — shared product language. Existing financial and editor components
+/* v113.0 — shared product language. Existing financial and editor components
    use the same typography, surfaces and touch targets as the new shell. */
 :root{color-scheme:light dark;--ledger-radius:22px}
 html{font-size:16px;scroll-padding-top:80px}
@@ -1457,8 +1457,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .ledger-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:18px 0 22px}
 .ledger-heading p{margin:6px 0 0;color:var(--text-muted);font-size:14px}
 .ledger-heading .seg{width:154px;flex:0 0 154px;margin:0}
-.ledger-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:0}
-.ledger-heading-actions>.icon-btn{border:1px solid var(--sep);background:var(--card);border-radius:50%}
 .eyebrow{font-size:13px;letter-spacing:.02em;text-transform:none;font-weight:600;color:var(--text-muted)}
 .caption,.footnote{font-size:13px;line-height:1.4}
 .subhead{font-size:15px;line-height:1.4}
@@ -1602,25 +1600,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .ledger-bill-row summary small{font-size:13px;color:var(--text-muted);display:block;margin-top:3px}
 .ledger-summary-line{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:8px 0}
 .ledger-summary-line strong{text-align:right;font-variant-numeric:tabular-nums}
-.ledger-inline-rate{display:block;font-size:13px;font-weight:650;color:var(--text-muted);margin-top:2px;white-space:nowrap}
-.ledger-toggle-list{border:1px solid var(--sep);border-radius:20px;overflow:hidden;background:var(--card);margin-bottom:16px}
-.ledger-toggle-list-inset{border:0;border-radius:0;margin:0}
-.ledger-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:66px;padding:11px 17px;border-bottom:1px solid var(--sep);cursor:pointer}
-.ledger-toggle-row:last-child{border-bottom:0}
-.ledger-toggle-copy{flex:1;min-width:0}
-.ledger-toggle-copy strong{display:block;font-size:16px;font-weight:600;line-height:1.3}
-.ledger-toggle-copy small{display:block;font-size:13px;line-height:1.35;color:var(--text-muted);margin-top:3px}
-.ledger-switch{position:relative;width:51px;height:31px;flex:0 0 51px}
-.ledger-switch input{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;opacity:0!important;z-index:2;cursor:pointer}
-.ledger-switch>span{position:absolute;inset:0;border-radius:999px;background:var(--raised);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--text-muted) 22%,transparent);transition:background .18s ease}
-.ledger-switch>span::after{content:'';position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 5px #0004;transition:transform .18s cubic-bezier(.25,.8,.25,1)}
-.ledger-switch input:checked+span{background:var(--accent);box-shadow:none}
-.ledger-switch input:checked+span::after{transform:translateX(20px)}
-.ledger-switch input:focus-visible+span{outline:3px solid var(--accent);outline-offset:3px}
-.ledger-fixed-status{font-size:13px;font-weight:650;color:var(--text-muted);background:var(--fill);padding:7px 10px;border-radius:999px;white-space:nowrap}
-.ledger-scope-group>summary>span{display:flex;flex-direction:column;min-width:0}
-.ledger-scope-group>summary small{font-size:13px;color:var(--text-muted);font-weight:500;margin-top:3px}
-.ledger-scope-group>div{padding-bottom:0}
 .ledger-settings-footer{text-align:center;color:var(--text-muted);font-size:13px;padding:24px 0}
 .ledger-help-inline{display:flex;align-items:center;gap:3px;color:var(--text-muted);font-size:14px}
 .ledger-toast{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);max-width:90vw;width:max-content;border-radius:16px;background:var(--text);color:var(--card);padding:12px 18px;font-size:14px;font-weight:600;z-index:90;box-shadow:0 4px 20px #0002}
@@ -1636,9 +1615,22 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 .tabbar-item[aria-current=page]{box-shadow:none}
 .ledger-hero .home-opening-delta{background:var(--card);border-radius:9px;padding:5px 9px;font-size:14px;line-height:1.2;letter-spacing:0}
 @media(min-width:760px){.wrap{padding-top:10px!important}.ledger-home-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.ledger-home-grid>.ledger-card{margin:0}.ledger-number{font-size:48px}.app-topbar{border-radius:0 0 18px 18px}.tabbar{bottom:16px!important;border:1px solid var(--sep);border-radius:24px;max-width:580px!important;padding-bottom:8px!important}.ledger-quick-cats{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:430px){.ledger-heading-actions{gap:3px}.ledger-heading-actions>.icon-btn{min-width:40px;min-height:40px}.ledger-heading-actions .seg{width:140px;flex-basis:140px}.app-topbar .row.gap2{gap:4px}}
-@media(max-width:370px){.wrap{padding-left:16px!important;padding-right:16px!important}.ledger-card{padding:17px}.ledger-heading{flex-wrap:wrap}.ledger-heading-actions{width:100%;justify-content:space-between}.ledger-heading-actions .seg{flex:1;width:auto}.ledger-stat{font-size:23px}.ledger-number{font-size:38px}.ledger-between{gap:8px}.cb-category-values{flex-wrap:wrap}.ledger-row .ledger-row-value{font-size:14px}}
+@media(max-width:370px){.wrap{padding-left:16px!important;padding-right:16px!important}.ledger-card{padding:17px}.ledger-heading{flex-wrap:wrap}.ledger-stat{font-size:23px}.ledger-number{font-size:38px}.ledger-between{gap:8px}.cb-category-values{flex-wrap:wrap}.ledger-row .ledger-row-value{font-size:14px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+
+/* ===== v113.1 restoration + hardening ===== */
+.home-dashboard-edit-btn{margin:8px 0 2px!important;padding:12px 6px!important;color:var(--accent)!important;font-weight:650!important}
+.dashboard-editor-page{min-height:100vh;min-height:100dvh;background:var(--bg);padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
+.dashboard-editor-shell{width:min(100%,720px);margin:0 auto;padding:0 20px 28px}
+.dashboard-editor-header{position:sticky;top:0;z-index:25;display:grid;grid-template-columns:48px minmax(0,1fr) 48px;align-items:center;min-height:calc(64px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 20px 0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-bottom:1px solid var(--sep);margin:0 -20px 18px}
+.dashboard-editor-title{text-align:center;font-size:18px;font-weight:700;letter-spacing:-.35px}
+.dashboard-editor-list{background:var(--card);border:1px solid var(--sep);border-radius:20px;padding:0 16px;box-shadow:none}
+.home-dashboard-editor-row{min-height:78px}
+.home-dashboard-editor-actions button{background:var(--fill)!important;border:1px solid var(--sep)!important}
+.home-dashboard-source{background:color-mix(in srgb,var(--accent) 10%,var(--card))!important}
+.ledger-card .monthly-savings-list{margin-top:12px}
+@media(max-width:370px){.dashboard-editor-shell{padding-left:16px;padding-right:16px}.dashboard-editor-header{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}}
 
 </style>
 </head>
@@ -1656,9 +1648,10 @@ function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_K
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
 var APP_VERSION = "v113.1";
+var DATA_SCHEMA_VERSION = 11301;
 var FORECAST_MODEL_VERSION = "v11238-periodic-cash-1";
 var TEST_KEY = "ledger-selftest";
-var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: null, homeYearSectionOrder: null, homeYearHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
+var DEFAULT_SETTINGS = { dataSchemaVersion:DATA_SCHEMA_VERSION, categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: null, homeYearSectionOrder: null, homeYearHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
 /* Forecast backtesting is independent of the removed Accounts feature.
    Keep its saved snapshots normalized on every boot so an older/corrupt
    snapshot can never prevent the ledger itself from opening. */
@@ -4511,7 +4504,7 @@ function markHistoricalPeriodicPlanCash(settings,entries){
 }
 
 function loadInitial() {
-  var v1119SafeHistoryMigrationNeeded=false, v11110YearlyAutoMigrationNeeded=false, v11111YearlyBackgroundMigrationNeeded=false, v11114StableSafeMigrationNeeded=false, v11115MonthlyBillActualMigrationNeeded=false, v11219CadenceBoundaryMigrationNeeded=false, v11224TravelTaxonomyMigrationNeeded=false, v11225TravelOutsideBudgetMigrationNeeded=false, v11237PeriodicAlignmentMigrationNeeded=false, v11238PeriodicForecastMatchMigrationNeeded=false, v11246ControllableBudgetMigrationNeeded=false, v11247CategoryBudgetModelMigrationNeeded=false, v11254CategoryBudgetRhythmMigrationNeeded=false, v11257AnnualCatchUpMigrationNeeded=false, v11260CategoryBudgetAutoRebalanceMigrationNeeded=false, v11267MinimumBudgetFloorMigrationNeeded=false;
+  var v1119SafeHistoryMigrationNeeded=false, v11110YearlyAutoMigrationNeeded=false, v11111YearlyBackgroundMigrationNeeded=false, v11114StableSafeMigrationNeeded=false, v11115MonthlyBillActualMigrationNeeded=false, v11219CadenceBoundaryMigrationNeeded=false, v11224TravelTaxonomyMigrationNeeded=false, v11225TravelOutsideBudgetMigrationNeeded=false, v11237PeriodicAlignmentMigrationNeeded=false, v11238PeriodicForecastMatchMigrationNeeded=false, v11246ControllableBudgetMigrationNeeded=false, v11247CategoryBudgetModelMigrationNeeded=false, v11254CategoryBudgetRhythmMigrationNeeded=false, v11257AnnualCatchUpMigrationNeeded=false, v11260CategoryBudgetAutoRebalanceMigrationNeeded=false, v11267MinimumBudgetFloorMigrationNeeded=false, schemaVersionMigrationChanged=false;
   primaryStorageHealth="missing";
   try {
     if(IS_DEMO_MODE && demoLedgerNeedsRefresh()) writeFreshDemoLedger();
@@ -4521,6 +4514,7 @@ function loadInitial() {
       if(!parsed||typeof parsed!=="object"||!validateBackupEntries(parsed.entries||{})) throw new Error("invalid primary data");
       primaryStorageHealth="healthy";
       var parsedSettings=parsed.settings||{};
+      schemaVersionMigrationChanged=Number(parsedSettings.dataSchemaVersion)!==DATA_SCHEMA_VERSION;
       v1119SafeHistoryMigrationNeeded=parsedSettings.safeSpendAnnualizedMigrationV1119!==true;
       v11110YearlyAutoMigrationNeeded=parsedSettings.yearlyBillAutoMigrationV11110!==true;
       v11111YearlyBackgroundMigrationNeeded=parsedSettings.yearlyBillBackgroundMigrationV11111!==true;
@@ -4567,6 +4561,7 @@ function loadInitial() {
   state.settings.homeSimpleHiddenSections = normalizeHomeHidden(state.settings.homeSimpleHiddenSections,"month");
   state.settings.homeYearSectionOrder = normalizeHomeOrder(state.settings.homeYearSectionOrder,"year");
   state.settings.homeYearHiddenSections = normalizeHomeHidden(state.settings.homeYearHiddenSections,"year");
+  state.settings.dataSchemaVersion = DATA_SCHEMA_VERSION;
   state.settings.fxRateCache = normalizeFxCache(state.settings.fxRateCache);
   state.settings.baseCurrency = TXN_CURRENCIES.indexOf(String(state.settings.baseCurrency||"AED").toUpperCase())!==-1 ? String(state.settings.baseCurrency||"AED").toUpperCase() : "AED";
   state.settings.startingCashBalance = isFinite(Number(state.settings.startingCashBalance)) ? round2(Number(state.settings.startingCashBalance)) : 0;
@@ -4666,10 +4661,13 @@ function loadInitial() {
   state.settings.defaultPerson = normalizeDefaultPerson(state.settings.defaultPerson, state.settings.people);
   state.settings.annualReserves = normalizeAnnualReserves(state.settings.annualReserves, state.settings.categories, state.settings.categoryGroups);
   var controllableBudgetMigrationChanged=false, categoryBudgetModelMigrationChanged=false, categoryBudgetRhythmMigrationChanged=false, annualCatchUpMigrationChanged=false, categoryBudgetAutoRebalanceMigrationChanged=false, minimumBudgetFloorMigrationChanged=false;
+  /* v113.1 neutral migration checkpoint: older ledgers keep their existing
+     category scope instead of inheriting the personal v112.46 classification.
+     Fresh/default ledgers still use DEFAULT_SETTINGS; imported ledgers are not
+     silently reclassified. */
   if(primaryStorageHealth==="healthy"&&v11246ControllableBudgetMigrationNeeded){
-    state.settings=ensureControllableBudgetV11246Settings(state.settings);
+    state.settings.controllableBudgetMigrationV11246=true;
     controllableBudgetMigrationChanged=true;
-    adaptiveSafeHistoryMigrationChanged=true;
   }
   if(primaryStorageHealth==="healthy"&&v11247CategoryBudgetModelMigrationNeeded){
     state.settings=ensureCategoryBudgetModelV11247Settings(state.settings);
@@ -4701,13 +4699,12 @@ function loadInitial() {
     categoryBudgetAutoRebalanceMigrationChanged=true;
     adaptiveSafeHistoryMigrationChanged=true;
   }
-  /* v112.67 adds an optional realistic floor beneath the dynamic savings-based
-     controllable budget. For the existing real ledger, seed the agreed 4,000
-     AED floor when the configured ceiling can support it. Demo/new ledgers keep
-     the feature off until explicitly configured. */
+  /* v113.1 keeps the minimum-budget feature but removes the old personal
+     4,000 AED migration assumption. Existing saved floors are preserved and
+     clamped to the current ceiling; ledgers without a floor remain at zero
+     until the user explicitly sets one. */
   if(primaryStorageHealth==="healthy"&&v11267MinimumBudgetFloorMigrationNeeded){
     var floorConfigured=currentMonthlyBudget();
-    if(!IS_DEMO_MODE&&floorConfigured>=4000&&!state.settings.minimumControllableBudget)state.settings.minimumControllableBudget=4000;
     state.settings.minimumControllableBudget=round2(Math.min(Math.max(0,floorConfigured||0),normalizeMinimumControllableBudget(state.settings.minimumControllableBudget)));
     state.settings.minimumControllableBudgetMigrationV11267=true;
     state.settings.safeSpendHistory=[];
@@ -4737,7 +4734,7 @@ function loadInitial() {
   if(primaryStorageHealth==="healthy"){
     try { recurringChanged = runRecurringCatchUp(); } catch(e) { recurringChanged = false; }
     try { snapshotChanged = captureForecastSnapshotsIfNeeded(); } catch(e) { snapshotChanged = false; }
-    if (recurringChanged || snapshotChanged || analysisForecastV52MigrationChanged || forecastBehaviorMigrationChanged || yearlyBillSettingsMigrationChanged || adaptiveSafeHistoryMigrationChanged || annualReserveMigrationChanged || periodicAlignmentMigrationChanged || periodicForecastMatchMigrationChanged || controllableBudgetMigrationChanged || categoryBudgetModelMigrationChanged || categoryBudgetRhythmMigrationChanged || annualCatchUpMigrationChanged || categoryBudgetAutoRebalanceMigrationChanged || minimumBudgetFloorMigrationChanged) {
+    if (recurringChanged || snapshotChanged || schemaVersionMigrationChanged || analysisForecastV52MigrationChanged || forecastBehaviorMigrationChanged || yearlyBillSettingsMigrationChanged || adaptiveSafeHistoryMigrationChanged || annualReserveMigrationChanged || periodicAlignmentMigrationChanged || periodicForecastMatchMigrationChanged || controllableBudgetMigrationChanged || categoryBudgetModelMigrationChanged || categoryBudgetRhythmMigrationChanged || annualCatchUpMigrationChanged || categoryBudgetAutoRebalanceMigrationChanged || minimumBudgetFloorMigrationChanged) {
       persistAll(state.settings, state.entries, annualCatchUpMigrationChanged ? "annual savings catch-up" : (categoryBudgetRhythmMigrationChanged ? "smart spending rhythm" : (categoryBudgetModelMigrationChanged ? "custom sub-budget setup" : (controllableBudgetMigrationChanged ? "controllable budget setup" : (periodicForecastMatchMigrationChanged ? "periodic forecast matching" : (periodicAlignmentMigrationChanged ? "periodic plan alignment" : (annualReserveMigrationChanged ? "travel budget classification" : (recurringChanged ? "recurring payments" : (snapshotChanged ? "forecast learning" : (forecastBehaviorMigrationChanged || yearlyBillSettingsMigrationChanged ? "forecast behavior" : (adaptiveSafeHistoryMigrationChanged ? "Safe-to-Spend model" : "analysis forecast")))))))))));
     }
   }
@@ -5847,7 +5844,7 @@ function animateTxnCommittedBack(currentSnapshot) {
 /* Interactive left-edge swipe back. Only the first 28px can start it so the
    category/person horizontal scrollers keep their native iOS gestures. */
 document.addEventListener('touchstart', function(e){
-  if (!state.showAddTxn || state.txnCategoryPickerOpen || !txnNavSnapshot || txnSwipe || !e.touches || e.touches.length !== 1) return;
+  if (!state.showAddTxn || !txnNavSnapshot || txnSwipe || !e.touches || e.touches.length !== 1) return;
   if (document.querySelector('.modal-backdrop')) return;
   var t = e.touches[0];
   if (t.clientX > 28) return;
@@ -6104,6 +6101,14 @@ function render() {
     return;
   }
 
+  if (state.page === "home" && state.homeDashboardEditing) {
+    root.innerHTML = renderHomeDashboardEditorPage() + renderInfoOverlay();
+    applyReportingCurrencyText(root); ledgerAfterRender();
+    window.scrollTo(0,0);
+    return;
+  }
+
+
 
   /* Creating/editing a plan is also a dedicated screen. Category selection
      uses the same full-screen grouped picker as transaction entry. */
@@ -6127,7 +6132,7 @@ function render() {
   html += '<div class="app-topbar">';
   html += '<div class="brand-lockup"><div class="brand-title">The Ledger</div><span class="version-badge">'+APP_VERSION+'</span>'+demoHeaderBadgeHtml()+'</div>';
   html += '<div class="row gap2">';
-  html += '<button class="icon-btn press" data-action="toggle-theme" aria-label="'+(state.settings.theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(state.settings.theme==="dark"?ICONS.sun:ICONS.moon)+'</button>';
+
   html += '<button class="icon-btn press" data-action="open-settings" aria-label="Settings">'+ICONS.settings+'</button>';
   html += '</div></div>';
 
@@ -6509,50 +6514,103 @@ function renderMonthlySavingsCard(year,T,title){
 }
 
 
+function renderHomeSpendPieCard(startStr,endStr,T,title,subtitle){
+  var stats=periodStatsOverall(startStr,endStr),totals={};
+  stats.rows.forEach(function(r){(r.items||[]).forEach(function(it){if(!isExpenseItem(it))return;var c=subcategoryKey(it)||'Uncategorized',g=categoryGroupOf(c)||'Ungrouped';totals[g]=(totals[g]||0)+(Number(it.amount)||0);});});
+  var slices=Object.keys(totals).map(function(g){return {label:g,value:round2(totals[g]),color:g==='Ungrouped'?'#8595B5':categoryGroupStyle(g).color};}).filter(function(x){return x.value>0;}).sort(function(a,b){return b.value-a.value;}),total=slices.reduce(function(t,x){return t+x.value;},0);
+  var h='<div class="card card-pad"><div class="row between" style="align-items:flex-start;gap:12px;"><div><div class="eyebrow">'+esc(title||'Spend by category')+'</div><div class="muted caption" style="margin-top:3px;">'+esc(subtitle||'All expenses')+'</div></div><button data-action="go-page" data-page="analysis" class="btn-plain" style="font-size:11px;">Insights</button></div>';
+  if(!slices.length)return h+'<div class="muted subhead" style="margin-top:14px;">No spending yet.</div></div>';
+  h+='<div style="display:flex;justify-content:center;margin:8px 0 10px;">'+renderPieChart(slices,T,null,'All',total,'none')+'</div>';
+  slices.slice(0,5).forEach(function(sl,i){var pct=total>0?sl.value/total*100:0;h+='<div class="row between" style="gap:12px;padding:8px 0;'+(i?'border-top:1px solid var(--sep);':'')+'"><span class="row" style="gap:8px;min-width:0;"><span style="width:9px;height:9px;border-radius:50%;background:'+sl.color+';flex-shrink:0;"></span><span class="caption" style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(sl.label==='Ungrouped'?'Uncategorized':sl.label)+'</span></span><span class="mono caption" style="font-weight:760;white-space:nowrap;">'+fmt(sl.value,0)+' · '+pct.toFixed(0)+'%</span></div>';});
+  return h+'</div>';
+}
+function renderHomeDashboardEditorPage(){
+  var mode=state.homeDashboardEditorMode==='year'?'year':'month',order=normalizeHomeOrder(mode==='year'?state.settings.homeYearSectionOrder:state.settings.homeSimpleSectionOrder,mode),hidden=normalizeHomeHidden(mode==='year'?state.settings.homeYearHiddenSections:state.settings.homeSimpleHiddenSections,mode),labels=mode==='year'?HOME_YEAR_SECTION_LABELS:HOME_MONTH_SECTION_LABELS,descs=mode==='year'?HOME_YEAR_SECTION_DESCRIPTIONS:HOME_MONTH_SECTION_DESCRIPTIONS;
+  var h='<div class="dashboard-editor-page"><div class="dashboard-editor-shell"><div class="dashboard-editor-header"><button data-action="toggle-home-dashboard-edit" class="settings-back" aria-label="Done">'+ICONS.chevronLeft+'</button><div class="info-title-row" style="justify-content:center;"><div class="dashboard-editor-title">Edit dashboard</div>'+infoButton('dashboardEditor')+'</div><span></span></div>';
+  h+='<div class="home-period-switch" role="tablist" style="margin-bottom:14px;"><button data-action="set-home-dashboard-editor-mode" data-mode="month" class="'+(mode==='month'?'is-active':'')+'">Month</button><button data-action="set-home-dashboard-editor-mode" data-mode="year" class="'+(mode==='year'?'is-active':'')+'">Year</button></div>';
+  h+='<div class="dashboard-editor-list">';
+  order.forEach(function(id,idx){var isHidden=hidden.indexOf(id)!==-1,isInsights=(id==='monthlySavings'||id==='categoryPie'||id==='cashBalance'||id==='yearSavings'||id==='yearCategoryPie'||id==='yearCashBalance');h+='<div class="home-dashboard-editor-row '+(isHidden?'is-hidden':'')+'"><div class="home-dashboard-editor-copy" style="min-width:0;"><div class="subhead" style="font-weight:760;">'+esc(labels[id]||id)+'</div><div class="muted caption" style="margin-top:3px;line-height:1.3;">'+esc(descs[id]||'Dashboard card')+'</div>'+(isInsights?'<span class="home-dashboard-source">From Insights</span>':'')+'</div><div class="home-dashboard-editor-actions"><button class="visibility" data-action="toggle-home-dashboard-card" data-id="'+esc(id)+'" data-mode="'+mode+'">'+(isHidden?'Show':'Hide')+'</button><button aria-label="Move up" data-action="move-home-dashboard-card" data-id="'+esc(id)+'" data-mode="'+mode+'" data-dir="-1" '+(idx===0?'disabled style="opacity:.3;"':'')+'>↑</button><button aria-label="Move down" data-action="move-home-dashboard-card" data-id="'+esc(id)+'" data-mode="'+mode+'" data-dir="1" '+(idx===order.length-1?'disabled style="opacity:.3;"':'')+'>↓</button></div></div>';});
+  return h+'</div><button data-action="toggle-home-dashboard-edit" class="btn-accent" style="width:100%;margin-top:16px;">Done</button></div></div>';
+}
+
 function renderHomeYearDashboard(T){
-  var year=new Date().getFullYear()+(state.homeYearOffset||0),start=year+'-01-01',end=year+'-12-31',stats=periodStatsOverall(start,end),isCurrent=year===new Date().getFullYear();
-  var h='<div class="ledger-heading"><h1 class="ledger-title">Your year</h1><div class="ledger-heading-actions"><button class="icon-btn" data-action="ledger-open-context" data-section="home" aria-label="Choose Home visuals">'+ICONS.eye+'</button><div class="seg" role="tablist" aria-label="Home period"><button class="seg-btn" role="tab" aria-selected="false" data-action="set-home-period" data-mode="month">Month</button><button class="seg-btn" role="tab" aria-selected="true" data-action="set-home-period" data-mode="year">Year</button></div></div></div>'+ledgerPeriod(String(year),'home-year-offset',isCurrent);
-  if(ledgerHomeVisible('yearSummary','year'))h+='<div class="ledger-card"><div class="ledger-card-head"><span class="ledger-muted">'+(isCurrent?'Spent so far':'Total spent')+'</span>'+infoButton('tracking113')+'</div><div class="ledger-number">'+ledgerValue(stats.spent)+'<small>'+reportingCurrency()+'</small></div>'+ledgerSpendingBars(stats.rows,true)+'</div>';
-  if(ledgerHomeVisible('yearDaily','year')){
-    var yearPair='<div class="ledger-card"><div class="ledger-muted">Net cash flow</div><div class="ledger-stat '+(stats.net<0?'ledger-negative':'ledger-positive')+'">'+ledgerValue(stats.net)+'</div><div class="ledger-muted">Income − expenses</div></div>';
-    if(ledgerHasBudget()){var budgetStats=periodStatsBudget(start,end),budgetTarget=effectiveBudgetTargetForRange(start,end,currentEffectiveBudgetInfo()),budgetLeft=budgetTarget-budgetStats.spent;yearPair+='<div class="ledger-card"><div class="ledger-muted">Budget overview</div><div class="ledger-stat">'+Math.round(budgetTarget>0?budgetStats.spent/budgetTarget*100:0)+'%</div><div class="ledger-muted '+(budgetLeft<0?'ledger-negative':'')+'">'+ledgerMoney(Math.abs(budgetLeft))+' '+(budgetLeft<0?'over':'left')+'</div></div>';}
-    else yearPair+='<div class="ledger-card"><div class="ledger-muted">Monthly average</div><div class="ledger-stat">'+ledgerValue(stats.spent/Math.max(1,isCurrent?new Date().getMonth()+1:12))+'</div><div class="ledger-muted">Expenses · '+reportingCurrency()+'</div></div>';
-    h+='<div class="ledger-pair">'+yearPair+'</div>';
+  var year=new Date().getFullYear()+(Number(state.homeYearOffset)||0),today=todayStr(),yearStart=year+'-01-01',yearEnd=year+'-12-31',isCurrent=year===new Date().getFullYear(),cut=isCurrent?today:yearEnd,stats=periodStatsOverall(yearStart,cut),cards={};
+  var saving=round2(stats.income-stats.spent),savingPct=stats.income>0?saving/stats.income*100:null,targetPct=savingsTargetPct(),budgetSpend=0,outsideSpend=0;
+  stats.rows.forEach(function(r){(r.items||[]).forEach(function(it){if(!isExpenseItem(it))return;if(itemCountsTowardBudget(it))budgetSpend+=Number(it.amount)||0;else outsideSpend+=Number(it.amount)||0;});});
+  budgetSpend=round2(budgetSpend);outsideSpend=round2(outsideSpend);
+
+  var summary='<div class="ledger-card"><div class="ledger-card-head"><div><span class="ledger-muted">'+(isCurrent?'Spent so far':'Total spent')+'</span><div class="ledger-number" style="margin-top:5px;">'+ledgerValue(stats.spent)+'<small>'+reportingCurrency()+'</small></div></div>'+infoButton('tracking113')+'</div><div class="ledger-pair" style="margin:16px 0 0;"><div class="ledger-card" style="margin:0;padding:16px;"><div class="ledger-muted">Income received</div><div class="ledger-stat">'+ledgerValue(stats.income)+'</div></div><div class="ledger-card" style="margin:0;padding:16px;"><div class="ledger-muted">Net cash flow</div><div class="ledger-stat '+(stats.net<0?'ledger-negative':'ledger-positive')+'">'+ledgerValue(stats.net)+'</div></div></div>';
+  if(targetPct>0){var goal=periodSavingsGoalMetrics({mode:'year',start:yearStart,end:yearEnd,isCurrent:isCurrent},stats);summary+='<div class="ledger-rule"><div class="ledger-summary-line"><span>Saving rate</span><strong>'+(savingPct==null?'—':savingPct.toFixed(1)+'%')+'</strong></div><div class="ledger-summary-line"><span>Target</span><strong>'+fmt(targetPct,targetPct%1?1:0)+'%</strong></div><div class="ledger-summary-line"><span>Projected saving</span><strong>'+(goal.projectedSaving==null?'—':ledgerMoney(goal.projectedSaving))+'</strong></div>'+(goal.gap==null?'':'<div class="ledger-summary-line"><span>Projected position</span><strong class="'+(goal.gap<0?'ledger-negative':'ledger-positive')+'">'+ledgerMoney(Math.abs(goal.gap))+' '+(goal.gap<0?'short':'ahead')+'</strong></div>')+'</div>';}
+  cards.yearSummary=summary+'</div>';
+
+  if(isCurrent&&ledgerHasDailyGuidance()){
+    var yp=liveBudgetPacing(),yei=currentEffectiveBudgetInfo(),ysafe=yp.safeToday,yspent=yp.spentToday,yr=yp.safeTodayOpeningRatio,ycolor='var(--text)';
+    if(yr!=null){if(yr<.10)ycolor='var(--rust)';else if(yr<.25)ycolor='var(--amber)';}
+    cards.yearDaily='<div class="ledger-card ledger-hero"><div class="ledger-card-head"><span>Daily spending</span>'+infoButton('safeToday113')+'</div><div class="ledger-number-row"><div class="ledger-number" style="color:'+ycolor+';">'+(ysafe==null?'—':ledgerValue(ysafe))+'<small>'+reportingCurrency()+'</small></div></div><div class="ledger-muted">'+(yei.categoryBudget?esc(categoryBudgetDailyName())+' available today':'Safe to spend today')+'</div><div class="ledger-rule ledger-between"><span class="ledger-muted">Spent today</span><strong>'+ledgerMoney(yspent)+'</strong></div></div>';
   }
-  if(ledgerHomeVisible('yearSavings','year')&&savingsTargetPct()>0){var goal=periodSavingsGoalMetrics({mode:'year',start:start,end:end,isCurrent:isCurrent},stats);h+='<div class="ledger-card"><div class="ledger-card-head"><h2>Savings outlook</h2>'+infoButton('annualCatchUp')+'</div><div class="ledger-summary-line"><span>Annual target</span><strong>'+fmt(savingsTargetPct(),1)+'%</strong></div><div class="ledger-summary-line"><span>Projected saving</span><strong>'+ledgerSavingWithRate(goal.projectedSaving,goal.projectedIncome)+'</strong></div><div class="ledger-summary-line"><span>Gap to target</span><strong class="'+(goal.gap<0?'ledger-negative':'ledger-positive')+'">'+(goal.gap==null?'—':ledgerMoney(Math.abs(goal.gap))+' '+(goal.gap<0?'short':'ahead'))+'</strong></div></div>';h+=renderMonthlySavingsCard(year,T,'Month by month');}
-  if(ledgerHomeVisible('yearCategoryPie','year'))h+=ledgerCategorySummary(stats,5);
-  if(ledgerHomeVisible('yearReserves','year')&&activeAnnualReserves().length)h+=ledgerReserveSummary(year);
+  if(stats.income>0||targetPct>0)cards.yearSavings=renderMonthlySavingsCard(year,T,'Monthly savings · '+year);
+  cards.yearCashBalance=buildCashBalanceCard(T,true);
+  if(stats.spent>0)cards.yearCategoryPie=renderHomeSpendPieCard(yearStart,cut,T,'Spend by category',isCurrent?'Year to date · all expenses':'Full year · all expenses');
+  var totalSpend=budgetSpend+outsideSpend,bp=totalSpend>0?budgetSpend/totalSpend*100:0,op=totalSpend>0?outsideSpend/totalSpend*100:0;
+  if(totalSpend>0)cards.yearSpending='<div class="ledger-card"><div class="ledger-card-head"><h2>Spending mix</h2>'+infoButton('scope113')+'</div><div class="ledger-summary-line"><span>Controllable</span><strong>'+ledgerMoney(budgetSpend)+' · '+bp.toFixed(0)+'%</strong></div>'+ledgerProgress(budgetSpend,totalSpend)+'<div class="ledger-summary-line" style="margin-top:8px;"><span>Outside budget</span><strong>'+ledgerMoney(outsideSpend)+' · '+op.toFixed(0)+'%</strong></div>'+ledgerProgress(outsideSpend,totalSpend,'var(--text-muted)')+'</div>';
+  if(activeAnnualReserves().length)cards.yearReserves=ledgerReserveSummary(year);
+
+  var order=normalizeHomeOrder(state.settings.homeYearSectionOrder,'year'),hidden=normalizeHomeHidden(state.settings.homeYearHiddenSections,'year');
+  var h='<div class="ledger-heading"><div><h1 class="ledger-title">Your year</h1><p>'+(isCurrent?'Year to date':'Full year')+'</p></div><div class="seg" role="tablist" aria-label="Home period"><button class="seg-btn" role="tab" aria-selected="false" data-action="set-home-period" data-mode="month">Month</button><button class="seg-btn" role="tab" aria-selected="true" data-action="set-home-period" data-mode="year">Year</button></div></div>'+ledgerPeriod(String(year),'home-year-offset',isCurrent);
+  order.forEach(function(id){if(hidden.indexOf(id)===-1&&cards[id])h+=cards[id];});
+  h+='<button class="home-dashboard-edit-btn" data-action="toggle-home-dashboard-edit">Customize dashboard</button>';
   return h;
 }
 
 function renderHomeBody(T,da){
   lastChartData=null;lastForecastChartData=null;lastCashBalanceChartData=null;
   if(state.homePeriodMode==='year')return renderHomeYearDashboard(T);
-  var d=ledgerMonthNumbers(),today=todayStr(),monthName=parseD(today).toLocaleDateString('en-GB',{month:'long'});
-  var h='<div class="ledger-heading"><div><h1 class="ledger-title">'+monthName+'</h1><p>'+esc(parseD(today).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'}))+'</p></div><div class="ledger-heading-actions"><button class="icon-btn" data-action="ledger-open-context" data-section="home" aria-label="Choose Home visuals">'+ICONS.eye+'</button><div class="seg" role="tablist" aria-label="Home period"><button class="seg-btn" role="tab" aria-selected="true" data-action="set-home-period" data-mode="month">Month</button><button class="seg-btn" role="tab" aria-selected="false" data-action="set-home-period" data-mode="year">Year</button></div></div></div>';
+  var d=ledgerMonthNumbers(),today=todayStr(),monthName=parseD(today).toLocaleDateString('en-GB',{month:'long'}),cards={};
+  var h='<div class="ledger-heading"><div><h1 class="ledger-title">'+monthName+'</h1><p>'+esc(parseD(today).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'}))+'</p></div><div class="seg" role="tablist" aria-label="Home period"><button class="seg-btn" role="tab" aria-selected="true" data-action="set-home-period" data-mode="month">Month</button><button class="seg-btn" role="tab" aria-selected="false" data-action="set-home-period" data-mode="year">Year</button></div></div>';
   if(isPristineRealLedger())return h+renderFirstRunShowcase();
+
   if(d.budget){
     var p=d.pacing,scope=d.eff.categoryBudget?categoryBudgetDailyName():'Daily spending';
-    if(ledgerHomeVisible('hero','month')&&ledgerHasDailyGuidance()){
-      h+='<div class="ledger-card ledger-hero"><div class="ledger-card-head"><span>Safe to spend today</span>'+infoButton('safeToday113')+'</div><div class="ledger-number-row"><div class="ledger-number">'+ledgerValue(p.safeToday)+'<small>'+reportingCurrency()+'</small></div>'+homeMetricDeltaHtml(d.deltas.safeToSpend,true)+'</div><div class="ledger-muted">'+esc(scope)+'</div><div class="ledger-rule ledger-between"><span class="ledger-muted">Spent today</span><strong>'+ledgerMoney(p.spentToday)+'</strong></div></div>';
-    }else if(ledgerHomeVisible('hero','month'))h+='<div class="ledger-card ledger-hero"><div class="ledger-card-head"><span>Budget remaining</span>'+infoButton('budgetFunding')+'</div><div class="ledger-number">'+ledgerValue(d.eff.effectiveBudget-d.budget.spent)+'<small>'+reportingCurrency()+'</small></div><div class="ledger-rule ledger-muted">Across your monthly spending pools</div></div>';
-    if(p.overSafeToday>0)h+='<div class="ledger-alert danger" role="status">Today’s allowance exceeded by <strong>'+ledgerMoney(p.overSafeToday)+'</strong>.</div>';
-    else if(p.adjustmentNeeded>0)h+='<div class="ledger-alert" role="status">Your plan needs <strong>'+ledgerMoney(p.adjustmentNeeded)+'</strong> less spending. <button class="ledger-link" data-action="go-page" data-page="budget">Review</button></div>';
-    var remaining=d.eff.effectiveBudget-d.budget.spent,gap=d.eff.effectiveBudget-d.projectedBudget;
-    if(ledgerHomeVisible('budgetStatus','month'))h+='<div class="ledger-pair"><div class="ledger-card"><div class="ledger-muted">Spent this month</div><div class="ledger-stat">'+ledgerValue(d.all.spent)+'</div><div class="ledger-muted">All expenses · '+reportingCurrency()+'</div></div><div class="ledger-card"><div class="ledger-muted">Budget overview</div><div class="ledger-stat">'+Math.round(d.eff.effectiveBudget>0?d.budget.spent/d.eff.effectiveBudget*100:0)+'%</div><div class="ledger-muted '+(remaining<0?'ledger-negative':'')+'">'+ledgerMoney(Math.abs(remaining))+' '+(remaining<0?'over':'left')+'</div></div></div>';
-    if(ledgerHomeVisible('subBudgets','month')){
-      h+='<div class="ledger-card"><div class="ledger-card-head"><h2>Monthly budget</h2><button class="ledger-link" data-action="go-page" data-page="budget">View</button></div><div class="ledger-between"><span class="ledger-muted">'+ledgerMoney(d.budget.spent)+' spent</span><strong class="'+(remaining<0?'ledger-negative':'')+'">'+ledgerMoney(Math.abs(remaining))+' '+(remaining<0?'over':'left')+'</strong></div>'+ledgerProgress(d.budget.spent,d.eff.effectiveBudget,remaining<0?'var(--rust)':null)+'<div class="ledger-between ledger-muted"><span>Limit '+ledgerMoney(d.eff.effectiveBudget)+'</span><span>'+Math.round(d.eff.effectiveBudget>0?d.budget.spent/d.eff.effectiveBudget*100:0)+'% used</span></div>';
-      if(d.eff.floorActive)h+='<div class="ledger-alert">Minimum budget is active. Savings may need to catch up.</div>';
-      h+='<div class="ledger-rule ledger-between"><span class="ledger-muted">Forecast</span><strong class="'+(gap<0?'ledger-negative':'ledger-positive')+'">'+ledgerMoney(Math.abs(gap))+' '+(gap<0?'over':'under')+'</strong></div>'+ledgerDisclosure('Month-end outlook','<div class="ledger-summary-line"><span>Projected budget spend</span><strong>'+ledgerMoney(d.projectedBudget)+homeMetricDeltaHtml(d.deltas.projectedBudgetSpend,false)+'</strong></div>'+(d.goal.projectedSaving!=null?'<div class="ledger-summary-line"><span>Projected cash saving</span><strong>'+ledgerSavingWithRate(d.goal.projectedSaving,d.goal.projectedIncome)+homeMetricDeltaHtml(d.deltas.projectedSaving,true)+'</strong></div>':'')+'<div class="ledger-help-inline">Opening comparisons '+infoButton('opening113')+'</div>',false,'home-outlook')+'</div>';
+    if(ledgerHasDailyGuidance()){
+      var hero='<div class="ledger-card ledger-hero"><div class="ledger-card-head"><span>Safe to spend today</span>'+infoButton('safeToday113')+'</div><div class="ledger-number-row"><div class="ledger-number">'+ledgerValue(p.safeToday)+'<small>'+reportingCurrency()+'</small></div>'+homeMetricDeltaHtml(d.deltas.safeToSpend,true)+'</div><div class="ledger-muted">'+esc(scope)+'</div><div class="ledger-rule ledger-between"><span class="ledger-muted">Spent today</span><strong>'+ledgerMoney(p.spentToday)+'</strong></div>';
+      if(p.overSafeToday>0)hero+='<div class="ledger-alert danger">Today’s allowance exceeded by <strong>'+ledgerMoney(p.overSafeToday)+'</strong>.</div>';
+      else if(p.adjustmentNeeded>0)hero+='<div class="ledger-alert">Your plan needs <strong>'+ledgerMoney(p.adjustmentNeeded)+'</strong> less spending. <button class="ledger-link" data-action="go-page" data-page="budget">Review</button></div>';
+      cards.hero=hero+'</div>';
     }
+
+    var remaining=d.eff.effectiveBudget-d.budget.spent,gap=d.eff.effectiveBudget-d.projectedBudget;
+    var budgetCard='<div class="ledger-card"><div class="ledger-card-head"><h2>Monthly budget</h2><button class="ledger-link" data-action="go-page" data-page="budget">View</button></div><div class="ledger-between"><span class="ledger-muted">'+ledgerMoney(d.budget.spent)+' spent</span><strong class="'+(remaining<0?'ledger-negative':'')+'">'+ledgerMoney(Math.abs(remaining))+' '+(remaining<0?'over':'left')+'</strong></div>'+ledgerProgress(d.budget.spent,d.eff.effectiveBudget,remaining<0?'var(--rust)':null)+'<div class="ledger-between ledger-muted"><span>Limit '+ledgerMoney(d.eff.effectiveBudget)+'</span><span>'+Math.round(d.eff.effectiveBudget>0?d.budget.spent/d.eff.effectiveBudget*100:0)+'% used</span></div>';
+    if(d.eff.floorActive)budgetCard+='<div class="ledger-alert">Minimum budget is active. Savings may need to catch up.</div>';
+    budgetCard+='<div class="ledger-rule ledger-between"><span class="ledger-muted">Month-end forecast</span><strong class="'+(gap<0?'ledger-negative':'ledger-positive')+'">'+ledgerMoney(Math.abs(gap))+' '+(gap<0?'over':'under')+'</strong></div><div class="ledger-between ledger-muted" style="margin-top:7px;font-size:13px;"><span>Projected spend</span><strong class="home-metric-value-line"><span class="home-metric-primary">'+ledgerMoney(d.projectedBudget)+'</span>'+homeMetricDeltaHtml(d.deltas.projectedBudgetSpend,false)+'</strong></div></div>';
+    cards.budgetStatus=budgetCard;
+
+    if(d.eff.categoryBudget){
+      var cm=d.eff.categoryBudget,sub='<div class="ledger-card"><div class="ledger-card-head"><div><h2>Budget overview</h2><div class="ledger-muted">Soft allocations inside your main budget</div></div><button class="ledger-link" data-action="open-category-budgets">Edit</button></div>';
+      function subRow(label,spent,planned,row,main){spent=Math.max(0,Number(spent)||0);planned=Math.max(0,Number(planned)||0);var pct=planned>0?spent/planned*100:(spent>0?100:0),over=spent>planned+.005,sty=main?{color:'var(--accent)',icon:'wallet'}:cbBudgetStyleForRow(row);sub+='<div class="ledger-row" style="cursor:default;"><span class="ledger-menu-icon" style="background:color-mix(in srgb,'+sty.color+' 10%,var(--card));color:'+sty.color+'">'+((CAT_ICON_SVGS[sty.icon]||CAT_ICON_SVGS.wallet||CAT_ICON_SVGS.tag))+'</span><span class="ledger-row-copy"><strong>'+esc(label)+'</strong><small>'+pct.toFixed(0)+'% used · '+ledgerMoney(spent)+' of '+ledgerMoney(planned)+(row&&Math.abs(Number(row.autoTransfer)||0)>.005?' · '+((Number(row.autoTransfer)||0)>0?'+':'−')+ledgerMoney(Math.abs(Number(row.autoTransfer)||0))+' auto':'')+'</small></span><span class="ledger-row-value '+(over?'ledger-negative':'')+'">'+ledgerMoney(Math.max(0,planned-spent))+'</span></div>';}
+      subRow('Main budget',cm.spent,cm.available,null,true);
+      (cm.rows||[]).forEach(function(r){if(!r||r.group===CB_BUFFER)return;subRow(r.name||cbGroupLabel(r.group,cm.month),r.spent,r.plannedAvailable==null?r.available:r.plannedAvailable,r,false);});
+      cards.subBudgets=sub+'</div>';
+    }
+
+    var projectedSpend=d.goal&&d.goal.projectedSpend!=null?d.goal.projectedSpend:d.all.spent,projectedIncome=d.goal&&d.goal.projectedIncome!=null?d.goal.projectedIncome:d.all.income,projectedSaving=d.goal?d.goal.projectedSaving:null;
+    var out='<div class="ledger-card"><div class="ledger-card-head"><h2>Cash flow</h2><button class="ledger-link" data-action="ledger-insight-link" data-tab="cash">Insights</button></div><div class="ledger-pair" style="margin:0;"><div class="ledger-card" style="margin:0;padding:15px;"><div class="ledger-muted">Spent so far</div><div class="ledger-stat">'+ledgerValue(d.all.spent)+'</div></div><div class="ledger-card" style="margin:0;padding:15px;"><div class="ledger-muted">Projected spend</div><div class="ledger-stat">'+ledgerValue(projectedSpend)+'</div></div></div>';
+    if(projectedSaving!=null)out+='<div class="ledger-rule ledger-between"><span class="ledger-muted">Projected saving'+(savingsTargetPct()>0?' · target '+fmt(savingsTargetPct(),savingsTargetPct()%1?1:0)+'%':'')+'</span><strong class="'+(projectedSaving<0?'ledger-negative':'ledger-positive')+'">'+ledgerMoney(projectedSaving)+homeMetricDeltaHtml(d.deltas.projectedSaving,true)+'</strong></div>';
+    else if(projectedIncome>0)out+='<div class="ledger-rule ledger-between"><span class="ledger-muted">Projected income</span><strong>'+ledgerMoney(projectedIncome)+'</strong></div>';
+    cards.outlook=out+'</div>';
   }else{
-    if(ledgerHomeVisible('hero','month'))h+='<div class="ledger-card"><div class="ledger-card-head"><span class="ledger-muted">Spent this month</span>'+infoButton('tracking113')+'</div><div class="ledger-number">'+ledgerValue(d.all.spent)+'<small>'+reportingCurrency()+'</small></div>'+ledgerSpendingBars(d.all.rows,false)+'<div class="ledger-rule ledger-between"><span class="ledger-muted">Daily average</span><strong>'+ledgerMoney(d.all.spent/Math.max(1,d.all.elapsedDays))+'</strong></div></div>';
-    if(ledgerHomeVisible('budgetStatus','month'))h+='<div class="ledger-pair"><div class="ledger-card"><div class="ledger-muted">Net this month</div><div class="ledger-stat '+(d.all.net<0?'ledger-negative':'ledger-positive')+'">'+ledgerValue(d.all.net)+'</div><div class="ledger-muted">Income − expenses</div></div><div class="ledger-card"><div class="ledger-muted">Activity</div><div class="ledger-stat">'+d.all.rows.reduce(function(n,r){return n+(r.items||[]).length;},0)+'</div><div class="ledger-muted">Transactions</div></div></div>';
+    cards.hero='<div class="ledger-card"><div class="ledger-card-head"><span class="ledger-muted">Spent this month</span>'+infoButton('tracking113')+'</div><div class="ledger-number">'+ledgerValue(d.all.spent)+'<small>'+reportingCurrency()+'</small></div>'+ledgerSpendingBars(d.all.rows,false)+'<div class="ledger-rule ledger-between"><span class="ledger-muted">Daily average</span><strong>'+ledgerMoney(d.all.spent/Math.max(1,d.all.elapsedDays))+'</strong></div></div>';
+    cards.outlook='<div class="ledger-pair"><div class="ledger-card"><div class="ledger-muted">Income received</div><div class="ledger-stat">'+ledgerValue(d.all.income)+'</div><div class="ledger-muted">'+reportingCurrency()+'</div></div><div class="ledger-card"><div class="ledger-muted">Net this month</div><div class="ledger-stat '+(d.all.net<0?'ledger-negative':'ledger-positive')+'">'+ledgerValue(d.all.net)+'</div><div class="ledger-muted">Income − expenses</div></div></div>';
   }
-  var cash=cashBalanceIndependentInfo();
-  if(ledgerHomeVisible('cashBalance','month'))h+='<div class="ledger-menu">'+ledgerMenu('Cash balance','Based on your recorded activity','bank','ledger-insight-link','data-tab="cash"',ledgerMoney(cash.currentBalance))+'</div>';
-  if(ledgerHomeVisible('categoryPie','month'))h+=ledgerCategorySummary(d.all,3);
-  if(ledgerHomeVisible('today','month'))h+=ledgerRecentTransactions(4,null,today);
+
+  cards.cashBalance=buildCashBalanceCard(T,true);
+  var yearStats=periodStatsOverall(new Date().getFullYear()+'-01-01',today);
+  if(yearStats.income>0||savingsTargetPct()>0)cards.monthlySavings=renderMonthlySavingsCard(new Date().getFullYear(),T,'Monthly savings · '+new Date().getFullYear());
+  if(d.all.spent>0)cards.categoryPie=renderHomeSpendPieCard(d.per.startStr,minStr(today,d.per.endStr),T,'Spend by category','This month · all expenses');
+  if(Object.keys(state.entries||{}).some(function(ds){return ds<=today&&(state.entries[ds].items||[]).length;}))cards.today=ledgerRecentTransactions(4,null,today);
+
+  var order=normalizeHomeOrder(state.settings.homeSimpleSectionOrder,'month'),hidden=normalizeHomeHidden(state.settings.homeSimpleHiddenSections,'month');
+  order.forEach(function(id){if(hidden.indexOf(id)===-1&&cards[id])h+=cards[id];});
+  h+='<button class="home-dashboard-edit-btn" data-action="toggle-home-dashboard-edit">Customize dashboard</button>';
   return h;
 }
 
@@ -6624,14 +6682,16 @@ function renderBudgetBody(T){
     var people=renderCategoryBudgetPeople(cm,stats,T);if(people)h+=ledgerDisclosure('Spending by person',people,false,'budget-people');
     var moves=normalizeCategoryBudgetTransfers(state.settings.categoryBudgetTransfers).filter(function(t){return t.month===cm.month;});
     if(moves.length)h+=ledgerDisclosure('Budget moves · '+moves.length,moves.map(function(t){return '<div class="ledger-summary-line"><span>'+esc(cbGroupLabel(t.from,cm.month))+' → '+esc(cbGroupLabel(t.to,cm.month))+'</span><strong>'+ledgerMoney(t.amount)+'</strong></div>';}).join(''),false,'budget-moves');
-  }else h+=ledgerEmpty('No sub-budgets yet','Use sub-budgets to separate daily spending from monthly purchases.','open-category-budgets','Set up sub-budgets','list');
+  }else h+='<div class="ledger-menu">'+ledgerMenu('Create sub-budgets','Separate daily spending from monthly purchases','list','open-category-budgets')+'</div>';
   if(stats.rows.length){
     var pos=current?adaptiveBudgetPositionData(stats.rows,info):null;
     if(!pos){var acc=0,rate=target/Math.max(1,daysBetween(per.startStr,per.endStr)+1);pos=stats.rows.map(function(r){acc=round2(acc+rate-r.spent);return {date:r.date,label:shortLabel(r.date),balance:acc,delta:rate-r.spent};});}
-    var chart='<div id="budgetSavingChartWrap" class="chart-shell" style="position:relative"><div id="balanceChartTip" style="position:absolute;opacity:0;pointer-events:none;background:var(--card);padding:8px;border-radius:8px"></div>'+renderChart(pos,T)+'</div>';lastChartData=pos;
-    h+=ledgerDisclosure('Spending pace',chart,false,'budget-pace');
+    var chart='<div id="budgetSavingChartWrap" class="chart-shell" style="position:relative"><div id="balanceChartTip" style="position:absolute;opacity:0;pointer-events:none;background:var(--card);padding:8px;border-radius:8px;z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.18)"></div>'+renderChart(pos,T)+'</div>';lastChartData=pos;
+    var paceNow=pos.length?round2(Number(pos[pos.length-1].balance)||0):0;
+    h+='<div class="ledger-card"><div class="ledger-card-head"><div><h2>Ahead / behind budget</h2><div class="ledger-muted" style="margin-top:3px;">'+(paceNow===0?'On pace':ledgerMoney(Math.abs(paceNow))+' '+(paceNow>0?'ahead':'behind'))+'</div></div>'+infoButton('budgetOverview')+'</div>'+chart+'</div>';
     if(fc)h+=ledgerDisclosure('Budget forecast & assumptions',buildForecastCard(stats.rows,Math.max(1,daysBetween(effectiveRangeStart(per.startStr),per.endStr)+1),target,effectiveRangeStart(per.startStr),T,'Budget limit',state.view,previousPeriodRows(state.view,state.offset,per.startStr,per.endStr,'budget'),'budget'),false,'budget-forecast');
   }
+  h+='<div class="ledger-menu">'+ledgerMenu('Included in this budget','Choose which expenses count','list','ledger-open-context','data-section="scope"')+'</div>';
   return h;
 }
 
@@ -6774,6 +6834,11 @@ function cbBudgetIconForRow(r){
 function renderCategoryBudgetCards(month,forecast){
   var future=month.closed?{}:cbForecastByGroup(month,forecast),h='',rows=month.rows.slice().sort(function(a,b){return Number(b.daily)-Number(a.daily);});
   rows.forEach(function(r){
+    /* Buffer is an internal accounting sink, not a user-facing sub-budget.
+       Everything else owns the visible residual allocation. Keep Buffer out
+       of the normal Budget UI unless a future migration explicitly needs a
+       dedicated recovery surface for it. */
+    if(r.group===CB_BUFFER)return;
     var expanded=!!(state.cbExpanded||{})[r.group],available=Number(r.available)||0,over=r.remaining<-.005,pct=available>0?r.spent/available*100:(r.spent>0?100:0),planned=r.plannedAvailable==null?available:r.plannedAvailable,transfer=Number(r.autoTransfer)||0,style=cbBudgetStyleForRow(r),name=r.name||cbGroupLabel(r.group,month.month);
     h+='<div class="card cb-category-card"><button class="cb-category-head" data-action="toggle-category-budget-card" data-group="'+esc(r.group)+'" aria-expanded="'+expanded+'">'+cbBudgetIconForRow(r)+'<span class="cb-category-title"><span>'+esc(name)+'</span><span class="caption muted">'+(r.daily?'Daily spending':(r.auto?'Automatic remainder':'Monthly pool'))+'</span></span><span class="mono cb-category-pct '+(over?'ledger-negative':'')+'">'+Math.round(pct)+'%</span><span class="cb-card-chevron" style="transform:rotate('+(expanded?'180':'0')+'deg)">'+ICONS.chevronDown+'</span></button>'+ledgerProgress(r.spent,available,over?'var(--rust)':style.color)+'<div class="cb-category-values"><span class="caption">'+ledgerMoney(r.spent)+' / '+ledgerValue(available)+'</span><strong class="caption '+(over?'ledger-negative':'')+'">'+ledgerMoney(Math.abs(r.remaining))+' '+(over?'over':'left')+'</strong></div>';
     if(Math.abs(transfer)>.005)h+='<div class="ledger-muted" style="margin-top:8px;font-size:13px">'+(transfer>0?'+':'−')+ledgerMoney(Math.abs(transfer))+' rebalanced</div>';
@@ -6847,8 +6912,6 @@ function openCategoryBudgetActivity(month,category,person){
 function renderSettingsPage() {
   var section = state.settingsSection || "";
   if(!section)return ledgerSettingsRoot();
-  if(section==='planning')return ledgerPlanningSettings();
-  if(section==='home')return ledgerHomeVisualSettings();
   if(section==='budget')return ledgerBudgetEditor();
   if(section==='savings')return ledgerSavingsEditor();
   if(section==='income')return ledgerIncomeEditor();
@@ -10010,6 +10073,7 @@ function handleRestore() {
     nextSettings.homeSimpleHiddenSections = normalizeHomeHidden(nextSettings.homeSimpleHiddenSections,"month");
     nextSettings.homeYearSectionOrder = normalizeHomeOrder(nextSettings.homeYearSectionOrder,"year");
     nextSettings.homeYearHiddenSections = normalizeHomeHidden(nextSettings.homeYearHiddenSections,"year");
+    nextSettings.dataSchemaVersion = DATA_SCHEMA_VERSION;
     nextSettings.fxRateCache = normalizeFxCache(nextSettings.fxRateCache);
     nextSettings.baseCurrency = TXN_CURRENCIES.indexOf(String(nextSettings.baseCurrency||"AED").toUpperCase())!==-1 ? String(nextSettings.baseCurrency||"AED").toUpperCase() : "AED";
     nextSettings.forecastSnapshots = normalizeForecastSnapshots(nextSettings.forecastSnapshots);
@@ -10028,12 +10092,12 @@ function handleRestore() {
     nextSettings.personColors = normalizePersonColors(nextSettings.personColors, nextSettings.people);
     nextSettings.categoryExcludeFromBudget = normalizeCategoryExcludeFromBudget(nextSettings.categoryExcludeFromBudget, nextSettings.categories);
     nextSettings.annualReserves = normalizeAnnualReserves(nextSettings.annualReserves, nextSettings.categories, nextSettings.categoryGroups);
-    if(restoreNeedsControllableBudget)nextSettings=ensureControllableBudgetV11246Settings(nextSettings);
+    if(restoreNeedsControllableBudget)nextSettings.controllableBudgetMigrationV11246=true;
     if(restoreNeedsCategoryBudgetModel)nextSettings=ensureCategoryBudgetModelV11247Settings(nextSettings);
     if(restoreNeedsCategoryBudgetRhythm)nextSettings=ensureCategoryBudgetRhythmV11254Settings(nextSettings);
     if(restoreNeedsAnnualCatchUp){nextSettings.annualSavingsCatchUpMigrationV11257=true;nextSettings.safeSpendHistory=[];nextSettings.homeMetricHistory=[];nextSettings.homeDeltaModelEpochV11219=toStr(addDays(parseD(todayStr()),1));}
     if(restoreNeedsCategoryBudgetAutoRebalance){nextSettings.categoryBudgetAutoRebalanceFrom=cbMonth(todayStr());nextSettings.categoryBudgetAutoRebalanceMigrationV11260=true;nextSettings.safeSpendHistory=[];nextSettings.homeMetricHistory=[];nextSettings.homeDeltaModelEpochV11219=toStr(addDays(parseD(todayStr()),1));}
-    if(restoreNeedsMinimumBudgetFloor){var restoreCeiling=(normalizeMonthlyBudgetHistory(nextSettings.monthlyBudgetHistory).slice(-1)[0]||{}).monthlyBudget||Number(nextSettings.monthlyBudget)||0;if(!IS_DEMO_MODE&&restoreCeiling>=4000&&!nextSettings.minimumControllableBudget)nextSettings.minimumControllableBudget=4000;nextSettings.minimumControllableBudget=round2(Math.min(Math.max(0,restoreCeiling),normalizeMinimumControllableBudget(nextSettings.minimumControllableBudget)));nextSettings.minimumControllableBudgetMigrationV11267=true;nextSettings.safeSpendHistory=[];nextSettings.homeMetricHistory=[];nextSettings.homeDeltaModelEpochV11219=toStr(addDays(parseD(todayStr()),1));}
+    if(restoreNeedsMinimumBudgetFloor){var restoreCeiling=(normalizeMonthlyBudgetHistory(nextSettings.monthlyBudgetHistory).slice(-1)[0]||{}).monthlyBudget||Number(nextSettings.monthlyBudget)||0;nextSettings.minimumControllableBudget=round2(Math.min(Math.max(0,restoreCeiling),normalizeMinimumControllableBudget(nextSettings.minimumControllableBudget)));nextSettings.minimumControllableBudgetMigrationV11267=true;nextSettings.safeSpendHistory=[];nextSettings.homeMetricHistory=[];nextSettings.homeDeltaModelEpochV11219=toStr(addDays(parseD(todayStr()),1));}
     nextSettings.categoryBudgetPlans=normalizeCategoryBudgetPlans(nextSettings.categoryBudgetPlans);
     nextSettings.categoryBudgetFunding=normalizeCategoryBudgetFunding(nextSettings.categoryBudgetFunding);
     nextSettings.categoryBudgetTransfers=normalizeCategoryBudgetTransfers(nextSettings.categoryBudgetTransfers);
@@ -10061,7 +10125,7 @@ function handleRestore() {
   render();
 }
 
-/* v113.1 product surfaces. The v112.67 calculation, migration, persistence,
+/* v113.0 product surfaces. The v112.67 calculation, migration, persistence,
    recurring-payment and recovery functions remain the financial authority. */
 function ledgerHasBudget(){return currentMonthlyBudget()>0;}
 function ledgerHasDailyGuidance(){var p=cbPlanForMonth(state.settings,cbMonth(todayStr()));return ledgerHasBudget()&&(!p||p.rows.some(function(r){return cbRhythmIsDaily(cbNormalizeRhythm(r.rhythm,r.daily));}));}
@@ -10074,10 +10138,7 @@ function ledgerProgress(spent,total,color){var pct=total>0?Math.max(0,Math.min(1
 function ledgerDisclosure(title,body,open,key){return '<details class="ledger-disclosure"'+(open?' open':'')+(key?' data-ledger-detail="'+key+'"':'')+'><summary>'+esc(title)+'</summary><div>'+body+'</div></details>';}
 function ledgerPeriod(title,action,current){return '<div class="ledger-period"><button class="icon-btn" aria-label="Previous period" data-action="'+action+'" data-delta="-1">'+ICONS.chevronLeft+'</button><span>'+esc(title)+'</span><button class="icon-btn" aria-label="Next period" data-action="'+action+'" data-delta="1"'+(current?' disabled':'')+'>'+ICONS.chevronRight+'</button></div>';}
 function ledgerEmpty(title,copy,action,label,icon){return '<div class="ledger-card ledger-empty"><span class="ledger-menu-icon">'+ledgerIcon(icon||'list')+'</span><h2>'+esc(title)+'</h2><p>'+esc(copy)+'</p>'+(action?'<button class="btn-accent" data-action="'+action+'">'+esc(label)+'</button>':'')+'</div>';}
-function ledgerHomeVisible(id,mode){var key=mode==='year'?'homeYearHiddenSections':'homeSimpleHiddenSections';return normalizeHomeHidden(state.settings[key],mode).indexOf(id)===-1;}
-function ledgerProjectedSavingRate(saving,income){saving=Number(saving);income=Number(income);return isFinite(saving)&&isFinite(income)&&income>0?saving/income*100:null;}
-function ledgerSavingWithRate(saving,income){if(saving==null)return '—';var rate=ledgerProjectedSavingRate(saving,income);return ledgerMoney(saving)+(rate==null?'':' <small class="ledger-inline-rate">'+fmt(rate,1)+'%</small>');}
-function ledgerPlanningHeader(active){var h='<div class="ledger-heading"><h1 class="ledger-title">Plan</h1><div class="ledger-heading-actions">'+infoButton('planning113')+'<button class="icon-btn" data-action="ledger-open-context" data-section="planning" aria-label="Planning settings">'+ICONS.settings+'</button></div></div><div class="ledger-subnav" role="tablist" aria-label="Planning">';[['plan','Overview'],['budget','Budget'],['plans','Bills & income']].forEach(function(x){h+='<button role="tab" aria-selected="'+(active===x[0])+'" data-action="go-page" data-page="'+x[0]+'">'+x[1]+'</button>';});return h+'</div>';}
+function ledgerPlanningHeader(active){var h='<div class="ledger-heading"><h1 class="ledger-title">Plan</h1>'+infoButton('planning113')+'</div><div class="ledger-subnav" role="tablist" aria-label="Planning">';[['plan','Overview'],['budget','Budget'],['plans','Bills & income']].forEach(function(x){h+='<button role="tab" aria-selected="'+(active===x[0])+'" data-action="go-page" data-page="'+x[0]+'">'+x[1]+'</button>';});return h+'</div>';}
 function ledgerMonthNumbers(){
   var per=getPeriodBounds('month',0,currentWeeklyTarget(),dailyAllowance()),all=periodStatsOverall(per.startStr,per.endStr),budget=ledgerHasBudget()?periodStatsBudget(per.startStr,per.endStr):null;
   var goal=budget||savingsTargetPct()>0?periodSavingsGoalMetrics({start:per.startStr,end:per.endStr,isCurrent:true,mode:'month'},all):{projectedIncome:all.income,projectedSpend:all.spent,projectedSaving:null},eff=budget?currentEffectiveBudgetInfo():null,pacing=budget?liveBudgetPacing():null;
@@ -10130,16 +10191,18 @@ function renderPlanningBody(T){
   if(hasBudget){
     h+='<div class="ledger-card ledger-hero"><div class="ledger-card-head"><span>Budget this month</span>'+infoButton('budgetFunding')+'</div><div class="ledger-number">'+ledgerValue(d.eff.effectiveBudget)+'<small>'+reportingCurrency()+'</small></div><div class="ledger-rule ledger-between"><span class="ledger-muted">'+ledgerMoney(d.budget.spent)+' used</span><button class="ledger-link" data-action="go-page" data-page="budget">Open budget '+ICONS.chevronRight+'</button></div></div>';
     if(d.eff.floorActive)h+='<div class="ledger-alert">Your '+ledgerMoney(d.eff.minimumBudget)+' minimum is protecting this month’s spending room.</div>';
+    h+='<div class="ledger-menu">'+ledgerMenu('Budget limits','Monthly ceiling and minimum','budgetNav','ledger-open-context','data-section="budget"',ledgerMoney(currentMonthlyBudget()))+ledgerMenu('Sub-budgets',categoryBudgetsEnabled()?'Shares, daily rhythm and rollover':'Divide your spending into smaller budgets','list','open-category-budgets','',categoryBudgetsEnabled()?'Manage':'Add')+'</div>';
   }else{
     h+='<div class="ledger-card"><div class="ledger-card-head"><h2>Give your money a plan</h2>'+infoButton('planning113')+'</div><p class="ledger-muted" style="margin:0 0 18px">Add only what helps you. You can keep tracking without setting a target.</p><button class="btn-accent" style="width:100%" data-action="ledger-open-context" data-section="budget">Set a monthly budget</button></div>';
   }
   if(pct>0){
     var cu=annualSavingsCatchUpForMonth(d.per.startStr,d.per.endStr,pct),projected=d.goal.projectedSaving,monthGoal=effectiveMonthlyCashSavingsTarget(d.per.startStr,d.per.endStr,d.goal.projectedIncome);
-    h+='<div class="ledger-card"><div class="ledger-card-head"><h2>Savings target</h2><button class="ledger-link" data-action="ledger-open-context" data-section="savings">Edit</button></div><div class="ledger-number">'+fmt(pct,pct%1?1:0)+'<small>% of income</small></div><div class="ledger-rule"><div class="ledger-summary-line"><span>Projected this month</span><strong>'+ledgerSavingWithRate(projected,d.goal.projectedIncome)+'</strong></div>'+(monthGoal&&monthGoal.effectiveSavingPct!=null?'<div class="ledger-summary-line"><span>Cash target this month</span><strong>'+fmt(monthGoal.effectiveSavingPct,1)+'%</strong></div>':'')+'</div>';
+    h+='<div class="ledger-card"><div class="ledger-card-head"><h2>Savings target</h2><button class="ledger-link" data-action="ledger-open-context" data-section="savings">Edit</button></div><div class="ledger-number">'+fmt(pct,pct%1?1:0)+'<small>% of income</small></div><div class="ledger-rule"><div class="ledger-summary-line"><span>Projected this month</span><strong>'+(projected==null?'—':ledgerMoney(projected))+'</strong></div>'+(monthGoal&&monthGoal.effectiveSavingPct!=null?'<div class="ledger-summary-line"><span>Cash target this month</span><strong>'+fmt(monthGoal.effectiveSavingPct,1)+'%</strong></div>':'')+'</div>';
     if(cu&&cu.active&&Math.abs(cu.monthlyAdjustment)>.005)h+='<div class="ledger-alert"><div class="ledger-between"><span>'+ledgerMoney(Math.abs(cu.monthlyAdjustment))+' / month '+(cu.monthlyAdjustment>0?'to catch up':'less needed')+'</span>'+infoButton('annualCatchUp')+'</div></div>';
     if(!(projected!=null))h+='<div class="ledger-alert">Add expected income to calculate your savings outlook.</div>';
     h+='</div>';
   }
+  h+='<div class="ledger-menu">'+(!pct?ledgerMenu('Savings target','Keep a share of your income','insightsNav','ledger-open-context','data-section="savings"','Add'):'')+ledgerMenu('Expected income','Used for your planning calculations','plus','ledger-open-context','data-section="income"',ledgerMoney(plannedIncomeForRange(d.per.startStr,d.per.endStr)))+(!activeAnnualReserves().length?ledgerMenu('Annual reserves','Make room for occasional costs','calendar','ledger-open-context','data-section="annualReserves"','Add'):'')+'</div>';
   h+=ledgerReserveSummary(new Date().getFullYear());
   var upcoming=ledgerUpcoming(30);
   if(upcoming.length){h+=ledgerSection('Coming up','go-page','All bills','data-page="plans"')+'<div class="ledger-card">';upcoming.slice(0,3).forEach(function(x){h+='<button class="ledger-row" data-action="go-page" data-page="plans"><span class="ledger-menu-icon">'+(x.rule.entryKind==='income'?ICONS.plus:ICONS.repeatNav)+'</span><span class="ledger-row-copy"><strong>'+esc(x.rule.note||x.rule.category||'Income')+'</strong><small>'+esc(shortLabel(x.due))+'</small></span><span class="ledger-row-value">'+(x.rule.entryKind==='income'?'+':'−')+ledgerValue(x.amount)+'</span></button>';});h+='</div>';}
@@ -10153,40 +10216,13 @@ function renderPlanningBody(T){
 
 function ledgerSettingsRoot(){
   var h='<div class="settings-page"><div class="settings-shell"><div class="settings-header"><button class="settings-back" data-action="settings-back" aria-label="Back">'+ICONS.chevronLeft+'</button><div class="settings-title">Settings</div><span></span></div><div class="settings-root">';
-  h+='<div class="settings-group-title">Planning</div><div class="ledger-menu">'+ledgerMenu('Budget & savings','Limits, included spending and targets','budgetNav','ledger-open-context','data-section="planning"')+'</div>';
-  h+='<div class="settings-group-title">Organize</div><div class="ledger-menu">'+ledgerMenu('Categories','Organize your expenses','list','settings-section','data-section="categories"')+ledgerMenu('People & shared spending','','plus','settings-section','data-section="people"')+ledgerMenu('Tags','','list','settings-section','data-section="tags"')+'</div><div class="settings-group-title">App</div><div class="ledger-menu">'+ledgerMenu('Currency','','bank','settings-section','data-section="currency"',reportingCurrency())+ledgerMenu('Appearance','','sun','settings-section','data-section="theme"',state.settings.theme==='dark'?'Dark':'Light')+ledgerMenu('Home overview','Show or hide Home visuals','eye','ledger-open-context','data-section="home"')+'</div>';
+  h+='<div class="ledger-menu">'+ledgerMenu('Categories','Organize your expenses','list','settings-section','data-section="categories"')+ledgerMenu('People & shared spending','','plus','settings-section','data-section="people"')+ledgerMenu('Tags','','list','settings-section','data-section="tags"')+'</div><div class="ledger-menu">'+ledgerMenu('Currency','','bank','settings-section','data-section="currency"',reportingCurrency())+ledgerMenu('Appearance','','sun','settings-section','data-section="theme"',state.settings.theme==='dark'?'Dark':'Light')+'</div>';
   h+='<div class="ledger-menu">'+ledgerMenu('Backup & recovery','','rotate','settings-section','data-section="backup"')+ledgerMenu('Tracking & opening balance','','calendar','settings-section','data-section="tracking"')+ledgerMenu('Sample ledger','','insightsNav','settings-section','data-section="demo"',IS_DEMO_MODE?'Active':'')+'</div>';
   h+=ledgerDisclosure('Data management','<div class="ledger-menu">'+ledgerMenu('Clear transactions','','trash','settings-section','data-section="clearEntries"')+ledgerMenu('Reset The Ledger','','rotate','settings-section','data-section="factoryReset"')+'</div>',false,'data-management');
   if(IS_DEMO_MODE)h+='<button class="btn-outline" style="width:100%" data-action="exit-demo-mode">Return to my Ledger</button>';
   h+='<div class="ledger-settings-footer">The Ledger · '+APP_VERSION+'<br>Your ledger stays on this device.</div></div></div></div>';return h;
 }
 function ledgerContextShell(title,body){return '<div class="settings-page"><div class="settings-shell"><div class="settings-header"><button class="settings-back" data-action="settings-back" aria-label="Back">'+ICONS.chevronLeft+'</button><div class="settings-title">'+esc(title)+'</div>'+demoHeaderBadgeHtml()+'</div><div class="settings-detail">'+body+'</div></div></div>';}
-function ledgerPlanningSettings(){
-  var per=getPeriodBounds('month',0,currentWeeklyTarget(),dailyAllowance()),h='<div class="settings-group-title">Budget</div><div class="ledger-menu">';
-  h+=ledgerMenu('Budget limits','Monthly ceiling and minimum','budgetNav','ledger-open-context','data-section="budget"',ledgerHasBudget()?ledgerMoney(currentMonthlyBudget()):'Not set');
-  h+=ledgerMenu('Included spending','Choose which categories count','list','ledger-open-context','data-section="scope"');
-  h+=ledgerMenu('Sub-budgets','Shares, rhythms, rollover and guardrails','list','open-category-budgets','',categoryBudgetsEnabled()?'On':'Off')+'</div>';
-  h+='<div class="settings-group-title">Savings & forecasts</div><div class="ledger-menu">';
-  h+=ledgerMenu('Savings target','Annual percentage of income','insightsNav','ledger-open-context','data-section="savings"',savingsTargetPct()?fmt(savingsTargetPct(),1)+'%':'Not set');
-  h+=ledgerMenu('Expected income','Planning assumption','plus','ledger-open-context','data-section="income"',ledgerMoney(plannedIncomeForRange(per.startStr,per.endStr)));
-  h+=ledgerMenu('Annual reserves','Occasional costs kept outside the budget','calendar','ledger-open-context','data-section="annualReserves"',activeAnnualReserves().length?String(activeAnnualReserves().length):'None')+'</div>';
-  return ledgerContextShell('Budget & savings',h);
-}
-function ledgerToggleRow(label,subtitle,attrs,checked,disabled,status){
-  return '<label class="ledger-toggle-row"><span class="ledger-toggle-copy"><strong>'+esc(label)+'</strong>'+(subtitle?'<small>'+esc(subtitle)+'</small>':'')+'</span>'+(disabled?'<span class="ledger-fixed-status">'+esc(status||'Fixed')+'</span>':'<span class="ledger-switch"><input type="checkbox" '+attrs+(checked?' checked':'')+' aria-label="'+esc(label)+'"/><span aria-hidden="true"></span></span>')+'</label>';
-}
-function ledgerHomeVisualSettings(){
-  var month=[['hero',ledgerHasDailyGuidance()?'Safe to spend':'Spending total','Primary monthly number'],['budgetStatus',ledgerHasBudget()?'Budget overview':'Monthly overview','Two quick summary cards']];
-  if(ledgerHasBudget())month.push(['subBudgets','Monthly budget','Progress, forecast and outlook']);
-  month=month.concat([['cashBalance','Cash balance','Current recorded balance'],['categoryPie','Where it went','Top spending categories'],['today','Recent activity','Latest transactions']]);
-  var year=[['yearSummary','Year spending','Total and monthly chart'],['yearDaily',ledgerHasBudget()?'Budget overview':'Year overview','Yearly summary cards']];
-  if(savingsTargetPct()>0)year.push(['yearSavings','Savings outlook','Projected amount and percentage']);
-  year.push(['yearCategoryPie','Where it went','Yearly category mix']);if(activeAnnualReserves().length)year.push(['yearReserves','Annual reserves','Reserve progress']);
-  function rows(list,mode){return list.map(function(x){return ledgerToggleRow(x[1],x[2],'data-home-visual="'+x[0]+'" data-home-mode="'+mode+'"',ledgerHomeVisible(x[0],mode),false);}).join('');}
-  var h='<div class="ledger-card"><div class="ledger-card-head"><h2>Choose what appears</h2>'+infoButton('homeVisuals113')+'</div><p class="ledger-muted" style="margin:0">Changes save immediately. Hidden visuals can always be restored here.</p></div>';
-  h+='<div class="settings-group-title">Month</div><div class="ledger-toggle-list">'+rows(month,'month')+'</div><div class="settings-group-title">Year</div><div class="ledger-toggle-list">'+rows(year,'year')+'</div>';
-  return ledgerContextShell('Home overview',h);
-}
 function ledgerBudgetEditor(){
   var budget=currentMonthlyBudget(),floor=minimumControllableBudget();
   var h='<div class="ledger-card"><div class="ledger-card-head"><h2>Monthly ceiling</h2>'+infoButton('monthlyBudget')+'</div><label class="ledger-form-label" for="monthlyDraftInput">Most you want to spend · '+reportingCurrency()+'</label><input id="monthlyDraftInput" type="number" min="0" inputmode="decimal" class="field mono" style="font-size:28px!important" placeholder="e.g. 4500" value="'+(budget>0?round2(toReporting(budget)):'')+'"/>';
@@ -10203,7 +10239,7 @@ function ledgerSavingsEditor(){
   if(goal.projectedIncome<=0)h+='<div class="ledger-alert">Add expected income to calculate the target.</div>';
   h+='<div class="ledger-menu">'+ledgerMenu('Expected income','Planning amount, separate from logged income','plus','ledger-open-context','data-section="income"',ledgerMoney(plannedIncomeForRange(per.startStr,per.endStr)))+(ledgerHasBudget()?ledgerMenu('Budget limits','Ceiling and minimum','budgetNav','ledger-open-context','data-section="budget"',ledgerMoney(currentMonthlyBudget())):'')+'</div>';
   if(pct>0&&goal.projectedIncome>0){
-    var detail='<div class="ledger-summary-line"><span>Planned income this month</span><strong>'+ledgerMoney(goal.projectedIncome)+'</strong></div><div class="ledger-summary-line"><span>Projected cash saving</span><strong>'+ledgerSavingWithRate(goal.projectedSaving,goal.projectedIncome)+'</strong></div>';
+    var detail='<div class="ledger-summary-line"><span>Planned income this month</span><strong>'+ledgerMoney(goal.projectedIncome)+'</strong></div><div class="ledger-summary-line"><span>Projected cash saving</span><strong>'+ledgerMoney(goal.projectedSaving)+'</strong></div>';
     if(comparison)detail+='<div class="ledger-summary-line"><span>Savings-compatible budget</span><strong>'+ledgerMoney(comparison.compatibleBudget)+'</strong></div><div class="ledger-summary-line"><span>Applied budget before rollover</span><strong>'+ledgerMoney(comparison.effectiveBudget)+'</strong></div>';
     h+=ledgerDisclosure('Current plan calculation',detail,false,'saving-calculation');
     if(catchup&&catchup.active)h+='<div class="ledger-card"><div class="ledger-card-head"><h2>Annual catch-up</h2>'+infoButton('annualCatchUp')+'</div><div class="ledger-summary-line"><span>'+catchup.closedMonths+' closed months</span><strong>'+ledgerMoney(Math.abs(catchup.shortfall||catchup.ahead||0))+' '+(catchup.shortfall>0?'short':'ahead')+'</strong></div><div class="ledger-summary-line"><span>Monthly adjustment</span><strong>'+ledgerMoney(catchup.monthlyAdjustment)+'</strong></div></div>';
@@ -10218,8 +10254,9 @@ function ledgerIncomeEditor(){
   return ledgerContextShell('Expected income',h);
 }
 function ledgerScopeEditor(){
-  var cats=state.settings.categories||[],h='<div class="ledger-card"><div class="ledger-card-head"><h2>Included spending</h2>'+infoButton('scope113')+'</div><p class="ledger-muted" style="margin:0">Turn on the expenses that should reduce your controllable budget. Changes save immediately.</p></div>';
-  (state.settings.categoryGroups||[]).concat(['']).forEach(function(g){var members=cats.filter(function(c){return (categoryGroupOf(c)||'')===g;});if(!members.length)return;var included=members.filter(function(c){return !annualReserveForCategory(c)&&!categoryExcludedFromBudget(c);}).length,reserved=members.filter(function(c){return !!annualReserveForCategory(c);}).length,summary=included+' of '+(members.length-reserved)+' included'+(reserved?' · '+reserved+' reserved':'');var body='<div class="ledger-toggle-list ledger-toggle-list-inset">';members.forEach(function(c){var reserve=annualReserveForCategory(c);body+=ledgerToggleRow(c,reserve?'Covered by '+reserve.name:'',reserve?'':'data-ledger-scope="'+esc(c)+'"',!categoryExcludedFromBudget(c),!!reserve,'Reserve');});body+='</div>';h+='<details class="ledger-disclosure ledger-scope-group" data-ledger-detail="scope-'+esc(g||'other')+'"><summary><span>'+esc(g||'Other')+'<small>'+esc(summary)+'</small></span></summary><div>'+body+'</div></details>';});
+  var cats=state.settings.categories||[],map=state.settings.categoryExcludeFromBudget||{},h='<div class="ledger-card"><div class="ledger-card-head"><h2>Included spending</h2>'+infoButton('scope113')+'</div><p class="ledger-muted" style="margin:0">Checked expenses count toward your budget. Everything still appears in Activity and Insights.</p></div>';
+  (state.settings.categoryGroups||[]).concat(['']).forEach(function(g){var members=cats.filter(function(c){return (categoryGroupOf(c)||'')===g;});if(!members.length)return;h+='<div class="ledger-card"><div class="ledger-card-head"><h2>'+esc(g||'Other')+'</h2></div>';members.forEach(function(c){var reserve=annualReserveForCategory(c);h+='<label class="ledger-between" style="padding:10px 0;min-height:44px"><span>'+esc(c)+(reserve?'<small class="ledger-muted" style="display:block">Covered by '+esc(reserve.name)+'</small>':'')+'</span><input type="checkbox" data-ledger-scope="'+esc(c)+'"'+(!categoryExcludedFromBudget(c)?' checked':'')+(reserve?' disabled':'')+' style="width:23px;height:23px;accent-color:var(--accent)"/></label>';});h+='</div>';});
+  h+='<button class="btn-accent" style="width:100%" data-action="ledger-save-scope">Save included spending</button>';
   return ledgerContextShell('Budget categories',h);
 }
 function ledgerOpenContext(section){
@@ -10301,7 +10338,6 @@ Object.assign(INFO_CONTENT,{
   insights113:{title:'Three views of your money',body:'Spending shows categories, people, frequency and trends. Cash flow shows recorded income, expenses and cash balance. Forecast estimates future spending and income. Month, year, week and custom periods apply to spending; the cash balance chart explicitly shows the current balance with its own time range. Forecasts are estimates and improve as you log activity.'},
   forecastRules113:{title:'Forecast assumptions',body:'Auto learns a suitable pattern from the tracked history. Frequent models regular everyday spending; Regular intervals models separated events; Monthly and Yearly bill models estimate bills on their likely cycle; Occasional purchase handles irregular larger costs. Exact recurring schedules keep their real payment dates. Yearly bills are normalized automatically for affordability, with no manual reserve required.'},
   people113:{title:'People analysis',body:'Expenses can be assigned to one person or split by percentage. Some shared household costs can be excluded from person comparisons while remaining in total spending. The category settings let you change that choice.'},
-  homeVisuals113:{title:'Your Home overview',body:'Turn off any visual you do not want on Home. Month and Year are customized separately. This changes presentation only: transactions, calculations and Insights are not removed. Use the eye button on Home or Settings → Home overview to restore a hidden visual.'},
   budgetFunding:{title:'Your available budget',body:'The configured monthly ceiling is the maximum new budget. A savings target can reduce it, but the optional minimum floor protects your realistic spending room. The applied base is min(ceiling, max(savings-compatible budget, floor)). Valid rollover is added to that base. Custom sub-budgets use the same applied amount. Actual expenses are never blocked by a budget limit.'},
   autoRebalance:{title:'Automatic rebalancing',body:'Sub-budget targets are soft allocations within the main budget. Overspending can be covered proportionally from unused room in other pools, respecting their minimum guardrails. The card’s percentage and remaining balance use the current allocation after rebalancing. Expand it to see the original allocation and the adjustment. This does not increase the main budget.'}
 });
@@ -10324,27 +10360,8 @@ document.addEventListener('keydown',function(e){
   }
 });
 document.addEventListener('change',function(e){
-  if(e.target&&e.target.dataset.homeVisual){var mode=e.target.dataset.homeMode==='year'?'year':'month',key=mode==='year'?'homeYearHiddenSections':'homeSimpleHiddenSections',hidden=normalizeHomeHidden(state.settings[key],mode),id=e.target.dataset.homeVisual,idx=hidden.indexOf(id);if(e.target.checked&&idx!==-1)hidden.splice(idx,1);else if(!e.target.checked&&idx===-1)hidden.push(id);var nextHome=Object.assign({},state.settings);nextHome[key]=hidden;persistAll(nextHome,state.entries,'Home visuals');showToast(e.target.checked?'Visual shown':'Visual hidden');render();return;}
-  if(e.target&&e.target.dataset.ledgerScope){var nextScope=Object.assign({},state.settings.categoryExcludeFromBudget||{}),cat=e.target.dataset.ledgerScope;nextScope[cat]=!e.target.checked;persistAll(Object.assign({},state.settings,{categoryExcludeFromBudget:nextScope}),state.entries,'included spending');showToast(e.target.checked?'Included in budget':'Moved outside budget');render();return;}
   if(e.target&&e.target.dataset.ledgerForecast){var map=Object.assign({},state.settings.categoryForecastBehavior||{}),cat=e.target.dataset.ledgerForecast;map[cat]=e.target.value;persistAll(Object.assign({},state.settings,{categoryForecastBehavior:map}),state.entries,'forecast assumptions');showToast('Forecast assumption saved');render();}
 });
-
-/* The category picker owns its own edge swipe. The parent transaction editor
-   remains open, with its draft and scroll position intact. */
-var ledgerPickerSwipe=null;
-document.addEventListener('touchstart',function(e){
-  if(!state.showAddTxn||!state.txnCategoryPickerOpen||ledgerPickerSwipe||!e.touches||e.touches.length!==1)return;
-  var t=e.touches[0];if(t.clientX>28)return;var page=document.querySelector('.txn-category-picker-page');if(!page)return;
-  ledgerPickerSwipe={page:page,startX:t.clientX,startY:t.clientY,dx:0,intent:null,lastX:t.clientX,lastT:performance.now(),velocity:0};
-},{passive:true});
-document.addEventListener('touchmove',function(e){
-  if(!ledgerPickerSwipe||!e.touches||!e.touches.length)return;var t=e.touches[0],sw=ledgerPickerSwipe,dx=Math.max(0,t.clientX-sw.startX),dy=t.clientY-sw.startY;
-  if(sw.intent==null&&(Math.abs(dx)>7||Math.abs(dy)>7))sw.intent=Math.abs(dx)>Math.abs(dy)*1.12?'horizontal':'vertical';if(sw.intent!=='horizontal')return;e.preventDefault();var now=performance.now(),dt=Math.max(1,now-sw.lastT);sw.velocity=(t.clientX-sw.lastX)/dt;sw.lastX=t.clientX;sw.lastT=now;sw.dx=dx;sw.page.style.transition='none';sw.page.style.transform='translate3d('+dx+'px,0,0)';
-},{passive:false});
-document.addEventListener('touchend',function(){
-  if(!ledgerPickerSwipe)return;var sw=ledgerPickerSwipe;ledgerPickerSwipe=null;if(sw.intent!=='horizontal'){sw.page.style.transform='';return;}var commit=sw.dx>=Math.min(125,window.innerWidth*.30)||(sw.dx>42&&sw.velocity>.55);sw.page.style.transition='transform 240ms cubic-bezier(.32,.72,0,1)';sw.page.style.transform=commit?'translate3d(100%,0,0)':'';setTimeout(function(){if(commit){state.txnCategoryPickerOpen=false;state.txnCategoryPickerSearch='';render();window.scrollTo(0,state.txnCategoryPickerReturnScrollY||0);}else{sw.page.style.transition='';}},250);
-},{passive:true});
-document.addEventListener('touchcancel',function(){if(ledgerPickerSwipe){ledgerPickerSwipe.page.style.transition='';ledgerPickerSwipe.page.style.transform='';ledgerPickerSwipe=null;}},{passive:true});
 
 /* ---------------- event delegation ---------------- */
 document.addEventListener("click", function(e) {
