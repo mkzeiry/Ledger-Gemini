@@ -502,6 +502,79 @@
   .storage-warning-title { font-size:14px; font-weight:700; letter-spacing:-.012em; color:var(--rust); margin-bottom:5px; }
   .storage-warning-copy { font-size:13px; line-height:1.4; color:var(--text); opacity:.86; }
 
+  /* ---- Progressive disclosure control ---- */
+  .more-cards-btn {
+    width:100%; min-height:48px; margin:2px 0 18px;
+    background:transparent; border:none; border-radius:14px;
+    color:var(--text-muted); font-size:14px; font-weight:650; letter-spacing:-.01em;
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    box-shadow:inset 0 0 0 1px var(--hairline);
+    transition:background .16s ease, color .16s ease;
+  }
+  .more-cards-btn:active { background:var(--fill); color:var(--text); }
+
+  /* ---- Commitments ---- */
+  .commit-hero { margin-bottom:18px; }
+  .commit-hero-value {
+    font-size:38px; font-weight:760; letter-spacing:-.04em;
+    line-height:1.05; margin-top:4px;
+  }
+  .commit-hero-unit { font-size:20px; font-weight:700; color:var(--text-muted); letter-spacing:-.02em; }
+  .commit-hero-sub { font-size:14px; line-height:1.4; color:var(--text-muted); margin-top:10px; }
+  .commit-bar {
+    height:8px; border-radius:999px; background:var(--fill);
+    margin-top:14px; overflow:hidden;
+  }
+  .commit-bar-fill {
+    height:100%; border-radius:999px; background:var(--accent);
+    transition:width .4s cubic-bezier(.22,.61,.36,1);
+  }
+  .commit-group-head {
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin:20px 2px 8px; font-size:13px; font-weight:650;
+    letter-spacing:-.005em; color:var(--text-muted);
+  }
+  .commit-split-note {
+    margin-top:20px; padding:14px 16px;
+    background:var(--fill); border-radius:14px;
+  }
+
+  /* ---- Empty states: say what the thing is FOR, not that it is empty ---- */
+  .empty-state { text-align:left; }
+  .empty-state-title { font-size:17px; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
+  .empty-state-copy { font-size:14px; line-height:1.45; color:var(--text-muted); }
+
+  /* ---- Wizard ---- */
+  .wizard-progress { display:flex; gap:6px; margin:6px 2px 22px; }
+  .wizard-dot {
+    height:4px; flex:1 1 0; border-radius:999px; background:var(--fill);
+    transition:background .25s ease;
+  }
+  .wizard-dot.is-done { background:var(--accent); }
+  .wizard-question {
+    font-family:var(--f-display); font-size:24px; font-weight:730;
+    letter-spacing:-.035em; line-height:1.2; margin:0 2px 20px;
+  }
+  .wizard-next { width:100%; margin-top:22px; }
+  .wizard-summary {
+    margin-top:20px; padding:14px 16px;
+    background:var(--fill); border-radius:14px;
+  }
+  .wizard-summary-line { font-size:14px; line-height:1.45; margin-top:5px; }
+  .wizard-error { color:var(--rust); font-size:13px; margin-top:12px; }
+
+  /* ---- Experience-mode picker ---- */
+  .mode-card {
+    display:block; width:100%; text-align:left;
+    padding:14px 16px; border-radius:14px; border:none;
+    background:var(--fill); margin-bottom:9px;
+    box-shadow:inset 0 0 0 1px transparent;
+    transition:box-shadow .16s ease, background .16s ease;
+  }
+  .mode-card.is-active { box-shadow:inset 0 0 0 2px var(--accent); }
+  .mode-card-title { font-size:16px; font-weight:700; letter-spacing:-.015em; margin-bottom:3px; }
+  .mode-card-copy { font-size:13px; line-height:1.42; color:var(--text-muted); }
+
   .split-count-row { display:flex; gap:7px; margin:0 2px; }
   .split-count-btn {
     flex:1 1 0; min-width:0; min-height:44px;
@@ -1532,7 +1605,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v112.68";
+var APP_VERSION = "v112.70";
 /* Single forward-looking schema stamp. The individual vNNN migration flags
    below are retained because existing ledgers in the wild are keyed on them
    and removing them would silently re-run migrations. New schema changes
@@ -1541,7 +1614,7 @@ var APP_VERSION = "v112.68";
 var SCHEMA_VERSION = 1;
 var FORECAST_MODEL_VERSION = "v11238-periodic-cash-1";
 var TEST_KEY = "ledger-selftest";
-var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: null, homeYearSectionOrder: null, homeYearHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true, schemaVersion: SCHEMA_VERSION };
+var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: null, homeYearSectionOrder: null, homeYearHiddenSections: null, incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: "#016E8F", customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true, experienceMode: "simple", schemaVersion: SCHEMA_VERSION };
 /* Forecast backtesting is independent of the removed Accounts feature.
    Keep its saved snapshots normalized on every boot so an older/corrupt
    snapshot can never prevent the ledger itself from opening. */
@@ -2926,6 +2999,10 @@ var state = {
   txnEntryRestoreScroll: false,
   toastMessage: null,
   toastAction: null,
+  expandedSurfaces: {},
+  showCommitmentWizard: false,
+  commitmentDraft: null,
+  commitmentError: null,
   pendingRestoreText: null,
   settingsSection: null,
   settingsCategorySelected: null,
@@ -4432,6 +4509,13 @@ function loadInitial() {
       state.entries = migrateEntries(parsed.entries||{}, dailyAllowance());
     }
   } catch(e) { primaryStorageHealth="corrupt"; }
+  /* An existing ledger predates experience modes. Default it to Full so a
+     returning user loses nothing; new ledgers default to Simple via
+     DEFAULT_SETTINGS. The toggle is one tap either way. */
+  if (state.settings.experienceMode !== "simple" && state.settings.experienceMode !== "full") {
+    state.settings.experienceMode = Object.keys(state.entries || {}).length ? "full" : "simple";
+  }
+
   /* First-run tracking starts on the calendar date the app is first opened.
      Do this only when there is no primary ledger; IndexedDB recovery still gets
      first chance before these defaults are persisted. */
@@ -6018,6 +6102,13 @@ function render() {
     return;
   }
 
+  if (state.showCommitmentWizard) {
+    root.innerHTML = renderCommitmentWizardPage();
+    applyReportingCurrencyText(root);
+    window.scrollTo(0, 0);
+    return;
+  }
+
   if (state.page === "home" && state.homeDashboardEditing) {
     root.innerHTML = renderHomeDashboardEditorPage() + renderInfoOverlay();
     applyReportingCurrencyText(root);
@@ -6062,7 +6153,8 @@ function render() {
   if (state.page === "transactions") html += renderTransactionsBody();
   else if (state.page === "calendar") html += renderCalendarBody();
   else if (state.page === "budget") html += renderBudgetBody(T);
-  else if (state.page === "plans") html += renderPlansBody();
+  else if (state.page === "plans") html += renderCommitmentsBody();
+  else if (state.page === "plansAdvanced") html += renderPlansBody();
   else if (state.page === "analysis") html += renderAnalysisBody(T);
   else html += renderHomeBody(T, da);
 
@@ -6740,8 +6832,10 @@ function renderHomeBody(T, da) {
   var simpleOrder = normalizeHomeOrder(state.settings.homeSimpleSectionOrder,"month"),simpleHidden=normalizeHomeHidden(state.settings.homeSimpleHiddenSections,"month");
   h = homePeriodSwitchHtml() + h;
   h += '<div class="simple-home-stack">';
-  simpleOrder.forEach(function (id) { if (simpleHidden.indexOf(id)===-1&&simpleCards[id]) h += simpleCards[id]; });
+  var homeVisible = simpleOrder.filter(function (id) { return simpleHidden.indexOf(id)===-1 && simpleCards[id]; });
+  homeVisible.forEach(function (id) { if (sectionAllowed("homeMonth", id)) h += simpleCards[id]; });
   h += '</div>';
+  h += moreCardsToggle("homeMonth", homeVisible);
   h+='<button class="home-dashboard-edit-btn" data-action="toggle-home-dashboard-edit">Edit dashboard</button>';
   return h;
 }
@@ -6899,9 +6993,12 @@ function renderBudgetBody(T) {
 
   if(categoryBudgetsEnabled())sections.progress='';
   var order=['summary','forecast','category','progress','spendTrend','person'];
+  var budgetVisible=order.filter(function(id){return !!sections[id];});
   h+='<div style="display:flex;flex-direction:column;">';
-  order.filter(function(id){return !!sections[id];}).forEach(function(id,idx){h+='<div style="order:'+idx+';">'+sections[id]+'</div>';});
+  budgetVisible.filter(function(id){return sectionAllowed("budget",id);})
+    .forEach(function(id,idx){h+='<div style="order:'+idx+';">'+sections[id]+'</div>';});
   h+='</div>';
+  h+=moreCardsToggle("budget",budgetVisible);
   return h;
 }
 
@@ -7162,17 +7259,25 @@ function renderSettingsPage() {
     var themeLabel = state.settings.theme === "dark" ? "Dark" : "Light";
     var trackLabel = state.settings.trackingStartDate ? shortLabel(state.settings.trackingStartDate) : "Not set";
 
-    h += '<div class="settings-group-title">Budgeting</div><div class="settings-list">';
+    h += '<div class="settings-group-title">How you see the app</div><div class="settings-list" style="margin-bottom:6px;"></div>';
+    h += '<button class="mode-card' + (isSimpleMode() ? ' is-active' : '') + '" data-action="set-experience-mode" data-mode="simple">'
+      + '<div class="mode-card-title">Simple</div>'
+      + '<div class="mode-card-copy">The numbers that answer \u201Cam I OK?\u201D. Everything else is one tap away on each screen.</div></button>';
+    h += '<button class="mode-card' + (!isSimpleMode() ? ' is-active' : '') + '" data-action="set-experience-mode" data-mode="full">'
+      + '<div class="mode-card-title">Everything</div>'
+      + '<div class="mode-card-copy">All charts, forecasting detail and sub-budget controls, shown at once.</div></button>';
+
+    h += '<div class="settings-group-title">Money coming in and out</div><div class="settings-list">';
     h += '<button class="settings-row" data-action="settings-section" data-section="budget"><span class="settings-row-main"><span class="settings-row-label">Monthly budget</span><span class="settings-row-sub">Your controllable spending limit</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(monthlyNow,0)+' AED</span>'+ICONS.chevronRight+'</span></button>';
-    h+='<button class="settings-row" data-action="open-category-budgets"><span class="settings-row-main"><span class="settings-row-label">Sub-budgets</span><span class="settings-row-sub">Custom groups, target shares, guardrails and rollover</span></span><span>'+ICONS.chevronRight+'</span></button>';
+    if(!isSimpleMode()) h+='<button class="settings-row" data-action="open-category-budgets"><span class="settings-row-main"><span class="settings-row-label">Sub-budgets</span><span class="settings-row-sub">Custom groups, target shares, guardrails and rollover</span></span><span>'+ICONS.chevronRight+'</span></button>';
     var rootSavingsPct=savingsTargetPct(), rootSavingsHundredths=Math.round(rootSavingsPct*100), rootSavingsDp=(rootSavingsHundredths%10?2:(rootSavingsHundredths%100?1:0));
     h += '<button class="settings-row" data-action="settings-section" data-section="savings"><span class="settings-row-main"><span class="settings-row-label">Savings target</span><span class="settings-row-sub">Long-term share of income to keep</span></span><span class="row gap2"><span class="settings-row-value">'+fmt(rootSavingsPct,rootSavingsDp)+'%</span>'+ICONS.chevronRight+'</span></button>';
     var annualReserveTotalRoot=activeAnnualReserves().reduce(function(sum,r){return sum+r.annualAmount;},0);
-    h += '<button class="settings-row" data-action="settings-section" data-section="annualReserves"><span class="settings-row-main"><span class="settings-row-label">Annual reserves</span><span class="settings-row-sub">Money earmarked outside the monthly budget</span></span><span class="row gap2"><span class="settings-row-value">'+(annualReserveTotalRoot?fmt(annualReserveTotalRoot,0)+' AED':'Off')+'</span>'+ICONS.chevronRight+'</span></button>';
+    if(!isSimpleMode()) h += '<button class="settings-row" data-action="settings-section" data-section="annualReserves"><span class="settings-row-main"><span class="settings-row-label">Annual reserves</span><span class="settings-row-sub">Money earmarked outside the monthly budget</span></span><span class="row gap2"><span class="settings-row-value">'+(annualReserveTotalRoot?fmt(annualReserveTotalRoot,0)+' AED':'Off')+'</span>'+ICONS.chevronRight+'</span></button>';
     h += '<button class="settings-row" data-action="settings-section" data-section="categories"><span class="settings-row-main"><span class="settings-row-label">Categories & rules</span><span class="settings-row-sub">Budget scope and forecasting</span></span><span class="row gap2"><span class="settings-row-value">'+groupsN+' · '+catsN+'</span>'+ICONS.chevronRight+'</span></button>';
     h += '</div>';
 
-    h += '<div class="settings-group-title">Tracking</div><div class="settings-list">';
+    h += '<div class="settings-group-title">Labels and currency</div><div class="settings-list">';
     h += '<button class="settings-row" data-action="settings-section" data-section="people"><span class="settings-row-main"><span class="settings-row-label">People</span><span class="settings-row-sub">Who spending belongs to</span></span><span class="row gap2"><span class="settings-row-value">'+peopleN+'</span>'+ICONS.chevronRight+'</span></button>';
     h += '<button class="settings-row" data-action="settings-section" data-section="tags"><span class="settings-row-main"><span class="settings-row-label">Tags</span><span class="settings-row-sub">Optional labels for deeper filtering</span></span><span class="row gap2"><span class="settings-row-value">'+tagsN+'</span>'+ICONS.chevronRight+'</span></button>';
     h += '<button class="settings-row" data-action="settings-section" data-section="currency"><span class="settings-row-main"><span class="settings-row-label">Currencies</span><span class="settings-row-sub">Base currency and foreign transactions</span></span><span class="row gap2"><span class="settings-row-value">'+reportingCurrency()+'</span>'+ICONS.chevronRight+'</span></button>';
@@ -7182,7 +7287,7 @@ function renderSettingsPage() {
     h += '<div class="settings-group-title">App</div><div class="settings-list">';
     h += '<button class="settings-row" data-action="settings-section" data-section="demo"><span class="settings-row-main"><span class="settings-row-label">Demo & showcase</span><span class="settings-row-sub">Safely show the app with fictional data</span></span><span class="row gap2"><span class="settings-row-value">'+(IS_DEMO_MODE?'Active':'Off')+'</span>'+ICONS.chevronRight+'</span></button>';
     h += '<button class="settings-row" data-action="settings-section" data-section="theme"><span class="settings-row-main"><span class="settings-row-label">Appearance</span><span class="settings-row-sub">Theme and accent</span></span><span class="row gap2"><span class="settings-row-value">'+themeLabel+'</span>'+ICONS.chevronRight+'</span></button>';
-    h += '<button class="settings-row" data-action="settings-section" data-section="forecastAccuracy"><span class="settings-row-main"><span class="settings-row-label">Forecast health</span><span class="settings-row-sub">Backtesting and forecast error</span></span><span>'+ICONS.chevronRight+'</span></button>';
+    if(!isSimpleMode()) h += '<button class="settings-row" data-action="settings-section" data-section="forecastAccuracy"><span class="settings-row-main"><span class="settings-row-label">Forecast health</span><span class="settings-row-sub">Backtesting and forecast error</span></span><span>'+ICONS.chevronRight+'</span></button>';
     h += '</div>';
 
     h += '<div class="settings-group-title">Data</div><div class="settings-list">';
@@ -9900,11 +10005,15 @@ function renderAnalysisBody(T) {
   var filteredMode=!!(catFilter||personFilter||groupFilter);
   var order=filteredMode?['summary','category','frequency','person','topTransactions']:['cashFlow','monthlySavings','forecastedSpend','balance','spendTrend','category','frequency','person','topTransactions'];
   h+='<div style="display:flex;flex-direction:column;">';
+  var analysisRendered=[];
   order.forEach(function(id,idx){
     var c=sectionHtml[id]?sectionHtml[id]():'';
-    if(c)h+='<div style="order:'+idx+';">'+c+'</div>';
+    if(!c)return;
+    analysisRendered.push(id);
+    if(sectionAllowed("analysis",id))h+='<div style="order:'+idx+';">'+c+'</div>';
   });
   h+='</div>';
+  h+=moreCardsToggle("analysis",analysisRendered);
   return h;
 }
 
@@ -10143,12 +10252,13 @@ function renderBottomNav() {
     {id:"home", label:"Home", icon:ICONS.home},
     {id:"transactions", label:"Activity", icon:ICONS.list},
     {id:"budget", label:"Budget", icon:ICONS.budgetNav},
-    {id:"plans", label:"Plans", icon:ICONS.repeatNav},
+    {id:"plans", label:"Committed", icon:ICONS.repeatNav},
     {id:"analysis", label:"Insights", icon:ICONS.insightsNav}
   ];
   var h='<div class="tabbar">';
   /* Calendar is a view of Activity, not a sixth destination. */
-  var navPage = state.page === "calendar" ? "transactions" : state.page;
+  var navPage = state.page === "calendar" ? "transactions"
+    : (state.page === "plansAdvanced" ? "plans" : state.page);
   tabs.forEach(function(t){var active=navPage===t.id;h+='<button class="tabbar-item" data-action="go-page" data-page="'+t.id+'" aria-current="'+(active?'page':'false')+'">'+t.icon+'<span class="tabbar-label">'+t.label+'</span></button>';});
   return h+'</div>';
 }
@@ -10731,6 +10841,415 @@ function handleRestore(explicitText) {
   } catch(e) {
     state.restoreError = "That doesn't look like a valid backup — paste the exact text you copied earlier.";
   }
+  render();
+}
+
+/* ============================================================
+   REDESIGN v112.70 — Experience modes + unified Commitments
+   ============================================================
+
+   Two problems this solves.
+
+   1. THIRTY-ONE CARDS. Home(8) + Home year(7) + Budget(6) +
+      Insights(10) all render by default. Nothing is wrong with
+      any single card; the sum is the problem. "Simple" curates
+      that to ten and puts the rest one tap away, per page, with
+      no trip to Settings.
+
+   2. FIVE WORDS FOR ONE IDEA. Money that isn't freely spendable
+      could be a Plan, an Annual reserve, a Yearly bill, an
+      excluded category, or a Sub-budget — each with its own
+      screen and its own vocabulary. A person cannot be expected
+      to know which one "rent, paid quarterly" is.
+
+      Commitments is one concept over all five. It READS every
+      mechanism and WRITES to whichever one fits the answers.
+      Nothing migrates; existing configurations keep working
+      exactly as before and simply show up in one list.
+   ============================================================ */
+
+var EXPERIENCE_MODES = ["simple", "full"];
+function experienceMode() {
+  return state.settings.experienceMode === "full" ? "full" : "simple";
+}
+function isSimpleMode() { return experienceMode() === "simple"; }
+
+/* The curated set. Chosen so each surface answers one question:
+   Home = "am I OK?", Budget = "where am I against plan?",
+   Insights = "where did it go?". */
+var SIMPLE_SECTIONS = {
+  homeMonth: ["hero", "budgetStatus", "today"],
+  homeYear:  ["yearSummary", "yearSavings"],
+  budget:    ["summary", "progress"],
+  analysis:  ["category", "spendTrend", "balance"]
+};
+
+/* Per-page, per-session reveal. Deliberately NOT persisted: showing
+   everything once to answer a question should not permanently
+   re-clutter the app. */
+function surfaceExpanded(surface) {
+  return !!(state.expandedSurfaces && state.expandedSurfaces[surface]);
+}
+function sectionAllowed(surface, id) {
+  if (!isSimpleMode()) return true;
+  if (surfaceExpanded(surface)) return true;
+  var allow = SIMPLE_SECTIONS[surface];
+  return !allow || allow.indexOf(id) !== -1;
+}
+function hiddenSectionCount(surface, ids) {
+  if (!isSimpleMode() || surfaceExpanded(surface)) return 0;
+  var allow = SIMPLE_SECTIONS[surface] || [];
+  return (ids || []).filter(function (id) { return allow.indexOf(id) === -1; }).length;
+}
+/* The reveal control. Renders nothing in Full mode and nothing when
+   there is nothing left to reveal, so it never becomes noise. */
+function moreCardsToggle(surface, ids) {
+  if (!isSimpleMode()) return "";
+  var n = hiddenSectionCount(surface, ids);
+  if (surfaceExpanded(surface)) {
+    return '<button class="more-cards-btn" data-action="collapse-surface" data-surface="' + esc(surface) + '">Show less</button>';
+  }
+  if (!n) return "";
+  return '<button class="more-cards-btn" data-action="expand-surface" data-surface="' + esc(surface) + '">'
+    + 'Show ' + n + ' more card' + (n === 1 ? '' : 's') + '</button>';
+}
+
+/* ---------------- Commitments: one read model over five stores ---------------- */
+
+var COMMITMENT_CADENCES = [
+  { id: "monthly",    label: "Every month",   perYear: 12 },
+  { id: "quarterly",  label: "Every 3 months", perYear: 4 },
+  { id: "semiannual", label: "Twice a year",  perYear: 2 },
+  { id: "yearly",     label: "Once a year",   perYear: 1 }
+];
+function cadenceMeta(id) {
+  for (var i = 0; i < COMMITMENT_CADENCES.length; i++) {
+    if (COMMITMENT_CADENCES[i].id === id) return COMMITMENT_CADENCES[i];
+  }
+  return { id: id || "monthly", label: "Every month", perYear: 12 };
+}
+
+/* Reads Plans, Annual reserves and Yearly-bill categories into one shape.
+   Sub-budgets are intentionally excluded: an envelope is a way of dividing
+   spending money, not a commitment against it, and conflating the two is
+   part of what made this confusing. */
+function collectCommitments() {
+  var out = [];
+
+  normalizeRecurringRules(state.settings.recurringRules).forEach(function (rule) {
+    if (rule.paymentPlanType === "tabby" || rule.paymentPlanType === "split") return; // instalments, shown in Plans
+    var isIncome = rule.entryKind === "income";
+    var monthly = 0;
+    if (isIncome) {
+      /* monthlyEquivalentForRecurringRule returns 0 for income by design, so
+         normalise income cadence here rather than misusing that helper. */
+      var per = { daily: 365.2425, weekly: 52.1775, monthly: 12, quarterly: 4, semiannual: 2, yearly: 1 }[rule.frequency] || 12;
+      monthly = round2((Number(rule.amount) || 0) * per / 12);
+    } else {
+      try { monthly = Number(monthlyEquivalentForRecurringRule(rule)) || 0; } catch (e) { monthly = 0; }
+    }
+    out.push({
+      source: "plan", id: rule.id,
+      name: rule.note || rule.category || (isIncome ? "Income" : "Payment"),
+      category: rule.category || "",
+      amount: Number(rule.amount) || 0,
+      cadence: rule.frequency || "monthly",
+      monthly: round2(monthly),
+      kind: isIncome ? "income" : "expense",
+      inBudget: !isIncome && !categoryExcludedFromBudget(rule.category),
+      dated: true,
+      active: rule.active !== false
+    });
+  });
+
+  activeAnnualReserves().forEach(function (r) {
+    var monthly = 0;
+    try { monthly = Number(annualReserveNormalizedMonthlyCost(r)) || (Number(r.annualAmount) || 0) / 12; }
+    catch (e) { monthly = (Number(r.annualAmount) || 0) / 12; }
+    out.push({
+      source: "reserve", id: r.id, name: r.name,
+      category: r.category || r.group || "",
+      amount: round2(Number(r.annualAmount) || 0),
+      cadence: "yearly", monthly: round2(monthly),
+      kind: "expense", inBudget: false, dated: false, active: true
+    });
+  });
+
+  var yearlySettings = state.settings.categoryYearlyBillSettings || {};
+  Object.keys(yearlySettings).forEach(function (cat) {
+    var cfg = null;
+    try { cfg = yearlyBillConfigForCategory(cat); } catch (e) { cfg = null; }
+    if (!cfg || !cfg.enabled) return;
+    var total = Number(cfg.total || cfg.amount || 0) || 0;
+    if (!(total > 0)) return;
+    out.push({
+      source: "yearlyBill", id: "yearly:" + cat, name: cat, category: cat,
+      amount: round2(total), cadence: "yearly", monthly: round2(total / 12),
+      kind: "expense", inBudget: !categoryExcludedFromBudget(cat), dated: false, active: true
+    });
+  });
+
+  return out;
+}
+
+function commitmentTotals(list) {
+  var t = { monthlyOut: 0, monthlyIn: 0, insideBudget: 0, outsideBudget: 0, count: 0 };
+  (list || []).forEach(function (c) {
+    if (!c.active) return;
+    t.count++;
+    if (c.kind === "income") { t.monthlyIn += c.monthly; return; }
+    t.monthlyOut += c.monthly;
+    if (c.inBudget) t.insideBudget += c.monthly; else t.outsideBudget += c.monthly;
+  });
+  t.monthlyOut = round2(t.monthlyOut); t.monthlyIn = round2(t.monthlyIn);
+  t.insideBudget = round2(t.insideBudget); t.outsideBudget = round2(t.outsideBudget);
+  return t;
+}
+
+function commitmentSourceLabel(source) {
+  return source === "reserve" ? "Set aside monthly"
+    : source === "yearlyBill" ? "Annual bill"
+    : "Scheduled";
+}
+
+function renderCommitmentsBody() {
+  var list = collectCommitments().filter(function (c) { return c.active; });
+  var totals = commitmentTotals(list);
+  var income = 0;
+  try { income = Number(incomeDerivedSummary().monthlyIncome) || 0; } catch (e) { income = 0; }
+  if (!income) income = Number(state.settings.incomeAmount) || 0;
+  var freeAfter = round2(income - totals.monthlyOut);
+
+  var h = '<div class="row between page-heading-row"><div class="title2">Commitments</div>'
+    + '<button data-action="open-commitment-wizard" class="btn-accent compact-action">Add</button></div>';
+
+  /* One hero sentence, in money terms rather than mechanism terms. */
+  h += '<div class="card card-pad commit-hero">';
+  h += '<div class="eyebrow">Committed every month</div>';
+  h += '<div class="mono commit-hero-value">' + fmt(totals.monthlyOut, 0) + ' <span class="commit-hero-unit">AED</span></div>';
+  if (income > 0) {
+    var pct = Math.min(100, Math.max(0, totals.monthlyOut / income * 100));
+    h += '<div class="commit-bar"><div class="commit-bar-fill" style="width:' + pct.toFixed(1) + '%;"></div></div>';
+    h += '<div class="commit-hero-sub">' + fmt(freeAfter, 0) + ' AED of your ' + fmt(income, 0)
+      + ' AED income is left for everything else.</div>';
+  } else {
+    h += '<div class="commit-hero-sub">Set your income in Settings to see what this leaves you.</div>';
+  }
+  h += '</div>';
+
+  if (!list.length) {
+    h += '<div class="card card-pad empty-state">'
+      + '<div class="empty-state-title">Nothing committed yet</div>'
+      + '<div class="empty-state-copy">Rent, subscriptions, insurance, school fees — anything you already know you owe. '
+      + 'Adding them here keeps them out of your day-to-day spending money, so what is left is genuinely yours to spend.</div>'
+      + '<button data-action="open-commitment-wizard" class="btn-accent" style="width:100%;margin-top:14px;">Add your first commitment</button>'
+      + '</div>';
+    return h;
+  }
+
+  /* Grouped by how often it happens — the only distinction a person
+     actually thinks in. Which of the five stores holds it is a footnote. */
+  COMMITMENT_CADENCES.forEach(function (cad) {
+    var rows = list.filter(function (c) { return c.cadence === cad.id && c.kind !== "income"; });
+    if (!rows.length) return;
+    var sub = round2(rows.reduce(function (s, r) { return s + r.monthly; }, 0));
+    h += '<div class="commit-group-head"><span>' + esc(cad.label) + '</span>'
+      + '<span class="mono muted">' + fmt(sub, 0) + ' AED/mo</span></div>';
+    h += '<div class="settings-list">';
+    rows.sort(function (a, b) { return b.monthly - a.monthly; }).forEach(function (c) {
+      h += '<button class="settings-row" data-action="open-commitment" data-source="' + esc(c.source) + '" data-id="' + esc(c.id) + '">'
+        + '<span class="settings-row-main">'
+        + '<span class="settings-row-label">' + esc(c.name) + '</span>'
+        + '<span class="settings-row-sub">' + esc(commitmentSourceLabel(c.source))
+        + (c.inBudget ? ' · counts in spending budget' : ' · kept separate') + '</span></span>'
+        + '<span class="row gap2"><span class="settings-row-value mono">' + fmt(c.amount, 0) + '</span>'
+        + ICONS.chevronRight + '</span></button>';
+    });
+    h += '</div>';
+  });
+
+  var incomeRows = list.filter(function (c) { return c.kind === "income"; });
+  if (incomeRows.length) {
+    h += '<div class="commit-group-head"><span>Expected income</span>'
+      + '<span class="mono muted">' + fmt(totals.monthlyIn, 0) + ' AED/mo</span></div><div class="settings-list">';
+    incomeRows.forEach(function (c) {
+      h += '<button class="settings-row" data-action="open-commitment" data-source="' + esc(c.source) + '" data-id="' + esc(c.id) + '">'
+        + '<span class="settings-row-main"><span class="settings-row-label">' + esc(c.name) + '</span>'
+        + '<span class="settings-row-sub">' + esc(cadenceMeta(c.cadence).label) + '</span></span>'
+        + '<span class="row gap2"><span class="settings-row-value mono">' + fmt(c.amount, 0) + '</span>'
+        + ICONS.chevronRight + '</span></button>';
+    });
+    h += '</div>';
+  }
+
+  h += '<div class="commit-split-note">'
+    + '<div class="row between"><span class="muted subhead">Counts in spending budget</span>'
+    + '<span class="mono subhead">' + fmt(totals.insideBudget, 0) + ' AED/mo</span></div>'
+    + '<div class="row between" style="margin-top:6px;"><span class="muted subhead">Kept separate</span>'
+    + '<span class="mono subhead">' + fmt(totals.outsideBudget, 0) + ' AED/mo</span></div></div>';
+
+  if (!isSimpleMode()) {
+    h += '<button class="more-cards-btn" data-action="go-page" data-page="plansAdvanced">Advanced: plans &amp; instalments</button>';
+  }
+  return h;
+}
+
+/* ---------------- Add-commitment wizard ---------------- */
+/* Three plain questions. The routing decision at the end is the whole
+   point: the person never learns the words "annual reserve". */
+
+function commitmentDraft() {
+  if (!state.commitmentDraft) {
+    state.commitmentDraft = { step: 1, name: "", amount: "", cadence: "monthly", category: "", inBudget: false, dated: true, startDate: todayStr() };
+  }
+  return state.commitmentDraft;
+}
+
+function renderCommitmentWizardPage() {
+  var d = commitmentDraft();
+  var h = '<div class="settings-page"><div class="settings-shell">';
+  h += '<div class="settings-header">'
+    + '<button data-action="close-commitment-wizard" class="settings-back" aria-label="Back">' + ICONS.chevronLeft + '</button>'
+    + '<div class="settings-title">Add commitment</div><span></span></div>';
+
+  h += '<div class="wizard-progress" aria-label="Step ' + d.step + ' of 3">';
+  for (var i = 1; i <= 3; i++) h += '<span class="wizard-dot' + (i <= d.step ? ' is-done' : '') + '"></span>';
+  h += '</div>';
+
+  if (d.step === 1) {
+    h += '<div class="wizard-question">What are you paying for?</div>';
+    h += '<label class="eyebrow" style="display:block;margin-bottom:6px;">Name</label>';
+    h += '<input id="commitName" class="field" value="' + esc(d.name) + '" placeholder="Rent, Netflix, car insurance…" />';
+    h += '<label class="eyebrow" style="display:block;margin:14px 0 6px;">Amount each time</label>';
+    h += '<input id="commitAmount" class="field mono" type="number" inputmode="decimal" value="' + esc(d.amount) + '" placeholder="0" />';
+    /* Optional, but it is what lets the money accrue against a real category
+       rather than just appearing on one day. Kept on this step rather than
+       becoming a fourth question. */
+    h += '<label class="eyebrow" style="display:block;margin:14px 0 6px;">Category <span class="muted" style="font-weight:500;text-transform:none;">(optional)</span></label>';
+    h += '<select id="commitCategory" class="field">';
+    h += '<option value="">Not set</option>';
+    (state.settings.categories || []).forEach(function (c) {
+      h += '<option value="' + esc(c) + '"' + (d.category === c ? ' selected' : '') + '>' + esc(c) + '</option>';
+    });
+    h += '</select>';
+    h += '<button data-action="commitment-next" class="btn-accent wizard-next">Continue</button>';
+  } else if (d.step === 2) {
+    h += '<div class="wizard-question">How often?</div>';
+    h += '<div class="settings-list">';
+    COMMITMENT_CADENCES.forEach(function (c) {
+      var each = Number(d.amount) || 0;
+      var perMonth = each * c.perYear / 12;
+      h += '<button class="settings-row" data-action="set-commitment-cadence" data-cadence="' + c.id + '">'
+        + '<span class="settings-row-main"><span class="settings-row-label">' + esc(c.label) + '</span>'
+        + (each > 0 ? '<span class="settings-row-sub">Works out to ' + fmt(perMonth, 0) + ' AED a month</span>' : '')
+        + '</span><span class="settings-row-value">' + (d.cadence === c.id ? '✓' : '') + '</span></button>';
+    });
+    h += '</div>';
+    h += '<button data-action="commitment-next" class="btn-accent wizard-next">Continue</button>';
+  } else {
+    var each2 = Number(d.amount) || 0;
+    var perMonth2 = each2 * cadenceMeta(d.cadence).perYear / 12;
+    h += '<div class="wizard-question">Should this come out of your day-to-day spending money?</div>';
+    h += '<div class="settings-list">';
+    h += '<button class="settings-row" data-action="set-commitment-scope" data-inbudget="0">'
+      + '<span class="settings-row-main"><span class="settings-row-label">No — keep it separate</span>'
+      + '<span class="settings-row-sub">Recommended for rent, fees and insurance. It is reserved before you see what is free to spend.</span></span>'
+      + '<span class="settings-row-value">' + (!d.inBudget ? '✓' : '') + '</span></button>';
+    h += '<button class="settings-row" data-action="set-commitment-scope" data-inbudget="1">'
+      + '<span class="settings-row-main"><span class="settings-row-label">Yes — it is part of my spending</span>'
+      + '<span class="settings-row-sub">For things you could cut back on, like subscriptions.</span></span>'
+      + '<span class="settings-row-value">' + (d.inBudget ? '✓' : '') + '</span></button>';
+    h += '</div>';
+    h += '<div class="wizard-summary"><div class="eyebrow">Summary</div>'
+      + '<div class="wizard-summary-line">' + esc(d.name || "This commitment") + ' · '
+      + fmt(each2, 0) + ' AED ' + esc(cadenceMeta(d.cadence).label.toLowerCase()) + '</div>'
+      + '<div class="wizard-summary-line muted">Roughly <span class="mono">' + fmt(perMonth2, 0) + ' AED</span> a month'
+      + (d.inBudget ? ', inside your spending budget.' : ', reserved before your spending budget.') + '</div></div>';
+    if (state.commitmentError) h += '<div class="wizard-error">' + esc(state.commitmentError) + '</div>';
+    h += '<button data-action="save-commitment" class="btn-accent wizard-next">Add commitment</button>';
+  }
+  h += '</div></div>';
+  return h;
+}
+
+/* The router. This is where five mechanisms hide behind three questions. */
+function saveCommitmentDraft() {
+  var d = commitmentDraft();
+  var name = String(d.name || "").trim();
+  var each = round2(Math.max(0, fromReporting(Number(d.amount) || 0)));
+  if (!name) { state.commitmentError = "Give this commitment a name."; render(); return; }
+  if (!(each > 0)) { state.commitmentError = "Enter an amount."; render(); return; }
+
+  var cadence = cadenceMeta(d.cadence).id;
+  var next = Object.assign({}, state.settings);
+
+  if (d.inBudget) {
+    /* Inside the budget and on a known cadence -> a dated Plan, so the
+       forecast can place it on a real day rather than smearing it. */
+    var rule = {
+      id: "commit-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      kind: "recurring", entryKind: "expense",
+      amount: each, category: d.category || "", note: name,
+      frequency: cadence, startDate: d.startDate || todayStr(),
+      endDate: null, active: true
+    };
+    next.recurringRules = (next.recurringRules || []).concat([rule]);
+    /* Several default categories ship pre-excluded from the budget. If the
+       person has just said this IS part of their day-to-day spending, that
+       answer has to win — otherwise the question was decorative. */
+    if (d.category && (next.categoryExcludeFromBudget || {})[d.category]) {
+      next.categoryExcludeFromBudget = Object.assign({}, next.categoryExcludeFromBudget);
+      delete next.categoryExcludeFromBudget[d.category];
+    }
+  } else if (cadence === "monthly" || cadence === "quarterly") {
+    /* Predictable and frequent enough to schedule, but excluded from the
+       spending budget. */
+    var rule2 = {
+      id: "commit-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      kind: "recurring", entryKind: "expense",
+      amount: each, category: d.category || "", note: name,
+      frequency: cadence, startDate: d.startDate || todayStr(),
+      endDate: null, active: true
+    };
+    next.recurringRules = (next.recurringRules || []).concat([rule2]);
+    if (d.category) {
+      next.categoryExcludeFromBudget = Object.assign({}, next.categoryExcludeFromBudget || {});
+      next.categoryExcludeFromBudget[d.category] = true;
+    }
+  } else if (d.category) {
+    /* Yearly or half-yearly against a known category -> an annual reserve, so
+       the money accrues monthly instead of ambushing one month.
+       activeAnnualReserves() drops any reserve without a scope, so this branch
+       requires a category; without one we fall through to a dated plan below,
+       which has no such requirement. */
+    var perYear = cadenceMeta(cadence).perYear;
+    var reserves = normalizeAnnualReserves(next.annualReserves, next.categories, next.categoryGroups);
+    reserves.push({
+      id: "reserve-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      name: name, category: d.category, group: "",
+      annualAmount: round2(each * perYear), active: true
+    });
+    next.annualReserves = normalizeAnnualReserves(reserves, next.categories, next.categoryGroups);
+    next.categoryExcludeFromBudget = Object.assign({}, next.categoryExcludeFromBudget || {});
+    next.categoryExcludeFromBudget[d.category] = true;
+  } else {
+    /* No category to reserve against, so schedule it as a dated plan instead
+       of writing a reserve that would be silently discarded on read. */
+    var rule3 = {
+      id: "commit-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      kind: "recurring", entryKind: "expense",
+      amount: each, category: "", note: name,
+      frequency: cadence, startDate: d.startDate || todayStr(),
+      endDate: null, active: true
+    };
+    next.recurringRules = (next.recurringRules || []).concat([rule3]);
+  }
+
+  persistAll(next, state.entries, "your commitments");
+  state.commitmentDraft = null;
+  state.commitmentError = null;
+  state.showCommitmentWizard = false;
+  showToast(name + " added");
   render();
 }
 
@@ -11702,6 +12221,81 @@ document.addEventListener("click", function(e) {
     case "export-csv": handleExportCsv(); break;
     case "restore-from-file": handleRestoreFromFile(); break;
     case "undo-delete-txn": handleUndoDeleteTxn(); break;
+
+    case "expand-surface":
+      state.expandedSurfaces = Object.assign({}, state.expandedSurfaces || {});
+      state.expandedSurfaces[el.dataset.surface] = true;
+      render();
+      break;
+    case "collapse-surface":
+      state.expandedSurfaces = Object.assign({}, state.expandedSurfaces || {});
+      delete state.expandedSurfaces[el.dataset.surface];
+      render();
+      window.scrollTo(0, 0);
+      break;
+    case "set-experience-mode": {
+      var expMode = el.dataset.mode === "full" ? "full" : "simple";
+      if (expMode !== experienceMode()) {
+        state.expandedSurfaces = {};
+        persistAll(Object.assign({}, state.settings, { experienceMode: expMode }), state.entries, "your settings");
+        showToast(expMode === "simple" ? "Simple view on" : "All cards shown");
+      }
+      render();
+      break;
+    }
+
+    case "open-commitment-wizard":
+      state.commitmentDraft = null;
+      state.commitmentError = null;
+      state.showCommitmentWizard = true;
+      render();
+      break;
+    case "close-commitment-wizard": {
+      var wizDraft = state.commitmentDraft;
+      if (wizDraft && wizDraft.step > 1) { wizDraft.step--; state.commitmentError = null; render(); break; }
+      state.showCommitmentWizard = false;
+      state.commitmentDraft = null;
+      state.commitmentError = null;
+      render();
+      break;
+    }
+    case "commitment-next": {
+      var cd = commitmentDraft();
+      if (cd.step === 1) {
+        var nameEl = document.getElementById("commitName"), amtEl = document.getElementById("commitAmount");
+        var catEl = document.getElementById("commitCategory");
+        cd.name = String(nameEl && nameEl.value || "").trim();
+        cd.amount = String(amtEl && amtEl.value || "").trim();
+        cd.category = String(catEl && catEl.value || "");
+        if (!cd.name) { state.commitmentError = null; showToast("Give this commitment a name"); render(); break; }
+        if (!(Number(cd.amount) > 0)) { showToast("Enter an amount"); render(); break; }
+      }
+      cd.step = Math.min(3, cd.step + 1);
+      state.commitmentError = null;
+      render();
+      window.scrollTo(0, 0);
+      break;
+    }
+    case "set-commitment-cadence":
+      commitmentDraft().cadence = cadenceMeta(el.dataset.cadence).id;
+      render();
+      break;
+    case "set-commitment-scope":
+      commitmentDraft().inBudget = el.dataset.inbudget === "1";
+      render();
+      break;
+    case "save-commitment": saveCommitmentDraft(); break;
+    case "open-commitment":
+      /* Editing still lives in the mechanism that owns the record. Routing
+         there beats duplicating four editors inside the unified view. */
+      state.showCommitmentWizard = false;
+      settingsRootSnapshot = captureTxnVisual(); settingsNavStack = [];
+      if (el.dataset.source === "reserve") { state.settingsSection = "annualReserves"; state.showSettings = true; }
+      else if (el.dataset.source === "yearlyBill") { state.settingsSection = "categories"; state.showSettings = true; }
+      else { state.page = "plansAdvanced"; }
+      render();
+      window.scrollTo(0, 0);
+      break;
     case "set-txn-split-count":
       preserveTxnFormDraft();
       state.txnSplitCount = normalizeSplitCount(el.dataset.count);
