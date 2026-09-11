@@ -84,8 +84,8 @@ textarea.field { line-height:1.6; }
 button.chip { min-height:44px; }
 .chip-accent { background:color-mix(in srgb,var(--accent) 12%,var(--card)); color:var(--accent-text); }
 .info-title-row { display:flex; align-items:center; gap:6px; min-width:0; }
-.info-btn { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; width:30px; height:30px; border:0; border-radius:50%; color:var(--text-muted); background:transparent; font-size:13px; font-weight:500; }
-.info-btn svg { width:16px; height:16px; }
+.info-btn { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; width:27px; height:27px; border:1px solid var(--sep); border-radius:50%; color:var(--accent-text); background:var(--raised); font-size:13px; line-height:1; font-weight:750; font-family:var(--f-ui); }
+.info-btn svg { width:15px; height:15px; }
 summary { cursor:pointer; list-style:none; min-height:44px; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:var(--type-label); font-weight:600; }
 summary::-webkit-details-marker { display:none; }
 summary::after { content:'+'; color:var(--text-muted); font-size:20px; font-weight:400; }
@@ -118,24 +118,24 @@ details[open]>summary::after { content:'−'; }
 /* Budget overview is deliberately dense on phones: the comparison detail is
    still present, but each budget reads as one compact scan row rather than a
    mini-card with its own large vertical rhythm. */
-.budget-overview-card { padding:12px 14px; }
-.budget-legend { display:flex; flex-wrap:wrap; gap:4px 10px; margin:4px 0 6px; font-size:10.5px; color:var(--text-muted); }
+.budget-overview-card { padding:14px 16px; }
+.budget-legend { display:flex; flex-wrap:wrap; gap:5px 11px; margin:5px 0 7px; font-size:11px; color:var(--text-muted); }
 .budget-legend>span { display:inline-flex; align-items:center; gap:5px; }
-.budget-legend i { display:inline-block; width:11px; height:4px; }
+.budget-legend i { display:inline-block; width:12px; height:4px; }
 .legend-current { background:var(--accent); border-radius:2px; }
 .legend-previous { border:1px solid var(--text-muted); border-radius:2px; }
 .budget-legend .legend-today { width:0; height:10px; border-left:2px dotted var(--text-muted); }
-.budget-overview-row { padding:6px 0; border-top:1px solid var(--sep); }
-.budget-overview-row.is-main { border:0; padding:0 0 8px; }
-.budget-overview-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
-.budget-overview-name { font-size:13px; line-height:1.2; font-weight:650; min-width:0; overflow-wrap:anywhere; }
-.budget-overview-pct { font-size:12.5px; font-weight:700; flex-shrink:0; }
-.is-main .budget-overview-name { font-size:14px; font-weight:700; }
-.is-main .budget-overview-pct { font-size:14px; }
-.budget-overview-amount-line { display:flex; align-items:baseline; gap:4px; margin-top:1px; font-size:11.75px; line-height:1.2; color:var(--text-muted); flex-wrap:wrap; }
-.budget-overview-amount-line strong { color:var(--text); font-size:15px; font-weight:700; letter-spacing:-.02em; }
-.budget-overview-limit { margin-top:1px; font-size:11.75px; line-height:1.2; color:var(--text-muted); }
-.budget-compare { position:relative; height:10px; margin-top:4px; }
+.budget-overview-row { padding:7px 0; border-top:1px solid var(--sep); }
+.budget-overview-row.is-main { border:0; padding:1px 0 9px; }
+.budget-overview-top { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+.budget-overview-name { font-size:13.5px; line-height:1.25; font-weight:650; min-width:0; overflow-wrap:anywhere; }
+.budget-overview-pct { font-size:13px; font-weight:700; flex-shrink:0; }
+.is-main .budget-overview-name { font-size:14.5px; font-weight:700; }
+.is-main .budget-overview-pct { font-size:15px; }
+.budget-overview-amount-line { display:flex; align-items:baseline; gap:4px; margin-top:2px; font-size:12.5px; line-height:1.25; color:var(--text-muted); }
+.budget-overview-amount-line strong { color:var(--text); font-size:17px; font-weight:720; letter-spacing:-.025em; }
+.budget-overview-limit { margin-top:1px; font-size:12px; line-height:1.25; color:var(--text-muted); }
+.budget-compare { position:relative; height:11px; margin-top:5px; }
 .budget-compare-current { height:5px; background:var(--fill); border-radius:3px; overflow:hidden; }
 .budget-compare-current>span { display:block; height:100%; background:var(--budget-color); border-radius:3px; }
 .budget-compare-previous { margin-top:2px; height:2px; }
@@ -161,9 +161,10 @@ details[open]>summary::after { content:'−'; }
 .dashboard-item { min-width:0; }
 .daily-card { border:0; padding:22px; background:var(--text); color:var(--card); position:relative; }
 .daily-card .muted,.daily-card .eyebrow { color:color-mix(in srgb,var(--card) 68%,var(--text)); }
-.daily-card .info-btn { color:color-mix(in srgb,var(--card) 68%,var(--text)); }
+.daily-card .info-btn { color:var(--card); border-color:color-mix(in srgb,var(--card) 20%,transparent); background:color-mix(in srgb,var(--card) 12%,transparent); }
 .daily-card .info-title-row>.eyebrow { font-size:14px; }
-.daily-card-value { font-size:44px; font-weight:600; line-height:1.15; letter-spacing:-.055em; margin:8px 0 12px; }
+.daily-card-value-line { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin:8px 0 12px; }
+.daily-card-value { font-size:44px; font-weight:600; line-height:1.15; letter-spacing:-.055em; margin:0; }
 .money-unit { font-size:13px; font-weight:500; letter-spacing:0; margin-left:4px; color:var(--text-muted); white-space:nowrap; }
 .daily-card .money-unit { color:color-mix(in srgb,var(--card) 65%,var(--text)); }
 .daily-card-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:13px; border-top:1px solid color-mix(in srgb,var(--card) 18%,var(--text)); font-size:13px; }
@@ -189,7 +190,8 @@ details[open]>summary::after { content:'−'; }
 .progress-track>span { display:block; height:100%; border-radius:3px; }
 .budget-meta { display:flex; gap:6px; font-size:12px; color:var(--text-muted); }
 .home-metric-value-line { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
-.home-opening-delta { display:inline-flex; font-size:12px; font-weight:650; padding:3px 6px; background:color-mix(in srgb,currentColor 9%,transparent); border-radius:6px; letter-spacing:0; vertical-align:middle; }
+.home-opening-delta { display:inline-flex; align-items:center; justify-content:center; min-height:25px; font-size:12px; line-height:1; font-weight:700; padding:4px 8px; background:color-mix(in srgb,currentColor 9%,transparent); border-radius:8px; letter-spacing:0; vertical-align:middle; }
+.daily-card-value-line>.home-opening-delta { margin-left:2px; }
 .daily-card .home-opening-delta { color:var(--card); background:color-mix(in srgb,var(--card) 14%,transparent); }
 .home-projection-note { font-size:12px; margin-top:4px; }
 .home-flex-pace { margin-top:16px; padding-top:12px; }.home-flex-pace-grid { display:grid; grid-template-columns:1fr 1fr; margin-top:8px; gap:16px; }
@@ -224,14 +226,15 @@ details[open]>summary::after { content:'−'; }
 .txn-entry-header,.settings-header,.dashboard-editor-header { position:sticky; top:0; z-index:30; display:grid; grid-template-columns:44px minmax(0,1fr) 44px; gap:8px; align-items:center; min-height:calc(var(--app-safe-top) + 68px); padding:calc(var(--app-safe-top) + 10px) 20px 10px; margin:0 -20px 8px; background:var(--bg); border-bottom:1px solid var(--sep); }
 .txn-entry-header-title,.settings-title,.dashboard-editor-title { font-size:1.125rem; line-height:1.3; font-weight:650; letter-spacing:-.02em; text-align:center; overflow-wrap:anywhere; }
 .txn-entry-content { padding-bottom:16px; }.txn-entry-page input,.txn-entry-page select,.txn-entry-page textarea,.plan-entry-page input,.settings-page input { scroll-margin-top:100px; }
-.fx-amount-shell { display:flex; align-items:flex-end; gap:10px; min-height:74px; padding:4px 0 2px; border:0; border-bottom:1px solid var(--hairline); border-radius:0; background:transparent; }
-.fx-currency-select { flex:0 0 64px; width:64px; min-height:38px; padding:4px 2px; background:transparent; color:var(--text-muted); font-size:14px; border:0; border-radius:8px; }
-.fx-amount-wrap { flex:0 1 auto; width:auto; max-width:calc(100% - 8px); min-width:0; margin-left:auto; display:inline-flex; align-items:flex-end; justify-content:flex-end; gap:4px; }
-.fx-amount-sign { flex:0 0 auto; align-self:flex-end; font-size:28px; line-height:1; font-weight:700; letter-spacing:-.02em; color:var(--text-muted); transform:translateY(-3px); }
-.fx-amount-shell[data-kind="income"] .fx-amount-sign { color:var(--positive); }
-.fx-amount-shell[data-kind="expense"] .fx-amount-sign { color:color-mix(in srgb,var(--text) 82%,var(--text-muted)); }
-.fx-amount-input { display:block; width:min(100%,10ch); min-width:4ch; max-width:10ch; flex:0 1 auto; font-size:42px; line-height:1.02; font-weight:650; letter-spacing:-.055em; background:transparent; border:0; padding:0; margin:0; text-align:left; }
-.fx-amount-input::placeholder { color:var(--text-muted); opacity:.42; }
+.fx-amount-shell { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:12px; min-height:100px; padding:10px 0; border:0; border-bottom:1px solid var(--hairline); border-radius:0; background:transparent; }
+.fx-currency-select { width:70px; min-height:44px; padding:8px 4px; background:transparent; color:var(--text-muted); font-size:16px; border:0; border-radius:8px; }
+.fx-amount-value { display:flex; align-items:baseline; justify-content:flex-end; gap:0; min-width:0; overflow:hidden; }
+.fx-amount-sign { flex:0 0 auto; font-family:var(--f-num); font-variant-numeric:tabular-nums; font-size:52px; line-height:1.15; font-weight:550; letter-spacing:-.055em; color:var(--rust); }
+.fx-amount-value.is-income .fx-amount-sign { color:var(--positive); }
+.fx-amount-value.is-expense .fx-amount-input { color:var(--rust); }
+.fx-amount-value.is-income .fx-amount-input { color:var(--positive); }
+.fx-amount-input { display:block; width:3.5ch; max-width:calc(100% - .9em); min-width:0; flex:0 0 auto; font-size:52px; line-height:1.15; font-weight:550; letter-spacing:-.055em; background:transparent; border:0; padding:0; margin:0; text-align:right; }
+.fx-amount-input::placeholder { color:currentColor; opacity:1; }
 /* The large amount field uses the caret and a subtle underline for focus.
    Avoid the browser's rectangular blue focus ring, which reads like an input
    error state on iPhone and fights the otherwise borderless amount surface. */
@@ -240,8 +243,8 @@ details[open]>summary::after { content:'−'; }
 .fx-panel { border-radius:14px; padding:14px; background:var(--raised); margin-bottom:18px; }.fx-rate-line { display:flex; align-items:center; gap:8px; margin-top:8px; }.fx-rate-input { width:130px; min-height:40px; background:var(--card); border:1px solid var(--hairline); border-radius:8px; padding:8px; }
 .txn-entry-save { min-height:54px; margin-top:20px; width:100%; }
 .txn-hscroll { display:flex; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; touch-action:pan-x; overscroll-behavior-x:contain; gap:8px; }
-.txn-hscroll::-webkit-scrollbar { display:none; }.txn-date-time-row { display:grid; grid-template-columns:minmax(0,7fr) minmax(0,3fr); gap:8px; margin:8px 0 10px; align-items:stretch; }.txn-date-time-row label { min-width:0; overflow:hidden; }.txn-date-time-row input { width:100%; text-align:center; padding:11px 8px; min-width:0; }.txn-date-time-row input::-webkit-date-and-time-value { text-align:center; width:100%; }
-.txn-quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:1fr; align-items:stretch; gap:8px; margin:8px 0 4px; }.txn-category-tile { min-width:0; min-height:84px; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:7px; background:var(--card); border:1px solid var(--sep); border-radius:14px; padding:10px 8px; text-align:center; }.txn-category-tile[aria-pressed="true"] { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 9%,var(--card)); box-shadow:inset 0 0 0 1px var(--accent); }.txn-category-tile>span:last-child { width:100%; max-width:100%; font-size:var(--type-label); line-height:1.24; min-height:2.48em; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; text-wrap:balance; }.txn-category-more { display:flex; justify-content:center; align-items:center; gap:8px; width:100%; min-height:40px; margin:0 0 12px; border:0; color:var(--accent-text); background:transparent; font-size:14px; font-weight:600; }
+.txn-hscroll::-webkit-scrollbar { display:none; }.txn-date-time-row { display:grid; grid-template-columns:minmax(0,7fr) minmax(0,3fr); gap:10px; margin:16px 0; align-items:end; }.txn-date-time-row>label,.txn-date-time-row input { display:block; width:100%; max-width:100%; min-width:0; }.txn-date-time-row input { text-align:center; padding:12px 5px; }.txn-date-time-row input::-webkit-date-and-time-value { text-align:center; width:100%; min-width:0; }
+.txn-quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:88px; align-items:stretch; gap:8px; margin:12px 0 8px; }.txn-category-tile { position:relative; min-width:0; min-height:0; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:7px; overflow:hidden; background:var(--card); border:1px solid var(--sep); border-radius:14px; padding:8px 5px; text-align:center; }.txn-category-tile[aria-pressed="true"] { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 14%,var(--card)); box-shadow:inset 0 0 0 2px var(--accent); color:var(--accent-text); font-weight:700; }.txn-category-tile[aria-pressed="true"]::after { content:'✓'; position:absolute; top:6px; right:6px; display:flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:var(--accent); color:var(--accent-ink); font-size:11px; line-height:1; font-weight:800; }.txn-category-tile[aria-pressed="true"] .category-icon { background:var(--accent); color:var(--accent-ink); }.txn-category-tile>span:last-child { display:-webkit-box; max-width:100%; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; font-size:var(--type-label); line-height:1.2; overflow-wrap:anywhere; }.txn-category-more { display:flex; justify-content:center; align-items:center; gap:8px; width:100%; min-height:44px; margin:2px 0 16px; border:0; color:var(--accent-text); background:transparent; font-size:14px; font-weight:600; }
 .txn-options { margin:18px 0; border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); padding:4px 0; }.txn-options>summary { min-height:52px; }.txn-options-body { padding:12px 0 8px; }.txn-note { margin-top:16px; }
 .category-picker-group-title { margin:20px 4px 8px; color:var(--text-muted); font-size:var(--type-label); font-weight:600; }.category-picker-list { overflow:hidden; background:var(--card); border:1px solid var(--sep); border-radius:var(--radius); }.category-picker-row { display:flex; align-items:center; gap:12px; width:100%; min-height:60px; padding:12px 16px; border:0; border-bottom:1px solid var(--sep); color:var(--text); background:transparent; text-align:left; }.category-picker-row:last-child { border:0; }
 /* Budget and planning */
@@ -253,8 +256,8 @@ details[open]>summary::after { content:'−'; }
 .plan-section>.card { box-shadow:none; }
 
 .cb-category-card { padding:16px; border-bottom:1px solid var(--sep); }.cb-category-head { display:flex; align-items:center; gap:11px; width:100%; min-height:44px; text-align:left; background:transparent; border:0; padding:0; }.cb-category-title { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; font-size:15px; font-weight:650; }.cb-category-title .caption { font-weight:400; }.cb-category-pct { font-size:20px; font-weight:600; flex-shrink:0; }.cb-card-chevron { display:flex; color:var(--text-muted); }.cb-card-chevron svg { width:16px; }.cb-category-track { height:6px; background:var(--fill); border-radius:3px; margin:13px 0 9px; overflow:hidden; }.cb-category-track>span { display:block; height:100%; border-radius:3px; }.cb-category-values { display:flex; justify-content:space-between; gap:12px; }.cb-category-meta { display:flex; flex-wrap:wrap; gap:5px 10px; color:var(--text-muted); font-size:12px; margin-top:8px; }.cb-category-detail { margin-top:14px; padding-top:8px; }.cb-auto-reallocated { display:inline-block; font-size:12px; color:var(--positive); margin-top:5px; }.cb-auto-reallocated.out { color:var(--text-muted); }.cb-detail-row { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:48px; padding:10px 0; background:transparent; border:0; border-bottom:1px solid var(--sep); text-align:left; font-size:14px; }.cb-detail-row:last-child { border:0; }.cb-detail-amount { display:flex; flex-direction:column; gap:4px; text-align:right; flex-shrink:0; }.cb-detail-section { padding:12px 0; }.cb-detail-section-title { font-size:12px; color:var(--text-muted); margin-bottom:6px; }.cb-compact-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }.cb-total-value { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px; font-size:38px; line-height:1.3; font-weight:600; margin:10px 0; }.cb-warning { padding:12px 14px; margin:12px 0; border-radius:12px; color:var(--rust); background:var(--rust-wash); font-size:13px; }.cb-home-context { font-size:12px; color:var(--text-muted); margin-top:12px; }.cb-buffer-icon,.cb-budget-icon-preview { display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:12px; background:var(--raised); color:var(--accent-text); flex-shrink:0; }
-.cb-edit-row { padding:14px; border:1px solid var(--sep); background:var(--card); border-radius:16px; margin-bottom:10px; }.cb-amount-label { display:flex; align-items:center; gap:6px; }.cb-edit-options { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }.cb-check { display:flex; align-items:center; gap:10px; min-height:42px; }.cb-share-grid,.cb-guardrail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0; }.cb-live-allocation { display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:3px; text-align:right; }.cb-percent-input { display:flex; align-items:center; gap:8px; }.cb-percent-input .field { font-size:22px; }.cb-subcat-picker { margin-top:14px; border-top:1px solid var(--sep); padding-top:10px; }.cb-subcat-list { display:grid; gap:2px; }.cb-subcat-option { display:flex; align-items:center; gap:12px; min-height:50px; padding:9px 0; border-bottom:1px solid var(--sep); }.cb-subcat-copy { display:flex; flex:1; flex-direction:column; font-size:13.5px; }.cb-subcat-check { width:22px; height:22px; accent-color:var(--accent); }.cb-subcat-option.is-used { opacity:.5; }.cb-appearance-row { display:flex; align-items:center; gap:12px; margin:14px 0; }.cb-color-control { display:flex; align-items:center; gap:8px; }.cb-icon-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:10px 0; }.cb-icon-grid button { min-height:42px; border:1px solid var(--sep); border-radius:10px; background:var(--card); }.cb-rhythm-panel { padding:14px; border-radius:14px; background:var(--raised); margin:12px 0; }.cb-day-weight-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }.cb-day-weight-item { display:flex; flex-direction:column; gap:6px; min-width:0; text-align:center; font-size:11.5px; }.cb-day-weight-item input { text-align:center; padding:8px 2px; font-size:15px; }.cb-auto-card { background:var(--raised); padding:13px; border-radius:14px; }.cb-auto-members { color:var(--text-muted); font-size:11.75px; line-height:1.38; margin-top:6px; }.cb-overview-list { margin:8px 0; border:1px solid var(--sep); border-radius:var(--radius); background:var(--card); overflow:hidden; }.cb-overview-top { display:flex; justify-content:space-between; flex-wrap:nowrap; gap:10px; align-items:center; }.cb-overview-copy { min-width:0; }.cb-overview-sub { margin-top:3px; color:var(--text-muted); font-size:11.25px; line-height:1.26; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }.cb-overview-amount { text-align:right; flex-shrink:0; }.cb-overview-meta { display:flex; flex-wrap:wrap; gap:4px 8px; margin-top:4px; font-size:11.25px; line-height:1.26; color:var(--text-muted); }.cb-editor-summary { padding:13px 14px !important; }.cb-editor-summary .hairline-top { margin-top:9px !important; padding-top:8px !important; }.cb-guardrails { margin:10px 0; }
-.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }.stat-block { min-width:0; }.stat-block-value { margin-top:6px; font-size:22px; line-height:1.3; font-weight:600; }.stat-block-label { font-size:12px; }.plans-cycle-row { padding:14px 0; }.plans-cycle-row+.plans-cycle-row { border-top:1px solid var(--sep); }.plans-cycle-meta { margin-top:4px; font-size:12px; color:var(--text-muted); }.plan-card { padding:18px; margin-bottom:12px; }.plan-card summary { padding:0; }.plan-detail-actions { padding-top:16px; }.plan-section { margin:18px 0; border-top:1px solid var(--sep); padding-top:8px; }.planning-empty { padding:28px; text-align:left; }.planning-empty .title2 { margin:15px 0 10px; }.planning-empty p { color:var(--text-muted); max-width:35ch; }
+.cb-edit-row { padding:16px; border:1px solid var(--sep); background:var(--card); border-radius:16px; margin-bottom:12px; }.cb-amount-label { display:flex; align-items:center; gap:6px; }.cb-edit-options { display:flex; flex-wrap:wrap; gap:12px; margin-top:14px; }.cb-check { display:flex; align-items:center; gap:10px; min-height:44px; }.cb-share-grid,.cb-guardrail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }.cb-live-allocation { display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:4px; text-align:right; }.cb-percent-input { display:flex; align-items:center; gap:8px; }.cb-percent-input .field { font-size:24px; }.cb-subcat-picker { margin-top:16px; border-top:1px solid var(--sep); padding-top:10px; }.cb-subcat-list { display:grid; gap:2px; }.cb-subcat-option { display:flex; align-items:center; gap:12px; min-height:54px; padding:10px 0; border-bottom:1px solid var(--sep); }.cb-subcat-copy { display:flex; flex:1; flex-direction:column; font-size:14px; }.cb-subcat-check { width:22px; height:22px; accent-color:var(--accent); }.cb-subcat-option.is-used { opacity:.5; }.cb-appearance-row { display:flex; align-items:center; gap:14px; margin:16px 0; }.cb-color-control { display:flex; align-items:center; gap:8px; }.cb-icon-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:12px 0; }.cb-icon-grid button { min-height:44px; border:1px solid var(--sep); border-radius:10px; background:var(--card); }.cb-rhythm-panel { padding:16px; border-radius:14px; background:var(--raised); margin:14px 0; }.cb-day-weight-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; }.cb-day-weight-item { display:flex; flex-direction:column; gap:7px; min-width:0; text-align:center; font-size:12px; }.cb-day-weight-item input { text-align:center; padding:8px 2px; font-size:16px; }.cb-auto-card { background:var(--raised); padding:14px; border-radius:14px; }.cb-auto-members { color:var(--text-muted); font-size:12px; line-height:1.45; margin-top:7px; }.cb-overview-list { margin:10px 0; border:1px solid var(--sep); border-radius:var(--radius); background:var(--card); overflow:hidden; }.cb-overview-top { display:flex; justify-content:space-between; flex-wrap:nowrap; gap:10px; align-items:center; }.cb-overview-copy { min-width:0; }.cb-overview-sub { margin-top:3px; color:var(--text-muted); font-size:11.5px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }.cb-overview-amount { text-align:right; flex-shrink:0; }.cb-overview-meta { display:flex; flex-wrap:wrap; gap:4px 9px; margin-top:5px; font-size:11.5px; line-height:1.3; color:var(--text-muted); }.cb-editor-summary { padding:14px 16px !important; }.cb-editor-summary .hairline-top { margin-top:10px !important; padding-top:9px !important; }.cb-guardrails { margin:12px 0; }
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }.stat-block { min-width:0; }.stat-block-value { margin-top:6px; font-size:22px; line-height:1.3; font-weight:600; }.stat-block-label { font-size:12px; }.plans-cycle-row { padding:14px 0; }.plans-cycle-row+.plans-cycle-row { border-top:1px solid var(--sep); }.plans-cycle-meta { margin-top:4px; font-size:12px; color:var(--text-muted); }.plan-card { padding:18px; margin-bottom:12px; }.plan-card summary { padding:0; }.plan-detail-actions { padding-top:16px; }.plan-section { margin:18px 0; border-top:1px solid var(--sep); padding-top:8px; }.planning-empty { padding:28px; text-align:left; }.planning-empty .title2 { margin:15px 0 10px; }.planning-empty p { color:var(--text-muted); max-width:35ch; }.plan-person-card>summary { display:flex; align-items:center; min-height:44px; }
 /* Charts, tables, and contextual detail */
 .chart-shell { width:100%; min-width:0; }.chart-shell svg { max-width:100%; }.chart-hit { touch-action:none; }.chart-shell text { font-family:var(--f-ui); }.forecast-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:8px; background:var(--raised); font-size:12px; }.forecast-target-summary { margin-top:14px; padding-top:12px; border-top:1px solid var(--sep); }.forecast-target-badge { padding:5px 8px; border-radius:8px; background:var(--fill); font-size:12px; }.forecast-target-gap,.forecast-target-save { font-size:13px; }.pie-legend-chip { font-size:12px; padding:7px 9px; border-radius:9px; }
 .monthly-savings-card { margin-bottom:0; }
@@ -299,18 +302,21 @@ details[open]>summary::after { content:'−'; }
 .taxonomy-hero,.taxonomy-form-card { padding:20px; border:1px solid var(--sep); background:var(--card); border-radius:var(--radius); margin-bottom:16px; }.taxonomy-list { border:1px solid var(--sep); border-radius:var(--radius); background:var(--card); overflow:hidden; }.taxonomy-row { width:100%; border-bottom:1px solid var(--sep); }.taxonomy-row:last-child { border:0; }.taxonomy-main { display:flex; flex-direction:column; gap:4px; flex:1; min-width:0; }.taxonomy-name { display:block; font-size:16px; line-height:1.35; font-weight:600; overflow-wrap:anywhere; }.taxonomy-meta { display:block; font-size:13px; line-height:1.45; color:var(--text-muted); overflow-wrap:anywhere; }.taxonomy-icon { width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:12px; }.taxonomy-badge { font-size:12px; color:var(--text-muted); }.taxonomy-add { display:flex; align-items:center; gap:8px; width:100%; margin-top:14px; }.taxonomy-section-label { color:var(--text-muted); font-size:12px; font-weight:600; margin:20px 0 8px; }.taxonomy-edit-actions { display:flex; gap:8px; padding:0 16px 12px 64px; flex-wrap:wrap; }.taxonomy-icon-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(44px,1fr)); gap:8px; margin-top:12px; }.taxonomy-icon-choice { display:flex; align-items:center; justify-content:center; min-width:44px; min-height:48px; padding:4px; border:2px solid transparent; border-radius:12px; background:var(--raised); }.taxonomy-icon-choice[aria-pressed="true"] { border-color:var(--accent); background:var(--card); }
 /* Dashboard editor and overlays */
 .dashboard-editor-period { margin:0 0 10px; }
-.dashboard-editor-list { background:var(--card); border:1px solid var(--sep); border-radius:16px; overflow:hidden; }
-.home-dashboard-editor-row { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; padding:12px 13px; border-bottom:1px solid var(--sep); }
+.dashboard-editor-list { background:var(--card); border:1px solid var(--sep); border-radius:var(--radius); overflow:hidden; }
+.home-dashboard-editor-row { display:grid; grid-template-columns:38px minmax(0,1fr) 40px; align-items:center; gap:10px; padding:11px 12px; border-bottom:1px solid var(--sep); }
 .home-dashboard-editor-row:last-child { border:0; }
 .home-dashboard-editor-copy { min-width:0; }
-.home-dashboard-editor-copy .subhead { font-size:14px; line-height:1.23; }
-.home-dashboard-editor-copy .caption { font-size:11.5px; line-height:1.28; }
-.home-dashboard-editor-actions { display:flex; flex-wrap:nowrap; align-items:center; justify-content:flex-end; gap:5px; }
-.home-dashboard-editor-actions button { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; min-width:36px; min-height:36px; padding:0; background:var(--raised); border:0; border-radius:10px; font-size:12px; }
-.home-dashboard-editor-actions .visibility { width:auto; min-width:54px; padding:0 9px; color:var(--accent-text); font-weight:650; }
+.home-dashboard-editor-copy .subhead { font-size:14.5px; line-height:1.25; }
+.home-dashboard-editor-copy .caption { font-size:11.5px; line-height:1.3; }
+.dashboard-drag-handle,.dashboard-visibility-toggle { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; min-width:38px; min-height:38px; padding:0; border:0; border-radius:10px; background:var(--raised); color:var(--text-muted); touch-action:none; }
+.dashboard-drag-handle svg,.dashboard-visibility-toggle svg { width:18px; height:18px; }
+.dashboard-visibility-toggle[aria-pressed="true"] { color:var(--accent-text); background:var(--selection-bg); }
+.home-dashboard-editor-row.is-dragging { position:relative; z-index:3; opacity:.94; background:var(--selection-bg); box-shadow:0 8px 22px #172C3520; }
 .home-dashboard-editor-row.is-hidden { opacity:.58; }
+.home-dashboard-editor-row.is-hidden .dashboard-visibility-toggle { color:var(--text-muted); background:var(--raised); }
+body.dashboard-reordering { user-select:none; -webkit-user-select:none; }
 .home-dashboard-source { display:none; }
-.dashboard-editor-help { margin:0 2px 10px; font-size:11.75px; line-height:1.32; color:var(--text-muted); }
+.dashboard-editor-help { margin:0 2px 12px; font-size:12px; line-height:1.35; color:var(--text-muted); }
 .modal-backdrop { position:fixed; left:0; right:0; top:var(--vvt,0px); height:var(--vvh,100dvh); z-index:100; display:flex; align-items:flex-end; justify-content:center; padding:20px 12px 0; background:#10212D66; backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); }
 .modal-card { scroll-padding-top:76px; scroll-padding-bottom:24px; width:100%; max-width:540px; max-height:calc(100% - 20px); overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; background:var(--card); border:1px solid var(--sep); border-radius:24px 24px 0 0; padding:0 22px calc(env(safe-area-inset-bottom,0px) + 26px); box-shadow:var(--shadow-float); }
 .modal-sticky-header { position:sticky; top:0; z-index:2; background:var(--card); padding:12px 0 16px; }.modal-sticky-header button { min-width:44px; min-height:44px; border-radius:12px; }.grabber { width:36px; height:4px; background:var(--hairline); border-radius:3px; margin:0 auto 14px; }.info-sheet-body { padding:0 0 12px; white-space:pre-line; font-size:15px; line-height:1.7; }.delete-confirm-icon { display:flex; align-items:center; justify-content:center; width:54px; height:54px; border-radius:18px; background:var(--rust-wash); color:var(--rust); margin:20px auto; }.delete-confirm-summary { font-size:14px; color:var(--text-muted); margin:14px 0; }
@@ -318,7 +324,7 @@ details[open]>summary::after { content:'−'; }
 /* Responsive behavior and motion */
 .txn-entry-content input,.settings-detail input,.txn-entry-content textarea { scroll-margin-bottom:24px; }
 
-/* Phone-first density pass — v113.5. These are responsive component
+/* Phone-first density pass — v113.6. These are responsive component
    dimensions, not a second visual theme. Touch targets stay accessible while
    chrome and non-interactive spacing stop competing with the financial data. */
 @media (max-width:599px) {
@@ -336,7 +342,8 @@ details[open]>summary::after { content:'−'; }
   .dashboard-grid { gap:12px; }
   .card-pad { padding:16px; }
   .daily-card { padding:18px; }
-  .daily-card-value { font-size:40px; margin:6px 0 10px; }
+  .daily-card-value-line { gap:14px; margin:6px 0 10px; }
+  .daily-card-value-line .daily-card-value { font-size:40px; margin:0; }
   .budget-position-card,.cashflow-card,.recent-card,.daily-metric-card { padding:16px; }
   .metric-pair { gap:14px; }
   .metric-value { font-size:23px; margin:4px 0; }
@@ -350,20 +357,34 @@ details[open]>summary::after { content:'−'; }
   .rank-bottom { margin-top:6px; }
   .year-summary-grid { gap:14px; padding-top:14px; }
   .year-summary-cell strong { font-size:24px; }
-  .insight-content { gap:12px; }
-  .planning-switch,.insight-switch { margin-bottom:14px; gap:20px; }
+  .insight-content { gap:10px; }
+  .insight-content .card-pad { padding:14px; }
+  .insight-content .card { margin-bottom:0 !important; border-radius:18px; }
+  .planning-switch,.insight-switch { margin-bottom:12px; gap:20px; }
   .planning-switch button,.insight-switch button { min-height:44px; padding:7px 0 9px; }
   .plan-card { padding:16px; margin-bottom:10px; }
   .plan-section { margin:14px 0; }
-  .settings-group-title { margin:20px 2px 6px; }
-  .settings-row { min-height:60px; padding:11px 14px; }
-  .taxonomy-open { min-height:64px; padding:11px 14px; }
-  .txn-category-tile { min-height:76px; gap:6px; padding:8px 6px; }
-  .txn-date-time-row { margin:8px 0 10px; }
-  .txn-options { margin:12px 0; }
-  .fx-amount-shell { min-height:70px; padding:3px 0 2px; }
-  .fx-amount-sign { font-size:26px; transform:translateY(-2px); }
-  .fx-amount-input { width:min(100%,9ch); max-width:9ch; font-size:40px; }
+  .settings-group-title { margin:18px 2px 6px; }
+  .settings-row { min-height:56px; padding:10px 13px; }
+  .settings-detail { padding:16px; border-radius:18px; }
+  .settings-detail>.card { margin-bottom:12px !important; }
+  .settings-control-card,.settings-item-card { padding:13px 0; }
+  .settings-control-separator { margin:12px 0; }
+  .settings-action-stack { gap:8px; margin-top:14px; }
+  .taxonomy-open { min-height:60px; padding:10px 13px; }
+  .txn-quick-grid { grid-auto-rows:84px; }
+  .txn-category-tile { gap:5px; padding:6px 5px; }
+  .txn-category-tile .category-icon { width:34px; height:34px; }
+  .txn-category-tile>span:last-child { font-size:13px; line-height:1.16; }
+  .txn-date-time-row { margin:10px 0 12px; }
+  .txn-date-time-row input { min-height:46px; padding:10px 4px; }
+  #entryTimeInput { font-size:14px; }
+  .txn-options { margin:14px 0; }
+  .fx-amount-shell { min-height:86px; padding:6px 0; }
+  .fx-amount-input,.fx-amount-sign { font-size:46px; }
+  .txn-entry-content { padding-bottom:calc(env(safe-area-inset-bottom,0px) + 92px); }
+  .txn-entry-page .txn-entry-save { position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 8px); z-index:48; width:calc(100% - 32px) !important; max-width:548px; margin:0; transform:translateX(-50%); border:1px solid color-mix(in srgb,var(--accent) 80%,var(--card)); box-shadow:0 10px 28px #172C3530; transition:opacity .16s,transform .16s,visibility .16s; }
+  .keyboard-open .txn-entry-page .txn-entry-save { visibility:hidden; opacity:0; pointer-events:none; transform:translate(-50%,12px); }
   .modal-backdrop { padding-left:8px; padding-right:8px; }
   .modal-card { padding-left:18px; padding-right:18px; }
 
@@ -376,20 +397,29 @@ details[open]>summary::after { content:'−'; }
   .tabbar-label { font-size:11px; }
   .nav-add { width:46px; height:46px; border-radius:15px; }
 
-  .budget-overview-card { padding:12px 13px; }
-  .budget-overview-row { padding:5px 0; }
-  .budget-overview-row.is-main { padding-bottom:7px; }
-  .budget-legend { margin-bottom:5px; }
-  .budget-compare { margin-top:3px; }
+  .budget-overview-card { padding:13px 14px; }
+  .budget-overview-row { padding:6px 0; }
+  .budget-overview-row.is-main { padding-bottom:8px; }
+  .budget-legend { margin-bottom:6px; }
+  .budget-compare { margin-top:4px; }
   .dashboard-editor-shell { padding-left:16px; padding-right:16px; }
   .dashboard-editor-header { margin-left:-16px; margin-right:-16px; padding-left:16px; padding-right:16px; }
-  .home-dashboard-editor-row { padding:11px 12px; gap:8px; }
-  .home-dashboard-editor-actions { gap:4px; }
-  .home-dashboard-editor-actions button { width:34px; height:34px; min-width:34px; min-height:34px; }
-  .home-dashboard-editor-actions .visibility { min-width:50px; padding:0 8px; }
-  .cb-overview-card { padding:11px; }
-  .cb-edit-row { padding:13px; margin-bottom:9px; }
-  .cb-auto-card { padding:12px; }
+  .home-dashboard-editor-row { grid-template-columns:36px minmax(0,1fr) 38px; padding:10px; gap:8px; }
+  .dashboard-drag-handle,.dashboard-visibility-toggle { width:36px; height:36px; min-width:36px; min-height:36px; }
+  .cb-overview-card { padding:12px; }
+  .cb-edit-row { padding:14px; margin-bottom:10px; }
+  .cb-auto-card { padding:13px; }
+  .budget-category-list { margin-bottom:12px; }
+  .cb-category-card { padding:13px 14px; }
+  .cb-category-head { min-height:38px; gap:10px; }
+  .cb-category-title { gap:1px; }
+  .cb-category-pct { font-size:18px; }
+  .cb-category-track { margin:10px 0 7px; }
+  .plan-person-card { padding:7px 14px; margin-bottom:12px !important; }
+  .plan-budget-summary { padding:12px 14px; margin-bottom:12px !important; }
+  .plan-budget-summary .cb-total-value { font-size:30px; margin:5px 0; }
+  .plan-budget-summary .cb-category-track { margin:7px 0 6px; }
+  .plan-budget-summary .hairline-top { margin-top:9px !important; padding-top:9px !important; }
 
   .monthly-savings-card { padding:16px; }
   .monthly-savings-list { margin-top:8px; }
@@ -407,15 +437,7 @@ details[open]>summary::after { content:'−'; }
   .home-toolbar { margin-bottom:28px; }.home-toolbar .title2 { font-size:34px; }.card-pad { padding:24px; }
   .txn-entry-shell,.settings-shell,.dashboard-editor-shell { padding-top:8px; }.modal-backdrop { align-items:center; padding:24px; }.modal-card { border-radius:24px; max-height:90%; }
 }
-@media (max-width:430px) {
-  .txn-date-time-row.txn-primary-date-time { grid-template-columns:minmax(0,7fr) minmax(0,3fr); gap:8px; }
-  .txn-date-time-row.txn-primary-date-time label { min-width:0; overflow:hidden; }
-  .txn-date-time-row.txn-primary-date-time input { font-size:14px; padding-left:8px; padding-right:8px; }
-  .home-dashboard-editor-row { grid-template-columns:minmax(0,1fr); }
-  .home-dashboard-editor-actions { justify-content:flex-start; }
-}
-
-@media (max-width:359px) { .txn-quick-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .wrap,.txn-entry-shell,.settings-shell,.dashboard-editor-shell { padding-left:14px; padding-right:14px; }.app-topbar,.txn-entry-header,.settings-header,.dashboard-editor-header { margin-left:-14px; margin-right:-14px; padding-left:14px; padding-right:14px; }.card-pad,.daily-card { padding:17px; }.daily-card-value { font-size:42px; }.fx-amount-input { font-size:42px; }.metric-value { font-size:22px; }.cb-share-grid,.cb-guardrail-grid { grid-template-columns:1fr; }.home-toolbar .title2 { font-size:25px; }.home-period-switch button { padding:7px 9px; } }
+@media (max-width:359px) { .txn-quick-grid { grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:82px; } .wrap,.txn-entry-shell,.settings-shell,.dashboard-editor-shell { padding-left:14px; padding-right:14px; }.app-topbar,.txn-entry-header,.settings-header,.dashboard-editor-header { margin-left:-14px; margin-right:-14px; padding-left:14px; padding-right:14px; }.card-pad,.daily-card { padding:17px; }.daily-card-value-line .daily-card-value { font-size:38px; }.tracker-card .daily-card-value { font-size:38px; }.fx-amount-input,.fx-amount-sign { font-size:42px; }.txn-date-time-row { gap:8px; }.txn-date-time-row input { padding-left:2px; padding-right:2px; }.metric-value { font-size:22px; }.cb-share-grid,.cb-guardrail-grid { grid-template-columns:1fr; }.home-toolbar .title2 { font-size:25px; }.home-period-switch button { padding:7px 9px; } }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 @media print { .tabbar,.app-topbar button,.home-dashboard-edit-btn { display:none; }.wrap { padding:0; max-width:100%; }.card { break-inside:avoid; }.dashboard-grid { display:block; }.dashboard-item { margin-bottom:16px; } }
 
@@ -435,7 +457,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.5";
+var APP_VERSION = "v113.6";
 var FORECAST_MODEL_VERSION = "v11238-periodic-cash-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: ["budgetStatus","cashBalance","monthlySavings"], homeYearSectionOrder: null, homeYearHiddenSections: ["yearDaily","yearCashBalance"], incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
@@ -4048,6 +4070,7 @@ var ICONS = {
   check: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
   eye: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
   eyeOff: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+  grip: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="8" cy="6" r="1.5"/><circle cx="16" cy="6" r="1.5"/><circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="8" cy="18" r="1.5"/><circle cx="16" cy="18" r="1.5"/></svg>',
   pause: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
   play: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>',
   palette: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
@@ -4071,7 +4094,7 @@ function renderDailyCard(pacing,info,delta,status) {
   if(!isBudget)return '';
   var label=info.categoryBudget?categoryBudgetDailyName()+' · today':'Safe to spend today';
   var h='<section class="card daily-card"><div class="row between"><div class="eyebrow">'+esc(label)+'</div>'+infoButton('dailyBorrow')+'</div>';
-  h+='<div class="daily-card-value mono">'+(amount==null?'—':uiMoney(amount,0))+' <span class="money-unit">'+esc(reportingCurrency())+'</span>'+(delta||'')+'</div>';
+  h+='<div class="daily-card-value-line"><div class="daily-card-value mono">'+(amount==null?'—':uiMoney(amount,0))+' <span class="money-unit">'+esc(reportingCurrency())+'</span></div>'+(delta||'')+'</div>';
   h+='<div class="daily-card-footer"><span>Spent today <strong class="mono">'+uiMoney(pacing.spentToday,0)+'</strong></span><button class="btn-plain" data-action="go-page" data-page="budget" style="color:inherit;min-height:40px;padding:0;">View budget '+ICONS.chevronRight+'</button></div>';
   if(info.categoryBudget){var b=info.categoryBudget;h+='<div class="daily-card-context muted">'+uiMoney(b.dailyAvailable,0)+' '+esc(reportingCurrency())+' daily pool'+(b.safeBorrowable>0?' · '+uiMoney(b.safeBorrowable,0)+' safely borrowable':'')+'</div>';if(b.dailyHold>0)h+='<div class="daily-card-warning">'+uiMoney(b.dailyHold,0)+' '+esc(reportingCurrency())+' could not be rebalanced. Review your sub-budgets.</div>';}
   if(status)h+='<div class="daily-card-warning">'+esc(status)+'</div>';
@@ -5390,10 +5413,40 @@ function renderHomeDashboardEditorPage(){
   var mode=state.homeDashboardEditorMode==='year'?'year':'month',order=normalizeHomeOrder(mode==='year'?state.settings.homeYearSectionOrder:state.settings.homeSimpleSectionOrder,mode),hidden=normalizeHomeHidden(mode==='year'?state.settings.homeYearHiddenSections:state.settings.homeSimpleHiddenSections,mode),labels=mode==='year'?HOME_YEAR_SECTION_LABELS:HOME_MONTH_SECTION_LABELS,descs=mode==='year'?HOME_YEAR_SECTION_DESCRIPTIONS:HOME_MONTH_SECTION_DESCRIPTIONS;
   var h='<div class="dashboard-editor-page"><div class="dashboard-editor-shell"><div class="dashboard-editor-header"><button data-action="toggle-home-dashboard-edit" class="settings-back" aria-label="Done">'+ICONS.chevronLeft+'</button><div class="info-title-row" style="justify-content:center;"><div class="dashboard-editor-title">Edit dashboard</div>'+infoButton('dashboardEditor')+'</div><span></span></div>';
   h+='<div class="seg dashboard-editor-period" role="tablist"><button class="seg-btn" data-action="set-home-dashboard-editor-mode" data-mode="month" role="tab" aria-selected="'+(mode==='month')+'">Month</button><button class="seg-btn" data-action="set-home-dashboard-editor-mode" data-mode="year" role="tab" aria-selected="'+(mode==='year')+'">Year</button></div>';
-  h+='<div class="dashboard-editor-help">Choose what appears on Home and change the order.</div><div class="dashboard-editor-list">';
-  order.forEach(function(id,idx){var isHidden=hidden.indexOf(id)!==-1,isInsights=(id==='monthlySavings'||id==='categoryPie'||id==='cashBalance'||id==='yearSavings'||id==='yearCategoryPie'||id==='yearCashBalance');h+='<div class="home-dashboard-editor-row '+(isHidden?'is-hidden':'')+'"><div class="home-dashboard-editor-copy"><div class="subhead" style="font-weight:650;">'+esc(labels[id]||id)+'</div><div class="muted caption" style="margin-top:3px;">'+esc(descs[id]||'Dashboard card')+'</div>'+(isInsights?'<span class="home-dashboard-source">From Insights</span>':'')+'</div><div class="home-dashboard-editor-actions"><button class="visibility" data-action="toggle-home-dashboard-card" data-id="'+esc(id)+'" data-mode="'+mode+'">'+(isHidden?'Show':'Hide')+'</button><button aria-label="Move up" data-action="move-home-dashboard-card" data-id="'+esc(id)+'" data-mode="'+mode+'" data-dir="-1" '+(idx===0?'disabled style="opacity:.28;"':'')+'>'+ICONS.chevronUp+'</button><button aria-label="Move down" data-action="move-home-dashboard-card" data-id="'+esc(id)+'" data-mode="'+mode+'" data-dir="1" '+(idx===order.length-1?'disabled style="opacity:.28;"':'')+'>'+ICONS.chevronDown+'</button></div></div>';});
+  h+='<div class="dashboard-editor-help">Drag the handle to reorder. Use the eye to show or hide a card.</div><div class="dashboard-editor-list">';
+  order.forEach(function(id){var isHidden=hidden.indexOf(id)!==-1,isInsights=(id==='monthlySavings'||id==='categoryPie'||id==='cashBalance'||id==='yearSavings'||id==='yearCategoryPie'||id==='yearCashBalance');h+='<div class="home-dashboard-editor-row '+(isHidden?'is-hidden':'')+'" data-dashboard-row data-id="'+esc(id)+'" data-mode="'+mode+'"><button class="dashboard-drag-handle" data-action="dashboard-drag-handle" aria-label="Drag '+esc(labels[id]||id)+' to reorder">'+ICONS.grip+'</button><div class="home-dashboard-editor-copy"><div class="subhead" style="font-weight:650;">'+esc(labels[id]||id)+'</div><div class="muted caption" style="margin-top:3px;">'+esc(descs[id]||'Dashboard card')+'</div>'+(isInsights?'<span class="home-dashboard-source">From Insights</span>':'')+'</div><button class="dashboard-visibility-toggle" aria-pressed="'+(!isHidden)+'" data-action="toggle-home-dashboard-card" data-id="'+esc(id)+'" data-mode="'+mode+'" aria-label="'+(isHidden?'Show ':'Hide ')+esc(labels[id]||id)+'">'+(isHidden?ICONS.eyeOff:ICONS.eye)+'</button></div>';});
   return h+'</div><button data-action="toggle-home-dashboard-edit" class="btn-accent" style="width:100%;margin-top:16px;">Done</button></div></div>';
 }
+var dashboardDrag=null;
+function commitDashboardDragOrder(list,mode){
+  var order=Array.prototype.map.call(list.querySelectorAll('[data-dashboard-row]'),function(row){return row.dataset.id;});
+  var key=mode==='year'?'homeYearSectionOrder':'homeSimpleSectionOrder',current=normalizeHomeOrder(state.settings[key],mode);
+  if(order.join('|')===current.join('|'))return;
+  var nextSettings=Object.assign({},state.settings);nextSettings[key]=normalizeHomeOrder(order,mode);
+  persistAll(nextSettings,state.entries,'your dashboard');
+}
+document.addEventListener('pointerdown',function(e){
+  var handle=e.target.closest&&e.target.closest('.dashboard-drag-handle');if(!handle)return;
+  var row=handle.closest('[data-dashboard-row]'),list=row&&row.parentElement;if(!row||!list)return;
+  e.preventDefault();
+  dashboardDrag={pointerId:e.pointerId,handle:handle,row:row,list:list,mode:row.dataset.mode==='year'?'year':'month',startY:e.clientY,moved:false};
+  row.classList.add('is-dragging');document.body.classList.add('dashboard-reordering');
+  try{handle.setPointerCapture(e.pointerId);}catch(ignoreCapture){}
+},{passive:false});
+document.addEventListener('pointermove',function(e){
+  var d=dashboardDrag;if(!d||e.pointerId!==d.pointerId)return;
+  e.preventDefault();if(Math.abs(e.clientY-d.startY)>4)d.moved=true;if(!d.moved)return;
+  var hit=document.elementFromPoint(e.clientX,e.clientY),target=hit&&hit.closest&&hit.closest('[data-dashboard-row]');
+  if(target&&target!==d.row&&target.parentElement===d.list){var rect=target.getBoundingClientRect();d.list.insertBefore(d.row,e.clientY<rect.top+rect.height/2?target:target.nextSibling);}
+  if(e.clientY<76)window.scrollBy(0,-7);else if(e.clientY>window.innerHeight-76)window.scrollBy(0,7);
+},{passive:false});
+function finishDashboardDrag(e){
+  var d=dashboardDrag;if(!d||(e&&e.pointerId!=null&&e.pointerId!==d.pointerId))return;
+  dashboardDrag=null;d.row.classList.remove('is-dragging');document.body.classList.remove('dashboard-reordering');
+  if(d.moved){commitDashboardDragOrder(d.list,d.mode);render();}
+}
+document.addEventListener('pointerup',finishDashboardDrag,{passive:true});
+document.addEventListener('pointercancel',finishDashboardDrag,{passive:true});
 function renderHomeYearDashboard(T){
   var year=new Date().getFullYear()+(Number(state.homeYearOffset)||0),today=todayStr(),yearStart=year+'-01-01',yearEnd=year+'-12-31',cut=(year===new Date().getFullYear()?today:yearEnd),stats=periodStatsOverall(yearStart,cut),saving=round2(stats.income-stats.spent),savingPct=stats.income>0?saving/stats.income*100:null,targetPct=savingsTargetPct(),targetSaving=round2(stats.income*targetPct/100),budgetSpend=0,outsideSpend=0;
   stats.rows.forEach(function(r){(r.items||[]).forEach(function(it){if(!isExpenseItem(it))return;if(itemCountsTowardBudget(it))budgetSpend+=Number(it.amount)||0;else outsideSpend+=Number(it.amount)||0;});});budgetSpend=round2(budgetSpend);outsideSpend=round2(outsideSpend);
@@ -5548,7 +5601,7 @@ function renderHomeBody(T, da) {
       else if(row){var prevRow=homePrevMonth&&homePrevMonth.byGroup[row.group],prevSpent=prevRow?prevRow.spent:homePreviousSpendForMembers(row.members),prevLimit=prevRow?prevRow.available:available;previousPct=prevLimit>0?prevSpent/prevLimit*100:null;}
       var realloc=(!main&&row)?Number(row.autoTransfer)||0:0,rowStyle=main?null:cbBudgetStyleForRow(row),barColor=main?'var(--accent)':rowStyle.color;
       var h='<div class="budget-overview-row'+(main?' is-main':'')+'"><div class="budget-overview-top"><span class="budget-overview-name">'+esc(label)+'</span><strong class="budget-overview-pct mono" style="color:'+(over?'var(--rust)':'var(--text)')+';">'+pct.toFixed(0)+'%</strong></div>';
-      if(main)h+='<div class="budget-overview-amount-line mono"><strong>'+fmt(spent,0)+'</strong><span>/ '+fmt(planned,0)+' AED</span></div>';
+      if(main)h+='<div class="budget-overview-amount-line"><strong class="mono">'+fmt(spent,0)+'</strong><span class="mono">/ '+fmt(planned,0)+' AED</span></div>';
       else h+='<div class="budget-overview-limit mono">'+fmt(spent,0)+' / '+fmt(planned,0)+' AED</div>';
       return h+homeCompactBudgetBar(pct,over,pacePct,previousPct,barColor)+(Math.abs(realloc)>.005?'<span class="cb-auto-reallocated '+(realloc<0?'out':'')+'">'+(realloc>0?'+':'−')+fmt(Math.abs(realloc),0)+' auto</span>':'')+'</div>';
     }
@@ -6002,7 +6055,7 @@ function renderCategoryMonthBudget(T,month,stats,period,info){
   h+='<div class="seg" style="margin-bottom:12px;">';['week','month','year'].forEach(function(v){h+='<button class="seg-btn" role="tab" aria-selected="'+(state.view===v)+'" data-action="switch-view" data-view="'+v+'" style="text-transform:capitalize;">'+v+'</button>';});h+='</div>';
   h+='<div class="row between card" style="padding:8px 10px;margin-bottom:12px;"><button data-action="nav-offset" data-delta="-1" class="icon-btn" aria-label="Previous month">'+ICONS.chevronLeft+'</button><div style="text-align:center;"><div class="subhead" style="font-weight:650;">'+esc(period.title)+'</div><div class="caption muted">'+(current?'This month':'Closed month')+'</div></div><button data-action="nav-offset" data-delta="1" class="icon-btn" aria-label="Next month"'+(current?' disabled':'')+'>'+ICONS.chevronRight+'</button></div>';
   var pct=month.available>0?month.spent/month.available*100:0;
-  h+='<div class="card card-pad" style="margin-bottom:14px;"><div class="row between" style="align-items:baseline;"><span class="eyebrow">Total budget used</span><strong class="mono subhead" style="color:'+(month.remaining<0?'var(--rust)':'var(--text)')+';">'+pct.toFixed(0)+'%</strong></div><div class="cb-total-value mono">'+fmt(month.spent,0)+' <span class="muted subhead">/ '+fmt(month.available,0)+' AED</span></div><div class="cb-category-track"><span style="width:'+Math.min(100,Math.max(0,pct))+'%;background:'+(month.remaining<0?'var(--rust)':'var(--accent)')+';"></span></div><div class="row between"><span class="caption muted">'+fmt(month.baseBudget,0)+' base + '+fmt(month.openingTotal,0)+' carried</span><strong class="mono subhead" style="color:'+(month.remaining<0?'var(--rust)':'var(--text)')+';">'+fmt(Math.abs(month.remaining),0)+' '+(month.remaining<0?'over':'left')+'</strong></div>';
+  h+='<div class="card card-pad plan-budget-summary" style="margin-bottom:14px;"><div class="row between" style="align-items:baseline;"><span class="eyebrow">Total budget used</span><strong class="mono subhead" style="color:'+(month.remaining<0?'var(--rust)':'var(--text)')+';">'+pct.toFixed(0)+'%</strong></div><div class="cb-total-value mono">'+fmt(month.spent,0)+' <span class="muted subhead">/ '+fmt(month.available,0)+' AED</span></div><div class="cb-category-track"><span style="width:'+Math.min(100,Math.max(0,pct))+'%;background:'+(month.remaining<0?'var(--rust)':'var(--accent)')+';"></span></div><div class="row between"><span class="caption muted">'+fmt(month.baseBudget,0)+' base + '+fmt(month.openingTotal,0)+' carried</span><strong class="mono subhead" style="color:'+(month.remaining<0?'var(--rust)':'var(--text)')+';">'+fmt(Math.abs(month.remaining),0)+' '+(month.remaining<0?'over':'left')+'</strong></div>';
   if(current&&info.floorActive)h+='<div class="cb-warning" style="color:var(--amber);background:var(--raised);">Minimum budget active · '+fmt(info.comparison.minimumBudget,0)+' AED'+infoButton('budgetFunding')+'</div>';
   if(month.configuredBudget>month.baseBudget+.5)h+='<div class="row" style="margin-top:8px;gap:6px;align-items:center;"><span class="caption muted">Configured ceiling '+fmt(month.configuredBudget,0)+' AED</span>'+infoButton('budgetFunding')+'</div>';
   if(forecast){var gap=round2(forecast.projectedSpend-month.available);h+='<div class="hairline-top row between" style="margin-top:12px;padding-top:12px;"><span class="caption">Projected month end</span><strong class="mono caption" style="color:'+(gap>0?'var(--rust)':'var(--positive)')+';">'+fmt(Math.abs(gap),0)+' AED '+(gap>0?'over':'under')+'</strong></div>';}
@@ -6065,7 +6118,7 @@ function renderCategoryBudgetPeople(month,stats,T){
     else {var person=it.person||'Unassigned';totals[person]=round2((totals[person]||0)+Number(it.amount||0));}
   });});
   var names=Object.keys(totals).sort(function(a,b){return totals[b]-totals[a];});if(!names.length)return '';
-  var h='<details class="card card-pad" style="margin-bottom:14px;"><summary class="subhead" style="font-weight:700;">Spend by person</summary>';
+  var h='<details class="card card-pad plan-person-card" style="margin-bottom:14px;"><summary class="subhead" style="font-weight:700;">Spend by person</summary>';
   names.forEach(function(person){h+='<button data-action="category-budget-person-activity" data-person="'+esc(person)+'" data-month="'+month.month+'" class="cb-detail-row"><span>'+esc(person)+'</span><strong class="mono">'+fmt(totals[person],0)+' AED</strong></button>';});return h+'</details>';
 }
 function openCategoryBudgetActivity(month,category,person){
@@ -6463,6 +6516,12 @@ function renderTxnCategoryPickerPage() {
   return h;
 }
 
+function txnAmountFieldWidth(value) {
+  var raw=String(value==null?"":value).replace(/^[+-]/,"")||"0.00",units=.08;
+  for(var i=0;i<raw.length;i++)units+=(raw[i]==="." ? .43 : (raw[i]==="," ? .52 : 1));
+  return Math.max(1.25,Math.min(13.5,units)).toFixed(2)+"ch";
+}
+
 function renderAddTxnPage() {
   var editingItem = null;
   if (state.editingItemId && state.editingOriginalDate) {
@@ -6507,11 +6566,11 @@ function renderAddTxnPage() {
   h += '</div>';
 
 
-  h += '<div class="fx-amount-shell" data-kind="'+txnKind+'">';
+  h += '<div class="fx-amount-shell">';
   h += '<select id="entryCurrencyInput" class="fx-currency-select" aria-label="Transaction currency">';
   TXN_CURRENCIES.forEach(function(c){ h += '<option value="'+c+'"'+(selectedCurrency===c?' selected':'')+'>'+c+'</option>'; });
   h += '</select>';
-  h += '<div class="fx-amount-wrap"><span class="fx-amount-sign" aria-hidden="true">'+(txnKind==='income'?'+':'−')+'</span><input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0.01" aria-label="Amount" size="1" class="mono fx-amount-input" placeholder="0.00" value="'+esc(amountShown)+'" /></div>';
+  h += '<div class="fx-amount-value '+(txnKind==="income"?'is-income':'is-expense')+'"><span class="fx-amount-sign" aria-hidden="true">'+(txnKind==="income"?'+':'−')+'</span><input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0.01" aria-label="'+(txnKind==="income"?'Income':'Expense')+' amount" class="mono fx-amount-input" placeholder="0.00" value="'+esc(amountShown)+'" style="width:'+txnAmountFieldWidth(amountShown)+';" /></div>';
   h += '</div>';
   h += '<div id="entryFxPanel" class="fx-panel" style="display:'+(selectedCurrency===reportingCurrency()?'none':'block')+';">';
   h += '<div class="row between" style="gap:8px;"><span id="entryFxStatus" class="muted caption">'+(selectedCurrency===reportingCurrency()?'':(fxSourceShown?('Saved rate · '+esc(fxSourceShown)):'Rate for '+shortLabel(formDate)))+'</span><button data-action="refresh-fx-rate" class="btn-plain" style="font-size:12px;">Use reference rate</button></div>';
@@ -6523,8 +6582,8 @@ function renderAddTxnPage() {
   /* Date and time are primary transaction fields, so keep them visible rather
      than hiding them in the secondary disclosure. */
   h += '<div class="txn-date-time-row txn-primary-date-time">';
-  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:4px;">Date</span><input id="entryDateInput" type="date" class="field mono" style="width:100%;font-size:15px;" value="'+formDate+'" max="'+todayStr()+'" /></label>';
-  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:4px;">Time</span><input id="entryTimeInput" type="time" class="field mono" style="width:100%;font-size:15px;" value="'+esc(selectedTime)+'" /></label>';
+  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Date</span><input id="entryDateInput" type="date" class="field mono" style="width:100%;font-size:16px;" value="'+formDate+'" max="'+todayStr()+'" /></label>';
+  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Time</span><input id="entryTimeInput" type="time" class="field mono" style="width:100%;" value="'+esc(selectedTime)+'" /></label>';
   h += '</div>';
 
   if (txnKind === "expense") {
@@ -10510,6 +10569,7 @@ document.addEventListener("input", function(e) {
   }
   if (e.target && e.target.id === "entryAmountInput") {
     state.entryAmountDraft = e.target.value;
+    e.target.style.width=txnAmountFieldWidth(e.target.value);
     var addBtn = document.getElementById("addTxnBtn");
     if (addBtn) {
       var val = parseFloat(e.target.value);
