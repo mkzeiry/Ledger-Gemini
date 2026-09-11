@@ -123,9 +123,10 @@ details[open]>summary::after { content:'−'; }
 .budget-legend>span { display:inline-flex; align-items:center; gap:5px; }
 .budget-legend i { display:inline-block; width:12px; height:4px; }
 .legend-current { background:var(--accent); border-radius:2px; }
-.legend-previous { border:1px solid var(--text-muted); border-radius:2px; }
+.legend-previous { background:repeating-linear-gradient(90deg,var(--text-muted) 0 5px,transparent 5px 8px); border-radius:2px; }
 .budget-legend .legend-today { width:0; height:10px; border-left:2px dotted var(--text-muted); }
-.budget-overview-row { padding:7px 0; border-top:1px solid var(--sep); }
+.budget-overview-row { display:block; width:100%; padding:7px 0; border:0; border-top:1px solid var(--sep); color:inherit; background:transparent; text-align:left; }
+.budget-overview-row:active { background:color-mix(in srgb,var(--accent) 6%,transparent); }
 .budget-overview-row.is-main { border:0; padding:1px 0 9px; }
 .budget-overview-top { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
 .budget-overview-name { font-size:13.5px; line-height:1.25; font-weight:650; min-width:0; overflow-wrap:anywhere; }
@@ -135,11 +136,14 @@ details[open]>summary::after { content:'−'; }
 .budget-overview-amount-line { display:flex; align-items:baseline; gap:4px; margin-top:2px; font-size:12.5px; line-height:1.25; color:var(--text-muted); }
 .budget-overview-amount-line strong { color:var(--text); font-size:17px; font-weight:720; letter-spacing:-.025em; }
 .budget-overview-limit { margin-top:1px; font-size:12px; line-height:1.25; color:var(--text-muted); }
-.budget-compare { position:relative; height:11px; margin-top:5px; }
-.budget-compare-current { height:5px; background:var(--fill); border-radius:3px; overflow:hidden; }
+.budget-compare { position:relative; height:14px; margin-top:5px; }
+.budget-compare-current { position:relative; height:6px; background:var(--fill); border-radius:3px; }
 .budget-compare-current>span { display:block; height:100%; background:var(--budget-color); border-radius:3px; }
-.budget-compare-previous { margin-top:2px; height:2px; }
-.budget-compare-previous>span { display:block; height:100%; border:1px solid var(--text-muted); border-radius:3px; }
+.budget-compare-previous { position:relative; margin-top:3px; height:3px; }
+.budget-compare-previous>span { display:block; height:100%; background:repeating-linear-gradient(90deg,var(--text-muted) 0 6px,transparent 6px 9px); border-radius:3px; }
+.budget-compare-current.is-over::after,.budget-compare-previous.is-over::after { content:''; position:absolute; right:-1px; border-radius:50%; background:var(--rust); box-shadow:0 0 0 2px var(--card); }
+.budget-compare-current.is-over::after { top:-2px; width:10px; height:10px; }
+.budget-compare-previous.is-over::after { top:-2px; width:7px; height:7px; }
 .budget-compare-today { position:absolute; top:-2px; bottom:0; border-left:2px dotted var(--text-muted); transform:translateX(-1px); }
 .card-link { display:flex; align-items:center; gap:6px; margin-top:3px; min-height:38px; }
 .home-secondary { box-shadow:none; }
@@ -243,7 +247,18 @@ details[open]>summary::after { content:'−'; }
 .fx-panel { border-radius:14px; padding:14px; background:var(--raised); margin-bottom:18px; }.fx-rate-line { display:flex; align-items:center; gap:8px; margin-top:8px; }.fx-rate-input { width:130px; min-height:40px; background:var(--card); border:1px solid var(--hairline); border-radius:8px; padding:8px; }
 .txn-entry-save { min-height:54px; margin-top:20px; width:100%; }
 .txn-hscroll { display:flex; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; touch-action:pan-x; overscroll-behavior-x:contain; gap:8px; }
-.txn-hscroll::-webkit-scrollbar { display:none; }.txn-date-time-row { display:grid; grid-template-columns:minmax(0,7fr) minmax(0,3fr); gap:10px; margin:16px 0; align-items:end; }.txn-date-time-row>label,.txn-date-time-row input { display:block; width:100%; max-width:100%; min-width:0; }.txn-date-time-row input { text-align:center; padding:12px 5px; }.txn-date-time-row input::-webkit-date-and-time-value { text-align:center; width:100%; min-width:0; }
+.txn-hscroll::-webkit-scrollbar { display:none; }
+.txn-date-time-row { display:grid; grid-template-columns:minmax(0,7fr) minmax(0,3fr); gap:12px; margin:16px 0; align-items:end; }
+.txn-date-time-item { display:block; min-width:0; }
+.txn-native-field { display:flex; align-items:center; justify-content:center; width:100%; min-width:0; height:52px; min-height:52px; max-height:52px; overflow:hidden; border:1px solid var(--hairline); border-radius:var(--radius-control); background:var(--card); }
+.txn-native-input { display:block; width:100%; max-width:100%; min-width:0; height:100%; min-height:0; margin:0; padding:0 8px; border:0; border-radius:0; background:transparent; color:var(--text); text-align:center; line-height:52px; }
+.txn-native-input:focus,.txn-native-input:focus-visible { outline:0; box-shadow:none; }
+.txn-native-field:focus-within { border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent); }
+.txn-native-input::-webkit-date-and-time-value { display:flex; align-items:center; justify-content:center; width:100%; min-width:0; height:100%; min-height:100%; margin:0; padding:0; text-align:center; }
+.txn-native-input::-webkit-datetime-edit { display:flex; align-items:center; justify-content:center; height:100%; min-height:100%; padding:0; }
+.app-toast { position:fixed; top:calc(env(safe-area-inset-top,0px) + 14px); left:50%; transform:translateX(-50%); z-index:80; display:flex; align-items:center; justify-content:center; gap:7px; width:max-content; max-width:calc(100% - 32px); padding:10px 15px; border-radius:13px; color:var(--card); background:var(--text); box-shadow:0 6px 20px rgba(0,0,0,.28); font-size:13px; line-height:1.35; font-weight:650; text-align:center; white-space:normal; }
+.app-toast.is-success { color:#fff; background:var(--positive); }
+.app-toast svg { width:17px; height:17px; flex:0 0 auto; }
 .txn-quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:88px; align-items:stretch; gap:8px; margin:12px 0 8px; }.txn-category-tile { position:relative; min-width:0; min-height:0; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:7px; overflow:hidden; background:var(--card); border:1px solid var(--sep); border-radius:14px; padding:8px 5px; text-align:center; }.txn-category-tile[aria-pressed="true"] { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 14%,var(--card)); box-shadow:inset 0 0 0 2px var(--accent); color:var(--accent-text); font-weight:700; }.txn-category-tile[aria-pressed="true"]::after { content:'✓'; position:absolute; top:6px; right:6px; display:flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:var(--accent); color:var(--accent-ink); font-size:11px; line-height:1; font-weight:800; }.txn-category-tile[aria-pressed="true"] .category-icon { background:var(--accent); color:var(--accent-ink); }.txn-category-tile>span:last-child { display:-webkit-box; max-width:100%; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; font-size:var(--type-label); line-height:1.2; overflow-wrap:anywhere; }.txn-category-more { display:flex; justify-content:center; align-items:center; gap:8px; width:100%; min-height:44px; margin:2px 0 16px; border:0; color:var(--accent-text); background:transparent; font-size:14px; font-weight:600; }
 .txn-options { margin:18px 0; border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); padding:4px 0; }.txn-options>summary { min-height:52px; }.txn-options-body { padding:12px 0 8px; }.txn-note { margin-top:16px; }
 .category-picker-group-title { margin:20px 4px 8px; color:var(--text-muted); font-size:var(--type-label); font-weight:600; }.category-picker-list { overflow:hidden; background:var(--card); border:1px solid var(--sep); border-radius:var(--radius); }.category-picker-row { display:flex; align-items:center; gap:12px; width:100%; min-height:60px; padding:12px 16px; border:0; border-bottom:1px solid var(--sep); color:var(--text); background:transparent; text-align:left; }.category-picker-row:last-child { border:0; }
@@ -324,7 +339,7 @@ body.dashboard-reordering { user-select:none; -webkit-user-select:none; }
 /* Responsive behavior and motion */
 .txn-entry-content input,.settings-detail input,.txn-entry-content textarea { scroll-margin-bottom:24px; }
 
-/* Phone-first density pass — v113.6. These are responsive component
+/* Phone-first density pass — v113.7. These are responsive component
    dimensions, not a second visual theme. Touch targets stay accessible while
    chrome and non-interactive spacing stop competing with the financial data. */
 @media (max-width:599px) {
@@ -376,9 +391,14 @@ body.dashboard-reordering { user-select:none; -webkit-user-select:none; }
   .txn-category-tile { gap:5px; padding:6px 5px; }
   .txn-category-tile .category-icon { width:34px; height:34px; }
   .txn-category-tile>span:last-child { font-size:13px; line-height:1.16; }
-  .txn-date-time-row { margin:10px 0 12px; }
-  .txn-date-time-row input { min-height:46px; padding:10px 4px; }
+  .txn-date-time-row { margin:10px 0 12px; gap:12px; }
+  .txn-native-field { height:48px; min-height:48px; max-height:48px; }
+  .txn-native-input { min-height:0; padding:0 5px; line-height:48px; }
   #entryTimeInput { font-size:14px; }
+  .txn-entry-page .field,.plan-entry-page .field,.settings-page .field { min-height:48px; font-size:16px; line-height:1.25; }
+  .txn-entry-page select.field,.plan-entry-page select.field,.settings-page select.field { padding-top:10px; padding-bottom:10px; }
+  .btn-accent,.btn-outline,.btn-rust { min-height:48px; border-radius:12px; }
+  .txn-options>summary,.plan-section>summary,.plan-card>summary,.settings-detail summary { min-height:48px; }
   .txn-options { margin:14px 0; }
   .fx-amount-shell { min-height:86px; padding:6px 0; }
   .fx-amount-input,.fx-amount-sign { font-size:46px; }
@@ -398,7 +418,7 @@ body.dashboard-reordering { user-select:none; -webkit-user-select:none; }
   .nav-add { width:46px; height:46px; border-radius:15px; }
 
   .budget-overview-card { padding:13px 14px; }
-  .budget-overview-row { padding:6px 0; }
+  .budget-overview-row { padding:8px 0; }
   .budget-overview-row.is-main { padding-bottom:8px; }
   .budget-legend { margin-bottom:6px; }
   .budget-compare { margin-top:4px; }
@@ -437,7 +457,7 @@ body.dashboard-reordering { user-select:none; -webkit-user-select:none; }
   .home-toolbar { margin-bottom:28px; }.home-toolbar .title2 { font-size:34px; }.card-pad { padding:24px; }
   .txn-entry-shell,.settings-shell,.dashboard-editor-shell { padding-top:8px; }.modal-backdrop { align-items:center; padding:24px; }.modal-card { border-radius:24px; max-height:90%; }
 }
-@media (max-width:359px) { .txn-quick-grid { grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:82px; } .wrap,.txn-entry-shell,.settings-shell,.dashboard-editor-shell { padding-left:14px; padding-right:14px; }.app-topbar,.txn-entry-header,.settings-header,.dashboard-editor-header { margin-left:-14px; margin-right:-14px; padding-left:14px; padding-right:14px; }.card-pad,.daily-card { padding:17px; }.daily-card-value-line .daily-card-value { font-size:38px; }.tracker-card .daily-card-value { font-size:38px; }.fx-amount-input,.fx-amount-sign { font-size:42px; }.txn-date-time-row { gap:8px; }.txn-date-time-row input { padding-left:2px; padding-right:2px; }.metric-value { font-size:22px; }.cb-share-grid,.cb-guardrail-grid { grid-template-columns:1fr; }.home-toolbar .title2 { font-size:25px; }.home-period-switch button { padding:7px 9px; } }
+@media (max-width:359px) { .txn-quick-grid { grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:82px; } .wrap,.txn-entry-shell,.settings-shell,.dashboard-editor-shell { padding-left:14px; padding-right:14px; }.app-topbar,.txn-entry-header,.settings-header,.dashboard-editor-header { margin-left:-14px; margin-right:-14px; padding-left:14px; padding-right:14px; }.card-pad,.daily-card { padding:17px; }.daily-card-value-line .daily-card-value { font-size:38px; }.tracker-card .daily-card-value { font-size:38px; }.fx-amount-input,.fx-amount-sign { font-size:42px; }.txn-native-input { padding-left:2px; padding-right:2px; }.metric-value { font-size:22px; }.cb-share-grid,.cb-guardrail-grid { grid-template-columns:1fr; }.home-toolbar .title2 { font-size:25px; }.home-period-switch button { padding:7px 9px; } }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 @media print { .tabbar,.app-topbar button,.home-dashboard-edit-btn { display:none; }.wrap { padding:0; max-width:100%; }.card { break-inside:avoid; }.dashboard-grid { display:block; }.dashboard-item { margin-bottom:16px; } }
 
@@ -457,7 +477,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.6";
+var APP_VERSION = "v113.7";
 var FORECAST_MODEL_VERSION = "v11238-periodic-cash-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: ["budgetStatus","cashBalance","monthlySavings"], homeYearSectionOrder: null, homeYearHiddenSections: ["yearDaily","yearCashBalance"], incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
@@ -1828,6 +1848,7 @@ var state = {
   txnEntryReturnScrollY: 0,
   txnEntryRestoreScroll: false,
   toastMessage: null,
+  toastKind: null,
   settingsSection: null,
   settingsCategorySelected: null,
   settingsSubcategorySelected: null,
@@ -4839,7 +4860,7 @@ var INFO_CONTENT={
   annualReserves:{title:"Annual reserves",body:"Use annual reserves for planned yearly spending such as travel or gifts. Ledger protects the annual amount by its monthly equivalent for affordability, without creating fake monthly transactions. Real linked transactions still appear in Cash Flow and consume the reserve when recorded."},
   reserveLink:{title:"Linked annual-reserve spending",body:"While a reserve is active, its linked main category or subcategory stays outside the controllable budget automatically so the same spending is not budgeted twice."},
   moveBudget:{title:"Manual budget move",body:"Manual moves are optional. Ledger now rebalances ordinary sub-budget overspending automatically. Use Move budget only when you deliberately want to change this month’s allocation between sub-budgets."},
-  budgetOverview:{title:"Budget overview",body:"Solid fill is this month’s spending. The faint fill is the previous month at the equivalent point in time. The dotted marker shows today’s expected pace; Daily Smart/Custom budgets use their own weekday rhythm. Automatic reallocation does not change the original planned target shown by the percentage."},
+  budgetOverview:{title:"Budget overview",body:"Solid fill is this month’s spending. The muted dashed line is last month’s spending through the same calendar day. The dotted marker shows today’s expected pace; Daily Smart/Custom budgets use their own weekday rhythm. A red end dot means a value is above 100%. Tap any budget row to see the exact percentages. Automatic reallocation does not change the original planned target shown by the percentage."},
   budgetFunding:{title:"Spendable budget",body:"Your configured monthly budget is a ceiling. The spendable base can be lower when the savings target, annual catch-up, tracking period, or normalized outside-budget obligations are more restrictive."},
   monthEndAllocation:{title:"Month-end allocation",body:"Rollover is limited by the net main-budget surplus. Eligible sub-budgets receive their share of that surplus; anything left after rollover remains unallocated and therefore contributes to savings. If the main budget is overspent, nothing rolls forward."},
   currencyReporting:{title:"Currencies",body:"The reporting currency changes how values are displayed and becomes the default for new transactions. Historical transactions keep their original amount and dated FX quote; Ledger stores a canonical internal value so switching reporting currency is reversible."},
@@ -5059,7 +5080,7 @@ function render() {
   html += renderInfoOverlay();
 
   if (state.toastMessage) {
-    html += '<div style="position:fixed; top:calc(env(safe-area-inset-top,0px) + 16px); left:50%; transform:translateX(-50%); background:var(--positive); color:#0C1322; font-size:13px; font-weight:600; padding:9px 18px; border-radius:999px; box-shadow:0 4px 14px rgba(0,0,0,0.35); z-index:60;">'+esc(state.toastMessage)+'</div>';
+    html += '<div class="app-toast'+(state.toastKind==='success'?' is-success':'')+'" role="status" aria-live="polite">'+(state.toastKind==='success'?ICONS.check:'')+'<span>'+esc(state.toastMessage)+'</span></div>';
   }
 
   html += renderTxnDeleteConfirmation();
@@ -5590,8 +5611,9 @@ function renderHomeBody(T, da) {
     var homePrevMk=cbNextMonth(homeCbMonth.month,-1),homePrevDays=daysInMonth(parseD(homePrevMk+'-01')),homePrevCut=homePrevMk+'-'+String(Math.min(homeCbToday.getDate(),homePrevDays)).padStart(2,'0'),homePrevLedger=computeCategoryBudgetLedger(state.settings,state.entries,homePrevCut,{}),homePrevMonth=homePrevLedger.byMonth[homePrevMk]||null;
     function homePreviousSpendForMembers(members){var set=Object.create(null),sum=0;(members||[]).forEach(function(c){set[c]=true;});var d=parseD(homePrevMk+'-01'),end=parseD(homePrevCut);while(d<=end){var ds=toStr(d);((state.entries[ds]&&state.entries[ds].items)||[]).forEach(function(it){if(isExpenseItem(it)&&itemCountsTowardBudget(it)&&set[String(it.category||'')])sum+=Number(it.amount)||0;});d=addDays(d,1);}return round2(sum);}
     function homeCompactBudgetBar(pct, over, pacePct, previousPct, barColor) {
-      var w=Math.max(0,Math.min(100,Number(pct)||0)),prev=previousPct==null?null:Math.max(0,Math.min(100,Number(previousPct)||0)),marker=Math.max(0,Math.min(100,Number(pacePct)||0));
-      return '<div class="budget-compare" role="img" aria-label="'+esc('Spent '+(Number(pct)||0).toFixed(0)+'%'+(previousPct==null?'':'; previous period '+Number(previousPct).toFixed(0)+'%')+'; expected through today '+marker.toFixed(0)+'%')+'" style="--budget-color:'+(over?'var(--rust)':barColor||'var(--accent)')+';"><div class="budget-compare-current"><span style="width:'+w.toFixed(2)+'%;"></span></div><div class="budget-compare-previous">'+(prev==null?'':'<span style="width:'+prev.toFixed(2)+'%;"></span>')+'</div><span class="budget-compare-today" style="left:'+marker.toFixed(2)+'%;"></span></div>';
+      var exact=Number(pct)||0,previousExact=previousPct==null?null:Number(previousPct)||0,paceExact=Number(pacePct)||0;
+      var w=Math.max(0,Math.min(100,exact)),prev=previousExact==null?null:Math.max(0,Math.min(100,previousExact)),marker=Math.max(0,Math.min(100,paceExact));
+      return '<div class="budget-compare" role="img" aria-label="'+esc('Spent '+exact.toFixed(1)+'%; '+(previousExact==null?'last month comparison unavailable':'last month by this day '+previousExact.toFixed(1)+'%')+'; expected by today '+paceExact.toFixed(1)+'%')+'" style="--budget-color:'+(over?'var(--rust)':barColor||'var(--accent)')+';"><div class="budget-compare-current'+(exact>100?' is-over':'')+'"><span style="width:'+w.toFixed(2)+'%;"></span></div><div class="budget-compare-previous'+(previousExact!=null&&previousExact>100?' is-over':'')+'">'+(prev==null?'':'<span style="width:'+prev.toFixed(2)+'%;"></span>')+'</div><span class="budget-compare-today" style="left:'+marker.toFixed(2)+'%;"></span></div>';
     }
     function homeCompactBudgetRow(label, spent, available, main, row) {
       spent = Math.max(0, Number(spent) || 0); available = Math.max(0, Number(available) || 0);
@@ -5600,12 +5622,13 @@ function renderHomeBody(T, da) {
       if(main){var prevStats=periodStatsBudget(homePrevMk+'-01',homePrevCut),prevLimit=homePrevMonth?homePrevMonth.available:available;previousPct=prevLimit>0?prevStats.spent/prevLimit*100:null;}
       else if(row){var prevRow=homePrevMonth&&homePrevMonth.byGroup[row.group],prevSpent=prevRow?prevRow.spent:homePreviousSpendForMembers(row.members),prevLimit=prevRow?prevRow.available:available;previousPct=prevLimit>0?prevSpent/prevLimit*100:null;}
       var realloc=(!main&&row)?Number(row.autoTransfer)||0:0,rowStyle=main?null:cbBudgetStyleForRow(row),barColor=main?'var(--accent)':rowStyle.color;
-      var h='<div class="budget-overview-row'+(main?' is-main':'')+'"><div class="budget-overview-top"><span class="budget-overview-name">'+esc(label)+'</span><strong class="budget-overview-pct mono" style="color:'+(over?'var(--rust)':'var(--text)')+';">'+pct.toFixed(0)+'%</strong></div>';
+      var compareDetail='Spent '+pct.toFixed(1)+'% · '+(previousPct==null?'Last month unavailable':'Last month by this day '+previousPct.toFixed(1)+'%')+' · Expected by today '+pacePct.toFixed(1)+'%';
+      var h='<button type="button" class="budget-overview-row'+(main?' is-main':'')+'" data-action="show-budget-compare-detail" data-detail="'+esc(compareDetail)+'" aria-label="'+esc(label+'. '+compareDetail)+'"><div class="budget-overview-top"><span class="budget-overview-name">'+esc(label)+'</span><strong class="budget-overview-pct mono" style="color:'+(over?'var(--rust)':'var(--text)')+';">'+pct.toFixed(0)+'%</strong></div>';
       if(main)h+='<div class="budget-overview-amount-line"><strong class="mono">'+fmt(spent,0)+'</strong><span class="mono">/ '+fmt(planned,0)+' AED</span></div>';
       else h+='<div class="budget-overview-limit mono">'+fmt(spent,0)+' / '+fmt(planned,0)+' AED</div>';
-      return h+homeCompactBudgetBar(pct,over,pacePct,previousPct,barColor)+(Math.abs(realloc)>.005?'<span class="cb-auto-reallocated '+(realloc<0?'out':'')+'">'+(realloc>0?'+':'−')+fmt(Math.abs(realloc),0)+' auto</span>':'')+'</div>';
+      return h+homeCompactBudgetBar(pct,over,pacePct,previousPct,barColor)+(Math.abs(realloc)>.005?'<span class="cb-auto-reallocated '+(realloc<0?'out':'')+'">'+(realloc>0?'+':'−')+fmt(Math.abs(realloc),0)+' auto</span>':'')+'</button>';
     }
-    var compactBudget='<section class="card budget-overview-card"><div class="info-title-row"><h2 class="section-title">Budget overview</h2>'+infoButton('budgetOverview')+'</div><div class="budget-legend"><span><i class="legend-current"></i>Spent</span><span><i class="legend-previous"></i>Last month</span><span><i class="legend-today"></i>Expected today</span></div>';
+    var compactBudget='<section class="card budget-overview-card"><div class="info-title-row"><h2 class="section-title">Budget overview</h2>'+infoButton('budgetOverview')+'</div><div class="budget-legend"><span><i class="legend-current"></i>Spent</span><span><i class="legend-previous"></i>Last month by this day</span><span><i class="legend-today"></i>Expected by today</span></div>';
     compactBudget += homeCompactBudgetRow('Main budget', homeCbMonth.spent, homeCbMonth.available, true, null);
     (homeCbMonth.rows || []).forEach(function (r) {
       if (!r || r.group === CB_BUFFER) return;
@@ -6582,8 +6605,8 @@ function renderAddTxnPage() {
   /* Date and time are primary transaction fields, so keep them visible rather
      than hiding them in the secondary disclosure. */
   h += '<div class="txn-date-time-row txn-primary-date-time">';
-  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Date</span><input id="entryDateInput" type="date" class="field mono" style="width:100%;font-size:16px;" value="'+formDate+'" max="'+todayStr()+'" /></label>';
-  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:6px;">Time</span><input id="entryTimeInput" type="time" class="field mono" style="width:100%;" value="'+esc(selectedTime)+'" /></label>';
+  h += '<label class="txn-date-time-item"><span class="eyebrow" style="display:block;margin-bottom:6px;">Date</span><span class="txn-native-field"><input id="entryDateInput" type="date" class="mono txn-native-input" aria-label="Transaction date" value="'+formDate+'" max="'+todayStr()+'" /></span></label>';
+  h += '<label class="txn-date-time-item"><span class="eyebrow" style="display:block;margin-bottom:6px;">Time</span><span class="txn-native-field"><input id="entryTimeInput" type="time" class="mono txn-native-input" aria-label="Transaction time" value="'+esc(selectedTime)+'" /></span></label>';
   h += '</div>';
 
   if (txnKind === "expense") {
@@ -6668,7 +6691,7 @@ function renderAddTxnPage() {
   h += '<button id="addTxnBtn" data-action="add-transaction" class="btn-accent txn-entry-save" style="width:100%;justify-content:center;align-items:center;">'+saveLabel+'</button>';
   if(editingItem) h += '<button data-action="ask-delete-txn" data-date="'+state.editingOriginalDate+'" data-id="'+esc(editingItem.id)+'" class="btn-outline row gap2" style="width:100%;margin-top:10px;justify-content:center;align-items:center;color:var(--rust);border-color:color-mix(in srgb, var(--rust) 40%, transparent);">'+ICONS.trash+' Delete transaction</button>';
   h += '</div>';
-  if (state.toastMessage) h += '<div style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);background:var(--positive);color:#0C1322;font-size:13px;font-weight:650;padding:9px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,0.35);z-index:80;white-space:nowrap;">'+esc(state.toastMessage)+'</div>';
+  if (state.toastMessage) h += '<div class="app-toast'+(state.toastKind==='success'?' is-success':'')+'" role="status" aria-live="polite">'+(state.toastKind==='success'?ICONS.check:'')+'<span>'+esc(state.toastMessage)+'</span></div>';
   h += '</div></div>';
   return h;
 }
@@ -9157,7 +9180,7 @@ function handleAddTransaction() {
   state.entryDate = date;
   state.entryTagsDraft = null;
   persistAll(state.settings, nextEntries, "your entry");
-  showToast(wasEditing ? "Record updated" : "Record added");
+  showToast(wasEditing ? "Transaction updated" : "Transaction saved", "success");
   render();
   animateTxnCommittedBack(txnCloseVisual);
 }
@@ -9186,7 +9209,7 @@ function handleAddTabbyTransaction(startDate, totalAmount, category, note, perso
   state.txnKind=null;
   state.entryTagsDraft=null;
   persistAll(state.settings,state.entries,"your Tabby plan");
-  showToast("Tabby · 4 monthly payments created");
+  showToast("Tabby plan saved · 4 monthly payments", "success");
   render();
   animateTxnCommittedBack(txnCloseVisual);
 }
@@ -9253,9 +9276,13 @@ function handleApplyBudget(scope) {
    waiting on the visualViewport "resize" event, which can lag the keyboard's
    slide-in animation by a beat on iOS. */
 
-function showToast(msg) {
+var toastTimer = null;
+function showToast(msg, kind) {
+  if (toastTimer) clearTimeout(toastTimer);
   state.toastMessage = msg;
-  setTimeout(function(){ state.toastMessage = null; render(); }, 2200);
+  state.toastKind = kind || null;
+  var duration = String(msg||'').length > 52 ? 4200 : 2600;
+  toastTimer = setTimeout(function(){ state.toastMessage = null; state.toastKind = null; toastTimer = null; render(); }, duration);
 }
 
 function handleEditTxn(date, id) {
@@ -9521,6 +9548,7 @@ document.addEventListener("click", function(e) {
     case 'open-spending-insights':state.page='analysis';state.analysisPanel='spending';render();window.scrollTo(0,0);break;
     case "open-info": state.infoSheet=el.dataset.info||null;render();break;
     case "close-info": state.infoSheet=null;render();break;
+    case "show-budget-compare-detail": showToast(el.dataset.detail||"Budget comparison");render();break;
     case "toggle-monthly-savings-rows": state.monthlySavingsShowAll=!state.monthlySavingsShowAll;render();break;
     case "open-category-budgets":
       cbPrepareDraft();state.cbEditingIndex=null;settingsRootSnapshot=captureTxnVisual();settingsNavStack=[];state.settingsSection="categoryBudgets";state.showSettings=true;render();break;
