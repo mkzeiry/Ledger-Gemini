@@ -477,6 +477,34 @@ body.dashboard-reordering { user-select:none; -webkit-user-select:none; }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 @media print { .tabbar,.app-topbar button,.home-dashboard-edit-btn { display:none; }.wrap { padding:0; max-width:100%; }.card { break-inside:avoid; }.dashboard-grid { display:block; }.dashboard-item { margin-bottom:16px; } }
 
+.fh-top { display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.fh-pill { display:inline-flex; padding:5px 9px; border-radius:999px; background:var(--raised); color:var(--text-muted); font-size:12px; font-weight:650; white-space:nowrap; }
+.fh-pill.ready { color:var(--positive); background:var(--positive-wash); }
+.fh-pill.review { color:var(--rust); background:var(--rust-wash); }
+.fh-copy { font-size:14px; line-height:1.5; color:var(--text-muted); margin:8px 0; overflow-wrap:anywhere; }
+.fh-metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+.fh-metric { min-width:0; }
+.fh-metric strong { display:block; font-size:21px; line-height:1.3; margin-bottom:3px; }
+.fh-metric span { color:var(--text-muted); font-size:13px; }
+.fh-detail { border-top:1px solid var(--sep); margin-top:12px; padding-top:12px; }
+.fh-detail summary { min-height:44px; display:flex; align-items:center; cursor:pointer; font-size:14px; font-weight:650; }
+.fh-detail summary:after { content:'＋'; margin-left:auto; color:var(--text-muted); }
+.fh-detail[open] summary:after { content:'−'; }
+.fh-table-wrap { overflow-x:auto; }
+.fh-table { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0; }
+.fh-table th,.fh-table td { padding:9px 5px; text-align:right; border-bottom:1px solid var(--sep); }
+.fh-table th { color:var(--text-muted); font-weight:600; }
+.fh-table th:first-child,.fh-table td:first-child { text-align:left; }
+.fh-note { background:var(--raised); border-radius:12px; padding:11px 12px; margin-top:10px; font-size:13px; line-height:1.5; }
+.fh-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.fh-actions button { min-height:44px; padding:10px 14px; font-size:14px; flex:1; }
+.fh-list { padding-left:18px; font-size:14px; line-height:1.5; }
+.fh-list li { margin:7px 0; }
+.fh-method { margin:10px 0; padding:10px 0; border-bottom:1px solid var(--sep); }
+.fh-method b { font-size:14px; }
+.fh-method p { margin:4px 0; }
+@media(max-width:360px){.fh-metric strong{font-size:19px}.forecast-score-card{padding:14px}.fh-table{font-size:12px}.fh-top{align-items:flex-start}}
+
 </style>
 </head>
 <body>
@@ -493,25 +521,45 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.10";
-var FORECAST_MODEL_VERSION = "v11310-horizon-calibration-1";
+var APP_VERSION = "v113.11";
+var FORECAST_MODEL_VERSION = "v11311-events-online-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: ["budgetStatus","cashBalance","monthlySavings"], homeYearSectionOrder: null, homeYearHiddenSections: ["yearDaily","yearCashBalance"], incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
 /* Forecast backtesting is independent of the removed Accounts feature.
    Keep its saved snapshots normalized on every boot so an older/corrupt
    snapshot can never prevent the ledger itself from opening. */
-function normalizeForecastSnapshots(list) {
-  var out=[];
-  (list||[]).forEach(function(x){
-    if(!x||typeof x!=="object"||!/\d{4}-\d{2}-\d{2}/.test(x.snapshotDate||"")||!/\d{4}-\d{2}-\d{2}/.test(x.periodEnd||"")) return;
-    var f=Number(x.forecastClose); if(!isFinite(f)||f<0) return;
-    var projectedIncome=x.projectedIncome==null?null:Number(x.projectedIncome),projectedSaving=x.projectedSaving==null?null:Number(x.projectedSaving);
-    var scheduledUpcoming=x.scheduledUpcoming==null?null:Number(x.scheduledUpcoming),behavioralForecast=x.behavioralForecast==null?null:Number(x.behavioralForecast);
-    out.push({snapshotDate:x.snapshotDate,scope:x.scope==="overall"?"overall":"budget",period:x.period==="week"?"week":"month",periodStart:x.periodStart,periodEnd:x.periodEnd,forecastClose:round2(f),actualSoFar:round2(Number(x.actualSoFar)||0),target:round2(Number(x.target)||0),projectedIncome:isFinite(projectedIncome)&&projectedIncome>0?round2(projectedIncome):null,projectedSaving:projectedSaving!=null&&isFinite(projectedSaving)?round2(projectedSaving):null,scheduledUpcoming:scheduledUpcoming!=null&&isFinite(scheduledUpcoming)?round2(Math.max(0,scheduledUpcoming)):null,behavioralForecast:behavioralForecast!=null&&isFinite(behavioralForecast)?round2(Math.max(0,behavioralForecast)):null,modelVersion:String(x.modelVersion||"legacy"),breakdown:Array.isArray(x.breakdown)?x.breakdown.slice(0,40):[]});
+function normalizeForecastSnapshots(list){
+  var out=[],seen=Object.create(null);
+  (Array.isArray(list)?list:[]).forEach(function(x){
+    if(!x||typeof x!=="object")return;
+    var validDate=function(v){return typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&toStr(parseD(v))===v;};
+    if(!validDate(x.snapshotDate)||!validDate(x.periodStart)||!validDate(x.periodEnd)||x.periodStart>x.snapshotDate||x.snapshotDate>x.periodEnd)return;
+    var f=Number(x.forecastClose);if(!isFinite(f)||f<0)return;
+    var y={snapshotDate:x.snapshotDate,scope:x.scope==="overall"?"overall":"budget",period:x.period==="week"?"week":"month",periodStart:x.periodStart,periodEnd:x.periodEnd,forecastClose:round2(f),actualSoFar:round2(Math.max(0,Number(x.actualSoFar)||0)),target:round2(Number(x.target)||0),modelVersion:String(x.modelVersion||"legacy"),breakdown:Array.isArray(x.breakdown)?x.breakdown.slice(0,80):[]};
+    ["projectedIncome","projectedSaving","scheduledUpcoming","behavioralForecast","baselineClose","rangeLow","rangeHigh","rangeScale"].forEach(function(k){y[k]=x[k]!=null&&isFinite(Number(x[k]))?round2(Number(x[k])):null;});
+    if(x.schema===2&&x.context&&Array.isArray(x.context.excluded)){
+      y.schema=2;y.rangeMethod=x.rangeMethod==="empirical"?"empirical":"estimated";
+      y.context={excluded:x.context.excluded.filter(function(k){return typeof k==="string";}),periodic:(Array.isArray(x.context.periodic)?x.context.periodic:[]).filter(function(r){return r&&typeof r.category==="string"&&isFinite(r.amount);}).map(function(r){return {id:String(r.id||""),category:r.category,amount:Number(r.amount)};})};
+      y.observedDigest=String(x.observedDigest||"");
+      if(x.invalidatedReason)y.invalidatedReason=String(x.invalidatedReason).slice(0,200);
+      if(x.openingByCategory&&typeof x.openingByCategory==='object'&&!Array.isArray(x.openingByCategory)){y.openingByCategory=Object.create(null);Object.keys(x.openingByCategory).forEach(function(k){var n=Number(x.openingByCategory[k]);if(isFinite(n)&&n>=0)y.openingByCategory[k]=round2(n);});}
+      y.components=(Array.isArray(x.components)?x.components:[]).filter(function(c){return c&&["budget","excluded"].indexOf(c.scope)!==-1&&Array.isArray(c.categories)&&[c.adaptive,c.baseline,c.delivered,c.opening].every(function(n){return typeof n==="number"&&isFinite(n)&&n>=0;});}).map(function(c){return {scope:c.scope,categories:c.categories.filter(function(k){return typeof k==="string";}),adaptive:round2(c.adaptive),baseline:round2(c.baseline),delivered:round2(c.delivered),opening:round2(c.opening),weight:Math.max(0,Math.min(.5,Number(c.weight)||0)),factor:Math.max(.9,Math.min(1.1,Number(c.factor)||1))};});
+    }
+    var key=[y.snapshotDate,y.scope,y.period,y.periodStart,y.periodEnd,y.modelVersion].join("|");
+    if(!seen[key]){out.push(y);seen[key]=true;}
   });
-  out.sort(function(a,b){return a.snapshotDate<b.snapshotDate?-1:a.snapshotDate>b.snapshotDate?1:0;});
-  return out.slice(-450);
+  out.sort(function(a,b){return a.snapshotDate.localeCompare(b.snapshotDate);});
+  // Preserve legacy history; keep recent daily records and older fixed checkpoints.
+  var cutoff=toStr(addDays(parseD(todayStr()),-45)),oldest=toStr(addDays(parseD(todayStr()),-730)),anchors=Object.create(null);
+  return out.filter(function(x){
+    if(x.schema!==2)return true;
+    if(x.snapshotDate>=cutoff)return true;
+    if(x.periodEnd<oldest)return false;
+    var key=[x.modelVersion,x.scope,x.period,x.periodStart,x.periodEnd,forecastHorizonBand(x)].join("|");
+    if(anchors[key])return false;anchors[key]=true;return true;
+  });
 }
+
 
 var DEFAULT_BUDGET_ORDER = ["summary","forecast","spendTrend","progress","category","person"];
 var BUDGET_SECTION_LABELS = { summary:"Budget summary", forecast:"Forecast", spendTrend:"Spend trend", progress:"Ahead / behind budget", category:"Spend by category", person:"Spend by person" };
@@ -712,6 +760,9 @@ function renameTag(kind, oldName, newName) {
     if (!isMerge && nextStyles[oldName]) nextStyles[newName] = nextStyles[oldName];
     delete nextStyles[oldName];
     patch.categoryStyles = nextStyles;
+    patch.forecastSnapshots=normalizeForecastSnapshots(state.settings.forecastSnapshots).map(function(snap){
+      return snap.schema===2?Object.assign({},snap,{invalidatedReason:"Category renamed or merged after this forecast"}):snap;
+    });
     var nextGroupOf = Object.assign({}, state.settings.categoryGroupOf||{});
     if (!isMerge && nextGroupOf[oldName]) nextGroupOf[newName] = nextGroupOf[oldName];
     delete nextGroupOf[oldName];
@@ -1591,7 +1642,7 @@ function normalizeCategoryExcludeFromBudget(map, categories) {
   return out;
 }
 
-var FORECAST_BEHAVIOR_VALUES = ["auto","frequent","cadence","monthly","yearly","lumpy"];
+var FORECAST_BEHAVIOR_VALUES = ["auto","frequent","cadence","monthly","yearly","lumpy","oneoff"];
 var DEFAULT_MONTHLY_BILL_CATEGORIES = {"Phone Bill":true,"Electricity / Utilities":true};
 function defaultCategoryForecastBehavior(catName){
   return DEFAULT_MONTHLY_BILL_CATEGORIES[catName] ? "monthly" : "auto";
@@ -1610,7 +1661,7 @@ function categoryForecastBehavior(catName){
   return FORECAST_BEHAVIOR_VALUES.indexOf(v)!==-1?v:defaultCategoryForecastBehavior(catName);
 }
 function forecastBehaviorLabel(v){
-  return v==="frequent"?"Frequent":v==="cadence"?"Cadence":v==="monthly"?"Monthly bill":v==="yearly"?"Yearly bill":v==="lumpy"?"Lumpy":"Auto";
+  return v==="frequent"?"Frequent":v==="cadence"?"Cadence":v==="monthly"?"Monthly bill":v==="yearly"?"Yearly bill":v==="lumpy"?"Irregular":v==="oneoff"?"One-off / no repeat":"Auto";
 }
 function normalizeCategoryYearlyBillSettings(map,categories){
   var out={},valid=categories||[],src=(map&&typeof map==="object"&&!Array.isArray(map))?map:{};
@@ -1623,11 +1674,11 @@ function normalizeCategoryYearlyBillSettings(map,categories){
   });
   return out;
 }
-function categoryHistoricalExpenseRows(catName){
+function categoryHistoricalExpenseRows(catName,asOfDate){
   var rows=[];
   Object.keys(state.entries||{}).sort().forEach(function(ds){
     ((state.entries[ds]&&state.entries[ds].items)||[]).forEach(function(it){
-      if(isExpenseItem(it)&&subcategoryKey(it)===catName)rows.push({date:ds,amount:Math.max(0,Number(it.amount)||0),recurringId:it.recurringId||null});
+      if(ds<=(asOfDate||todayStr())&&isExpenseItem(it)&&subcategoryKey(it)===catName)rows.push({date:ds,amount:Math.max(0,Number(it.amount)||0),recurringId:it.recurringId||null});
     });
   });
   return rows;
@@ -3408,6 +3459,10 @@ function loadInitial() {
   state.settings.baseCurrency = TXN_CURRENCIES.indexOf(String(state.settings.baseCurrency||"AED").toUpperCase())!==-1 ? String(state.settings.baseCurrency||"AED").toUpperCase() : "AED";
   state.settings.startingCashBalance = isFinite(Number(state.settings.startingCashBalance)) ? round2(Number(state.settings.startingCashBalance)) : 0;
   state.settings.forecastSnapshots = normalizeForecastSnapshots(state.settings.forecastSnapshots);
+  if(state.settings.forecastOpeningEpoch!==FORECAST_MODEL_VERSION){
+    state.settings.forecastOpeningEpoch=FORECAST_MODEL_VERSION;
+    state.settings.homeDeltaModelEpochV11219=toStr(addDays(parseD(todayStr()),1));
+  }
   state.settings.homeMetricHistory = normalizeHomeMetricHistory(state.settings.homeMetricHistory);
   
   var adaptiveSafeHistoryMigrationChanged=false;
@@ -3597,6 +3652,7 @@ function loadInitial() {
 function persistAll(nextSettings, nextEntries, label) {
   state.settings = nextSettings;
   state.entries = nextEntries;
+  forecastScoreCache=null;
   categoryBudgetCache=null;
   if(refreshCategoryBudgetFunding())nextSettings=state.settings;
   try {
@@ -4882,7 +4938,7 @@ var INFO_CONTENT={
   budgetFunding:{title:"Spendable budget",body:"Your configured monthly budget is a ceiling. The spendable base can be lower when the savings target, annual catch-up, tracking period, or normalized outside-budget obligations are more restrictive."},
   monthEndAllocation:{title:"Month-end allocation",body:"Rollover is limited by the net main-budget surplus. Eligible sub-budgets receive their share of that surplus; anything left after rollover remains unallocated and therefore contributes to savings. If the main budget is overspent, nothing rolls forward."},
   currencyReporting:{title:"Currencies",body:"The reporting currency changes how values are displayed and becomes the default for new transactions. Historical transactions keep their original amount and dated FX quote; Ledger stores a canonical internal value so switching reporting currency is reversible."},
-  forecastHealth:{title:"Forecast health",body:"Only the current forecast method is scored. Daily forecasts are balanced by completed period, so opening Ledger more often cannot overweight one week or month. Average forecast miss is shown in AED; weighted error relates the total miss to actual spending. Bias shows whether forecasts usually finish high or low, and Early, Middle, and Late show how accuracy improves through a period. Calibration starts after three comparable completed periods, adjusts week and month forecasts separately, and changes only flexible behavioral spending—scheduled commitments remain exact."},
+  forecastHealth:{title:"Forecast health",body:"Only the current forecast method is scored. Daily forecasts are balanced by completed period, so opening Ledger more often cannot overweight one week or month. Average forecast miss is shown in AED; weighted error relates the total miss to actual spending. Bias shows whether forecasts usually finish high or low, and Early, Middle, and Late show how accuracy improves through a period. Calibration starts after three comparable completed periods, adjusts week and month forecasts separately, and changes only frequent spending only, using that same component’s recorded outcomes. Forecast Health also compares a simple benchmark and checks range coverage. Scheduled commitments remain exact."},
   trackingStart:{title:"Tracking start",body:"This is the first date Ledger uses for budgets, analysis, forecasting windows, and cash-balance history."},
   startingCash:{title:"Starting cash balance",body:"Cash available at the beginning of your Tracking Start Date. It anchors the cash-balance chart and does not create an income transaction."},
   cashBalance:{title:"Cash balance",body:"Starting cash balance plus logged income minus logged expenses. Since start shows the full tracked balance history; 30 days is only a zoom and carries the earlier balance forward."},
@@ -4975,6 +5031,7 @@ function render() {
      and page scroll are mutually exclusive: while a modal is open the body is
      pinned via lockBodyScroll, so only the modal's own scrollTop matters;
      with no modal open, the page's own scroll position is what matters. */
+  forecastScoreCache=null;
   var modalCardEl = document.querySelector(".modal-card");
   var txnEntryPageEl = document.querySelector(".txn-entry-page");
   var settingsPageEl = document.querySelector(".settings-page");
@@ -6170,7 +6227,7 @@ function openCategoryBudgetActivity(month,category,person){
 
 function renderSettingsPage() {
   var section = state.settingsSection || "";
-  var titles = { categoryBudgets:"Sub-budgets", budget:"Monthly budget", savings:"Savings target", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast accuracy", categories:"Categories", people:"People", tags:"Transaction tags", theme:"Appearance", tracking:"Tracking start", backup:"Data & Backup", clearEntries:"Clear all entries", factoryReset:"Reset app to defaults", demo:"Demo & showcase" };
+  var titles = { categoryBudgets:"Sub-budgets", budget:"Monthly budget", savings:"Savings target", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast health", categories:"Categories", people:"People", tags:"Transaction tags", theme:"Appearance", tracking:"Tracking start", backup:"Data & Backup", clearEntries:"Clear all entries", factoryReset:"Reset app to defaults", demo:"Demo & showcase" };
   var categoryHeaderTitle = "Categories";
   if (section === "categories") {
     if (state.settingsSubcategorySelected) categoryHeaderTitle = state.settingsSubcategorySelected;
@@ -6287,21 +6344,7 @@ function renderSettingsPage() {
     h += '<div class="muted caption" id="fxSettingsStatus" style="margin-top:6px;">Daily reference rates</div></div>';
   }
 
-  if (section === "forecastAccuracy") {
-    var bw=forecastAccuracySummary("budget","week"), bm=forecastAccuracySummary("budget","month"), om=forecastAccuracySummary("overall","month");
-    function accuracyCard(title,x){
-      if(!x.count)return '<div class="card forecast-score-card"><div class="eyebrow">'+title+'</div><div class="muted subhead" style="margin-top:8px;">Learning — the current method needs a completed '+x.period+' to score.</div></div>';
-      var periodText=x.periodCount+' completed '+x.period+(x.periodCount===1?'':'s');
-      var biasText=Math.abs(x.bias)<1?'No consistent high or low bias':('Typically forecasts '+fmt(Math.abs(x.bias),0)+' AED '+(x.bias>0?'high':'low'));
-      var horizonHtml='<div class="forecast-horizon-grid">';
-      ['early','middle','late'].forEach(function(key){var z=x.horizons[key];horizonHtml+='<div class="forecast-horizon-cell"><span>'+key+'</span>'+(z&&z.count?('<strong class="mono">'+fmt(z.mae,0)+' AED</strong><small>'+z.count+' forecast'+(z.count===1?'':'s')+' · '+z.periodCount+' period'+(z.periodCount===1?'':'s')+'</small>'):'<strong>—</strong><small>Learning</small>')+'</div>';});
-      horizonHtml+='</div>';
-      return '<div class="card forecast-score-card"><div class="eyebrow">'+title+'</div><div class="forecast-score-value mono">'+fmt(x.mae,0)+' AED</div><div class="forecast-score-meta">Average forecast miss'+(x.wape!=null?' · '+fmt(x.wape,1)+'% weighted error':'')+'<br>'+x.count+' daily forecast'+(x.count===1?'':'s')+' · '+periodText+'</div><div class="forecast-score-bias">'+biasText+'</div>'+horizonHtml+'</div>';
-    }
-    h += '<div class="info-title-row" style="margin:0 2px 12px;"><div class="eyebrow">Forecast scoring</div>'+infoButton('forecastHealth')+'</div>';
-    h += '<div class="muted caption" style="margin:0 2px 12px;">Current forecast method only. Daily forecasts are balanced within each completed period.</div>';
-    h += accuracyCard('BUDGET · WEEK',bw)+accuracyCard('BUDGET · MONTH',bm)+accuracyCard('OVERALL SPEND · MONTH',om);
-  }
+  if (section === "forecastAccuracy") h += renderForecastHealth();
 
   if (section === "tracking") {
     h += '<div class="settings-control-card"><div class="info-title-row"><label class="settings-control-title">Tracking start date</label>'+infoButton('trackingStart')+'</div>';
@@ -6370,7 +6413,7 @@ function renderSettingsPage() {
       h += '</select></div>';
       h += '<div class="taxonomy-form-card"><div class="row between"><div style="padding-right:12px;"><div class="headline">Counts toward budget</div><div class="muted caption" style="margin-top:2px;">Overall Analysis always includes it.</div></div><button data-action="toggle-category-budget" data-cat="'+esc(selectedSub)+'" class="btn-outline" style="color:'+(categoryExcludedFromBudget(selectedSub)?'var(--rust)':'var(--positive)')+';">'+(categoryExcludedFromBudget(selectedSub)?'Excluded':'Included')+'</button></div></div>';
       var forecastBehavior=categoryForecastBehavior(selectedSub);
-      h += '<div class="taxonomy-form-card"><label class="eyebrow">Forecast behavior</label><select id="subcategoryForecastBehaviorInput" aria-label="Forecast behavior" data-cat="'+esc(selectedSub)+'" class="field" style="margin-top:7px;"><option value="auto"'+(forecastBehavior==='auto'?' selected':'')+'>Auto</option><option value="frequent"'+(forecastBehavior==='frequent'?' selected':'')+'>Frequent</option><option value="cadence"'+(forecastBehavior==='cadence'?' selected':'')+'>Cadence</option><option value="monthly"'+(forecastBehavior==='monthly'?' selected':'')+'>Monthly bill</option><option value="yearly"'+(forecastBehavior==='yearly'?' selected':'')+'>Yearly bill</option><option value="lumpy"'+(forecastBehavior==='lumpy'?' selected':'')+'>Lumpy</option></select><div class="muted caption" style="margin-top:6px;">Monthly bill stops after this month\'s payment. Yearly bill is fully automatic: Ledger learns the annual cost from Plans or transaction history and annualizes it in the background.</div></div>';
+      h += '<div class="taxonomy-form-card"><label class="eyebrow">Forecast behavior</label><select id="subcategoryForecastBehaviorInput" aria-label="Forecast behavior" data-cat="'+esc(selectedSub)+'" class="field" style="margin-top:7px;"><option value="auto"'+(forecastBehavior==='auto'?' selected':'')+'>Auto</option><option value="frequent"'+(forecastBehavior==='frequent'?' selected':'')+'>Frequent</option><option value="cadence"'+(forecastBehavior==='cadence'?' selected':'')+'>Cadence</option><option value="monthly"'+(forecastBehavior==='monthly'?' selected':'')+'>Monthly bill</option><option value="yearly"'+(forecastBehavior==='yearly'?' selected':'')+'>Yearly bill</option><option value="lumpy"'+(forecastBehavior==='lumpy'?' selected':'')+'>Irregular</option><option value="oneoff"'+(forecastBehavior==='oneoff'?' selected':'')+'>One-off / no repeat</option></select><div class="muted caption" style="margin-top:6px;">One-off keeps actual expenses but adds no automatic repeats. Monthly bill stops after this month\'s payment. Yearly bill is fully automatic: Ledger learns the annual cost from Plans or transaction history and annualizes it in the background.</div></div>';
       if(forecastBehavior==='yearly'){
         var ycfg=yearlyBillConfigForCategory(selectedSub);
         h += '<div class="taxonomy-form-card"><div class="row between" style="align-items:flex-start;gap:14px;"><div style="min-width:0;flex:1;"><div class="headline">Annualized monthly cost</div><div class="muted caption" style="margin-top:4px;line-height:1.45;">'+(ycfg.amount>0?('About '+fmt(ycfg.amount/12,2)+' AED/month is calculated automatically in the background. '+(ycfg.hasExactPlan?'Your Plan keeps the real installment dates.':'No yearly-bill setup is required.')):'Ledger will calculate this automatically once a finite/yearly Plan or transaction history is available.')+'</div></div><span class="chip" style="flex-shrink:0;">Automatic</span></div></div>';
@@ -7433,16 +7476,18 @@ function forecastCategoryProfiles(scope, asOfDate) {
   Object.keys(maps).forEach(function(k){
     var m=maps[k], dates=Object.keys(m.daily).sort(), gaps=[];
     for(var i=1;i<dates.length;i++){var g=daysBetween(dates[i-1],dates[i]);if(g>0)gaps.push(g);}
-    var interarrivalGap=medianNumber(gaps);
+    var recentGaps=gaps.slice(-8);
+    var interarrivalGap=medianNumber(recentGaps);
     var span=Math.max(0.001,observedExposureDays(start,asOfDate));
     
     var occurrenceGap=observedOccurrenceInterval(span,m.txnCount);
-    var eventGap=observedOccurrenceInterval(span,dates.length);
-    var activeRate=dates.length/span, txnRate=m.txnCount/span;
+    var eventGap=interarrivalGap;
+    var categorySpan=dates.length?Math.max(14,observedExposureDays(dates[0],asOfDate)):span;
+    var activeRate=dates.length/categorySpan, txnRate=m.txnCount/categorySpan;
     var dayAmounts=dates.map(function(d){return m.daily[d];});
     var typicalAmount=medianNumber(dayAmounts)||0, typicalTxnAmount=medianNumber(m.txnAmounts)||0;
-    var gapMad=interarrivalGap==null?null:medianNumber(gaps.map(function(g){return Math.abs(g-interarrivalGap);}));
-    var gapDev=gapMad==null?null:gapMad*1.4826;
+    var gapMad=interarrivalGap==null?null:medianNumber(recentGaps.map(function(g){return Math.abs(g-interarrivalGap);}));
+    var gapDev=gapMad==null?null:Math.max(gapMad*1.4826, recentGaps.reduce(function(t,g){return t+Math.abs(g-interarrivalGap);},0)/Math.max(1,recentGaps.length));
     var amountMad=typicalAmount>0?medianNumber(dayAmounts.map(function(a){return Math.abs(a-typicalAmount);})):null;
     var amountDev=amountMad==null?null:amountMad*1.4826;
 
@@ -7450,7 +7495,7 @@ function forecastCategoryProfiles(scope, asOfDate) {
        are repeat-type active-day events. Everything with real history that is
        neither becomes Lumpy instead of being silently forecast at zero. */
     var autoFrequent=dates.length>=6 && (activeRate>=0.30 || txnRate>=0.55);
-    var autoCadence=!autoFrequent && dates.length>=3 && eventGap!=null && eventGap>=2.0 && typicalAmount>0;
+    var autoCadence=!autoFrequent && dates.length>=4 && eventGap>=2 && typicalAmount>0 && gapDev/eventGap<=.45 && Math.max.apply(null,recentGaps)<=eventGap*2.5;
     var autoLumpy=!autoFrequent && !autoCadence && dates.length>=1 && typicalAmount>0;
     var behavior=categoryForecastBehavior(k);
     var yearlyCfg=behavior==="yearly"?yearlyBillConfigForCategory(k):null;
@@ -7472,7 +7517,7 @@ function forecastCategoryProfiles(scope, asOfDate) {
       var nEvents=dates.length;
       if(nEvents>=8 && (cadenceGapCv==null||cadenceGapCv<=.35) && (cadenceAmountCv==null||cadenceAmountCv<=.30)) confidence="High";
       else if(nEvents>=4 && (cadenceGapCv==null||cadenceGapCv<=.55) && (cadenceAmountCv==null||cadenceAmountCv<=.45)) confidence="Medium";
-      else if(nEvents>=5) confidence="Medium";
+      // Inconsistent timing cannot earn medium confidence from count alone.
       else confidence="Low";
     }
     var monthlyFirstDays={},monthlyActiveMonths={};
@@ -7489,7 +7534,7 @@ function forecastCategoryProfiles(scope, asOfDate) {
       confidence=yearlyEvidence>=4?"High":(yearlyEvidence>=2?"Medium":"Low");
     }
     out[k]={
-      key:k,label:k==="__uncategorised__"?"Uncategorised":k,daily:m.daily,txnAmounts:m.txnAmounts,txnCount:m.txnCount,
+      asOfDate:asOfDate,key:k,label:k==="__uncategorised__"?"Uncategorised":k,daily:m.daily,txnAmounts:m.txnAmounts,txnCount:m.txnCount,
       timedCount:m.timedCount,activeDates:dates,activeDays:dates.length,gaps:gaps,
       gap:occurrenceGap,occurrenceGap:occurrenceGap,eventGap:eventGap,interarrivalGap:interarrivalGap,gapDev:gapDev,
       minGap:gaps.length?Math.min.apply(null,gaps):null,maxGap:gaps.length?Math.max.apply(null,gaps):null,
@@ -7498,8 +7543,9 @@ function forecastCategoryProfiles(scope, asOfDate) {
       evidenceQuality:Math.max(.45,Math.min(1,.45*(dates.length>=8?.98:(dates.length>=6?.95:(dates.length>=5?.93:(dates.length>=4?.90:(dates.length>=3?.80:.65)))))+.35*timingConsistency+.20*amountConsistency)),
       lastDate:dates.length?dates[dates.length-1]:null,spanDays:span,activeRate:activeRate,txnRate:txnRate,historyStart:start,
       forecastBehavior:behavior,monthlyBillDay:monthly?Math.max(1,Math.min(31,Math.round(medianNumber(Object.keys(monthlyFirstDays).map(function(mk){return monthlyFirstDays[mk];}))||1))):null,monthlyActiveMonths:monthlyActiveMonths,
+      monthlyHasExactPlan:monthly&&(state.settings.recurringRules||[]).some(function(r){return r.active&&r.entryKind!=="income"&&r.category===k&&r.frequency==="monthly"&&!ruleIsComplete(r);}),
       yearlyBillAmount:yearly&&yearlyCfg?yearlyCfg.amount:null,yearlyDueMonth:yearly&&yearlyCfg?yearlyCfg.dueMonth:null,yearlyDueDay:yearly&&yearlyCfg?yearlyCfg.dueDay:null,yearlyReserveMonthly:yearly&&yearlyCfg?yearlyCfg.reserveMonthly:false,yearlyActiveYears:yearlyActiveYears,yearlyHasExactPlan:yearly&&yearlyCfg?yearlyCfg.hasExactPlan:false,
-      mode:yearly?"yearly":(monthly?"monthly":(frequent?"frequent":(cadence?"cadence":(lumpy?"lumpy":"sparse")))),confidence:confidence
+      mode:behavior==="oneoff"?"oneoff":(yearly?"yearly":(monthly?"monthly":(frequent?"frequent":(cadence?"cadence":(lumpy?"lumpy":"sparse"))))),confidence:confidence
     };
   });
   return out;
@@ -7556,8 +7602,13 @@ function frequentPaceStats(profile, asOfDate) {
 }
 function expectedFrequentCategoryForDate(profile, ds, asOfDate) {
   if(!profile||profile.mode!=="frequent") return {mean:0,dev:0,count:0};
-  var pace=frequentPaceStats(profile,asOfDate), histEnd=forecastHistoryEnd(asOfDate), targetDow=parseD(ds).getDay();
+  var cache=profile._frequentForecastCache;
+  if(!cache||cache.asOf!==asOfDate)cache=profile._frequentForecastCache={asOf:asOfDate,pace:frequentPaceStats(profile,asOfDate),weekdays:{}};
+  var pace=cache.pace,histEnd=forecastHistoryEnd(asOfDate),targetDow=parseD(ds).getDay();
   var floor=toStr(addDays(parseD(histEnd),-83)), start=(profile.historyStart&&profile.historyStart>floor)?profile.historyStart:floor, same=[];
+  var weekdayCache=cache.weekdays[targetDow],sameStats;
+  if(weekdayCache){same={length:weekdayCache.count};sameStats=weekdayCache.stats;}
+  else {
   var d=parseD(start),end=parseD(histEnd);
   while(d<=end){
     if(d.getDay()===targetDow){
@@ -7566,7 +7617,9 @@ function expectedFrequentCategoryForDate(profile, ds, asOfDate) {
     }
     d=addDays(d,1);
   }
-  var sameStats=same.length>=3?robustWeightedStats(same):null;
+  sameStats=same.length>=3?robustWeightedStats(same):null;
+  cache.weekdays[targetDow]={count:same.length,stats:sameStats};
+  }
   /* Weekday behavior remains a small nudge only. Its influence grows with
      repeated same-weekday evidence and is capped so a few Saturdays cannot
      overwhelm the adaptive daily pace. */
@@ -7653,9 +7706,8 @@ function cadenceEventForecast(profile, fromStr, throughStr) {
   if(overdueRatio>2.1)staleFactor=Math.exp(-.45*(overdueRatio-2.1));
   if(overdueRatio>3.6)staleFactor*=.35;
 
-  /* Cadence definition is unchanged: eventGap still comes from the observed
-     window divided by active event days. What changes in v112.20 is the Home presentation; the softened reserve logic from v112.19 remains intact and only the
-     PERIOD BOUNDARY. An event centered near/just beyond month-end contributes
+  /* v113.11 learns the repeat interval from recent observed gaps.
+     Preserve smooth probability mass across the period boundary. An event centered near/just beyond month-end contributes
      only the part of its timing distribution that falls inside the period,
      rather than being 100% present one day and 0% present the next. */
   var wait=lastToday?gap:Math.max(0,gap-daysSince);
@@ -7665,11 +7717,11 @@ function cadenceEventForecast(profile, fromStr, throughStr) {
   var firstProb=Math.max(0,Math.min(.98,firstRaw*evidenceMultiplier*staleFactor));
   if(firstRaw<.08)firstProb=Math.min(firstProb,firstRaw);
   var repeatProb=Math.max(.55,Math.min(.97,(.82+.15*evidenceQuality)*staleFactor));
-  var sigma=Math.max(.75,gap*.13);
+  var sigma=Math.max(.75,gap*.13,Number(profile.gapDev)||0);
   var tailRadius=Math.max(2,Math.ceil(sigma*4));
   var noEventProb=1,expectedCount=0,eventIndex=0;
 
-  while(eventIndex<80){
+  while(eventIndex<400){
     var center=wait+eventIndex*gap;
     /* Keep a short timing tail beyond the requested period so a near-boundary
        event can fade out smoothly. Beyond ~4σ its in-period mass is negligible. */
@@ -7713,6 +7765,7 @@ function cadenceEventForecast(profile, fromStr, throughStr) {
 function monthlyBillEventForecast(profile, fromStr, throughStr) {
   var byDate={},events=[],total=0,variance=0;
   if(!profile||profile.mode!=="monthly")return {byDate:byDate,events:events,total:0,variance:0,probability:0,safeReserve:0,expectedCount:0,reason:"No monthly bill history"};
+  if(profile.monthlyHasExactPlan)return {byDate:byDate,events:events,total:0,variance:0,probability:0,safeReserve:0,expectedCount:0,reason:"Scheduled monthly plan"};
   var likely=Math.max(0,Number(profile.typicalTxnAmount)||Number(profile.typicalAmount)||0);
   if(!(likely>0)||fromStr>throughStr)return {byDate:byDate,events:events,total:0,variance:0,probability:0,safeReserve:0,expectedCount:0,reason:"No monthly bill amount"};
   var dueDay=Math.max(1,Math.min(31,Math.round(Number(profile.monthlyBillDay)||1)));
@@ -7758,23 +7811,29 @@ function yearlyBillEventForecast(profile, fromStr, throughStr) {
 }
 
 function lumpyEventForecast(profile, fromStr, throughStr) {
-  var byDate={},variance=0,total=0;
-  if(!profile||profile.mode!=="lumpy"||!profile.activeDays||!profile.spanDays)return {byDate:byDate,total:0,variance:0,probability:0,safeReserve:0,reason:"No lumpy history"};
-  var horizon=Math.max(0,daysBetween(fromStr,throughStr)+1);if(horizon<=0)return {byDate:byDate,total:0,variance:0,probability:0,safeReserve:0,reason:"No future days"};
-  var reliability=profile.activeDays>=3?.72:(profile.activeDays===2?.60:.35);
-  if(profile.lastDate===fromStr)reliability*=.45;
-  var expectedEvents=(horizon*(profile.activeDays/profile.spanDays))*reliability;
-  if(profile.activeDays===1)expectedEvents=Math.min(expectedEvents,.20);
-  else if(profile.activeDays===2)expectedEvents=Math.min(expectedEvents,.60);
-  else expectedEvents=Math.min(expectedEvents,1.20);
-  var expectedTotal=expectedEvents*profile.typicalAmount;
-  var prob=1-Math.exp(-expectedEvents);
-  var days=[];for(var i=0;i<horizon;i++){if(profile.lastDate===fromStr&&i===0)continue;days.push(toStr(addDays(parseD(fromStr),i)));}
-  if(days.length&&expectedTotal>0){var share=expectedTotal/days.length;days.forEach(function(ds){byDate[ds]=share;total+=share;});}
-  variance=prob*(1-prob)*profile.typicalAmount*profile.typicalAmount+(profile.amountDev||0)*(profile.amountDev||0)*Math.max(.15,expectedEvents);
-  var safeReserve=smoothProtectedReserve(prob,profile.typicalAmount,expectedTotal,reliability,"lumpy");
-  return {byDate:byDate,total:total,variance:variance,probability:prob,safeReserve:safeReserve,expectedCount:expectedEvents,reason:"Irregular expected value"};
+  var byDate={},zero={byDate:byDate,total:0,variance:0,probability:0,safeReserve:0,expectedCount:0,reason:"No irregular history"};
+  if(!profile||profile.mode!=="lumpy"||!profile.activeDays||fromStr>throughStr)return zero;
+  var end=forecastHistoryEnd(profile.asOfDate||fromStr),start=toStr(addDays(parseD(end),-179));
+  if(profile.historyStart>start)start=profile.historyStart;
+  var wt=0,events=0,amount=0,second=0;
+  for(var d=parseD(start);toStr(d)<=end;d=addDays(d,1)){
+    var ds=toStr(d),w=Math.pow(.5,daysBetween(ds,end)/60),a=Math.max(0,Number(profile.daily[ds])||0);
+    wt+=w;if(a>0){events+=w;amount+=w*a;second+=w*a*a;}
+  }
+  if(!(events>0))return zero;
+  // Thirty zero-day equivalents regularize short histories; do not erase rare events.
+  var rate=events/(wt+30),size=amount/events,secondMoment=second/events;
+  var horizon=0,total=0;
+  for(var day=parseD(fromStr);toStr(day)<=throughStr;day=addDays(day,1)){
+    var key=toStr(day);if(profile.lastDate===fromStr&&key===fromStr)continue;
+    byDate[key]=rate*size;total+=byDate[key];horizon++;
+  }
+  var count=rate*horizon,prob=1-Math.exp(-count),variance=count*secondMoment;
+  return {byDate:byDate,total:total,variance:variance,probability:prob,expectedCount:count,
+    safeReserve:smoothProtectedReserve(prob,size,total,Math.min(.9,profile.activeDays/8),"lumpy"),
+    reason:profile.activeDays===1?"Low-evidence irregular allowance":"Recency-weighted irregular allowance"};
 }
+
 
 function portfolioUnscheduledPaceForecast(scope, profileAsOfStr, forecastFromStr, throughStr) {
   var periodicTimingRules=periodicPlanRulesForTiming();
@@ -7845,25 +7904,7 @@ function buildBehavioralForecastRaw(scope, profileAsOfStr, forecastFromStr, thro
       if(totalL>0.005){bySub[k]={amount:totalL,kind:"lumpy",profile:p,probability:l.probability||0,reason:l.reason||"",likelyAmount:p.typicalAmount||0,safeReserve:l.safeReserve||0,expectedCount:l.expectedCount||0};lumpyExpectedTotal+=totalL;lumpySafeReserveTotal+=(l.safeReserve||0);}
     }
   });
-  var categoryTotal=0;Object.keys(bySub).forEach(function(k){categoryTotal+=Number(bySub[k].amount)||0;});
-  var portfolio=portfolioUnscheduledPaceForecast(scope,profileAsOfStr,forecastFromStr,throughStr),blendFactor=1;
-  if(categoryTotal>0&&portfolio.total>0&&portfolio.blendWeight>0&&frequentExpectedTotal>0){
-    var blendedTotal=categoryTotal*(1-portfolio.blendWeight)+portfolio.total*portfolio.blendWeight;
-    var nonFrequentTotal=Math.max(0,categoryTotal-frequentExpectedTotal);
-    var desiredFrequent=Math.max(0,blendedTotal-nonFrequentTotal);
-    blendFactor=Math.max(.75,Math.min(1.35,desiredFrequent/frequentExpectedTotal));
-    if(Math.abs(blendFactor-1)>.005){
-      Object.keys(frequentByDate).forEach(function(ds){
-        var base=frequentByDate[ds]||0,delta=base*(blendFactor-1);
-        byDate[ds]=(byDate[ds]||0)+delta;frequentByDate[ds]=base*blendFactor;
-        var fv=frequentVarianceByDate[ds]||0;
-        varianceByDate[ds]=(varianceByDate[ds]||0)-fv+fv*blendFactor*blendFactor;
-        frequentVarianceByDate[ds]=fv*blendFactor*blendFactor;
-      });
-      Object.keys(bySub).forEach(function(k){if(bySub[k].kind==="frequent"){bySub[k].amount*=blendFactor;Object.keys(bySubDate[k]||{}).forEach(function(ds){bySubDate[k][ds]*=blendFactor;});}});
-      frequentExpectedTotal*=blendFactor;
-    }
-  }
+  var portfolio={pace:0,total:0,blendWeight:0},blendFactor=1;
   return {profiles:profiles,byDate:byDate,bySubcategory:bySub,bySubcategoryDate:bySubDate,varianceByDate:varianceByDate,frequentByDate:frequentByDate,frequentVarianceByDate:frequentVarianceByDate,suppressed:suppressed,
     cadenceSafeReserveTotal:round2(cadenceSafeReserveTotal),lumpySafeReserveTotal:round2(lumpySafeReserveTotal),frequentExpectedTotal:round2(frequentExpectedTotal),lumpyExpectedTotal:round2(lumpyExpectedTotal),safeReserveTotal:round2(cadenceSafeReserveTotal+lumpySafeReserveTotal),
     portfolioPace:round2(portfolio.pace||0),portfolioExpected:round2(portfolio.total||0),portfolioBlendWeight:portfolio.blendWeight||0,portfolioBlendFactor:blendFactor};
@@ -7959,32 +8000,10 @@ function forecastProfileMetaText(p, kind, probability, reason) {
   return parts.join(" · ");
 }
 
-function forecastCalibrationFactor(scope,totalDays,periodHint) {
-  var period=periodHint||(totalDays<=8?"week":"month");
-  var rows=forecastAccuracyRows().filter(function(x){return x.scope===scope&&x.period===period;});
-  if(!rows.length)return {factor:1,count:0,ready:false,period:period};
-  var byPeriod={};
-  rows.forEach(function(x){var k=x.period+"|"+x.periodStart+"|"+x.periodEnd,cur=byPeriod[k];if(!cur||x.actualSoFar<cur.actualSoFar||(x.actualSoFar===cur.actualSoFar&&x.snapshotDate<cur.snapshotDate))byPeriod[k]=x;});
-  var ratios=[];
-  Object.keys(byPeriod).forEach(function(k){
-    var x=byPeriod[k],actual=x.actual;if(!(actual>0)||!(x.forecastClose>0))return;if(x.actualSoFar>actual*.18)return;
-    var scheduled=x.scheduledUpcoming;
-    if(scheduled==null){scheduled=(x.breakdown||[]).reduce(function(s,b){return s+(b&&b.kind==="scheduled"?(Number(b.amount)||0):0);},0);}
-    var predicted=x.behavioralForecast;
-    if(predicted==null)predicted=Math.max(0,x.forecastClose-x.actualSoFar-scheduled);
-    var actualBehavior=Math.max(0,actual-x.actualSoFar-scheduled);
-    if(!(predicted>0))return;
-    ratios.push({date:x.periodEnd,ratio:Math.max(.70,Math.min(1.40,actualBehavior/predicted))});
-  });
-  ratios.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0;});
-  ratios=ratios.slice(-10);if(ratios.length<3)return {factor:1,count:ratios.length,ready:false,period:period};
-  var med=medianNumber(ratios.map(function(x){return x.ratio;}))||1,reliability=Math.min(.65,.30+(ratios.length-3)*.07),factor=1+(med-1)*reliability;
-  return {factor:Math.max(.90,Math.min(1.10,factor)),count:ratios.length,ready:true,period:period};
-}
 function scaleBehavioralForecastForCalibration(behavioral,factor){
   factor=Number(factor)||1;if(!behavioral||Math.abs(factor-1)<.005)return behavioral;
   
-  var frequentFactor=Math.max(.75,Math.min(1.35,factor));
+  var frequentFactor=Math.max(.90,Math.min(1.10,factor));
   Object.keys(behavioral.frequentByDate||{}).forEach(function(ds){
     var base=behavioral.frequentByDate[ds]||0,delta=base*(frequentFactor-1);
     behavioral.byDate[ds]=(behavioral.byDate[ds]||0)+delta;behavioral.frequentByDate[ds]=base*frequentFactor;
@@ -8011,8 +8030,13 @@ function computeForecastNumbersCore(rows, totalDays, periodStart, scope, periodH
   var pastSpent=pastRows.reduce(function(s,r){return s+rowSpentForScope(r,scope);},0);
   var periodEnd=toStr(addDays(parseD(periodStart),totalDays-1));
 
-  var calibration=forecastCalibrationFactor(calibrationScope||scope,totalDays,periodHint);
-  var behavioral=scaleBehavioralForecastForCalibration(buildBehavioralForecast(scope,today,today,periodEnd),calibration.factor);
+  var period=periodHint||(totalDays<=8?"week":"month");
+  var behavioral=buildBehavioralForecast(scope,today,today,periodEnd);
+  var baseline=forecastBaseline(scope,today,today,periodEnd,behavioral.profiles);
+  var calibration=forecastLearningState(scope,period,forecastHorizonBand({periodStart:periodStart,periodEnd:periodEnd,snapshotDate:today}));
+  var adaptiveFrequent=Number(behavioral.frequentExpectedTotal)||0;
+  blendFrequentForecast(behavioral,baseline,calibration.weight);
+  behavioral=scaleBehavioralForecastForCalibration(behavioral,calibration.factor);
   var futureScheduledByDate=scheduledExpenseByDate(today,periodEnd,scope);
   var scheduledUpcoming=0;Object.keys(futureScheduledByDate).forEach(function(k){scheduledUpcoming+=futureScheduledByDate[k];});scheduledUpcoming=round2(scheduledUpcoming);
   /* Safe-to-Spend reserve is intentionally narrower than the expected-value
@@ -8048,9 +8072,10 @@ function computeForecastNumbersCore(rows, totalDays, periodStart, scope, periodH
   /* Exact scheduled commitments are a hard lower bound. A malformed horizon
      must never produce a projected close below them or a reversed likely range. */
   if(projectedSpend<exactFloor){projectedSpend=round2(exactFloor);if(forecastValues.length)forecastValues[forecastValues.length-1]=projectedSpend;}
-  var rangeLow=rangeReady?Math.max(actualSpentSoFar,projectedSpend-1.15*uncertainty):null;
-  var rangeHigh=rangeReady?Math.max(exactFloor,projectedSpend+1.15*uncertainty):null;
-  if(rangeReady&&rangeHigh<rangeLow)rangeHigh=rangeLow;
+  var range=forecastRange(scope,period,periodStart,periodEnd,projectedSpend,exactFloor,uncertainty);
+  // The final-day endpoint includes remaining-today spending, just like the total.
+  if(forecastValues.length&&daysToEstimate>0)forecastValues[forecastValues.length-1]=projectedSpend;
+  var rangeLow=range.low,rangeHigh=range.high;
 
   var breakdown=[];
   Object.keys(behavioral.bySubcategory||{}).forEach(function(k){
@@ -8081,6 +8106,9 @@ function computeForecastNumbersCore(rows, totalDays, periodStart, scope, periodH
   });
 
   return {
+    learning:calibration,uncertainty:uncertainty,rangeMethod:range.method,rangePeriods:range.count,
+    baselineClose:round2(actualSpentSoFar+scheduledUpcoming+baseline.total),
+    learningComponents:[{scope:scope,categories:Object.keys(behavioral.profiles).filter(function(k){return behavioral.profiles[k].mode==="frequent";}),adaptive:round2(adaptiveFrequent),baseline:round2(baseline.frequentTotal),delivered:round2(behavioral.frequentExpectedTotal||0),weight:calibration.weight,factor:calibration.factor}],
     todayIncluded:todayIncluded,pastDays:completedDays,pastSpent:round2(pastSpent),pastDiscretionary:0,
     actualSpentSoFar:round2(actualSpentSoFar),knownSpent:round2(actualSpentSoFar),
     avgSpentPerDay:daysToEstimate>0?expectedFutureTotal/daysToEstimate:null,stillBlending:false,currentWeight:1,historyDays:0,
@@ -8102,6 +8130,9 @@ function combineForecastScopes(a,b){
   var days=Math.max(Number(a.daysToEstimate)||0,Number(b.daysToEstimate)||0);
   var remaining=round2((Number(a.remainingForecast)||0)+(Number(b.remainingForecast)||0));
   return {
+    baselineClose:round2((a.baselineClose||0)+(b.baselineClose||0)),
+    learningComponents:(a.learningComponents||[]).concat(b.learningComponents||[]),
+    uncertainty:(a.uncertainty||0)+(b.uncertainty||0),
     todayIncluded:a.todayIncluded||b.todayIncluded,pastDays:Math.max(a.pastDays||0,b.pastDays||0),
     pastSpent:round2((a.pastSpent||0)+(b.pastSpent||0)),pastDiscretionary:0,
     actualSpentSoFar:round2((a.actualSpentSoFar||0)+(b.actualSpentSoFar||0)),knownSpent:round2((a.knownSpent||0)+(b.knownSpent||0)),
@@ -8123,20 +8154,21 @@ function combineForecastScopes(a,b){
     eventModeledCount:(a.eventModeledCount||0)+(b.eventModeledCount||0),personModeledCount:0,overallModeledCount:(a.overallModeledCount||0)+(b.overallModeledCount||0)
   };
 }
-function computeForecastNumbers(rows, totalDays, periodStart, scope, periodHint) {
+function computeForecastNumbers(rows,totalDays,periodStart,scope,periodHint){
   scope=scope||"overall";
-  if(scope==="overall"){
-    return combineForecastScopes(
-      computeForecastNumbersCore(rows,totalDays,periodStart,"budget",periodHint,"overall"),
-      computeForecastNumbersCore(rows,totalDays,periodStart,"excluded",periodHint,"overall")
-    );
-  }
-  return computeForecastNumbersCore(rows,totalDays,periodStart,scope,periodHint,scope);
+  if(scope!=="overall")return computeForecastNumbersCore(rows,totalDays,periodStart,scope,periodHint,scope);
+  var combined=combineForecastScopes(
+    computeForecastNumbersCore(rows,totalDays,periodStart,"budget",periodHint,"budget"),
+    computeForecastNumbersCore(rows,totalDays,periodStart,"excluded",periodHint,"excluded"));
+  if(combined){var end=toStr(addDays(parseD(periodStart),totalDays-1)),r=forecastRange("overall",periodHint||(totalDays<=8?"week":"month"),periodStart,end,combined.projectedSpend,combined.actualSpentSoFar+combined.scheduledUpcoming,combined.uncertainty);
+    combined.rangeLow=r.low;combined.rangeHigh=r.high;combined.rangeMethod=r.method;combined.rangePeriods=r.count;}
+  return combined;
 }
+
 function periodForecast(stats,startStr,endStr,scope,exactStart){
   var start=exactStart?startStr:effectiveRangeStart(startStr);
   var days=Math.max(1,daysBetween(start,endStr)+1);
-  var periodHint=daysBetween(startStr,endStr)+1<=8?"week":"month";
+  var span=daysBetween(startStr,endStr)+1,periodHint=span<=8?"week":span<=32?"month":"year";
   return {start:start,days:days,forecast:(stats&&stats.rows&&stats.rows.length)?computeForecastNumbers(stats.rows,days,start,scope,periodHint):null};
 }
 
@@ -8144,62 +8176,285 @@ function periodForecast(stats,startStr,endStr,scope,exactStart){
    One immutable snapshot per day/horizon is saved. We never rewrite a past
    snapshot after later transactions arrive, which means completed periods can
    be compared with what the app genuinely predicted at the time. */
-function makeForecastSnapshot(scope, periodWord) {
+/* v113.11: immutable, prospective checkpoints + bounded online learning.
+   Never train from replay. Every learner uses only settled earlier periods,
+   the same scope, horizon and frequent-category membership as its outcome. */
+var forecastScoreCache=null;
+var forecastReplayRunning=false;
+var forecastReplayActive=false;
+function forecastHorizonBand(x){
+  var total=Math.max(1,daysBetween(x.periodStart,x.periodEnd)+1),elapsed=Math.max(1,Math.min(total,daysBetween(x.periodStart,x.snapshotDate)+1));
+  return elapsed/total<=1/3?"early":elapsed/total<=2/3?"middle":"late";
+}
+function forecastPeriodKey(x){return [x.period,x.periodStart,x.periodEnd].join("|");}
+function forecastCheckpoints(rows){
+  var map=Object.create(null);
+  rows.forEach(function(x){var key=forecastPeriodKey(x)+"|"+forecastHorizonBand(x),cur=map[key];if(!cur||x.snapshotDate<cur.snapshotDate)map[key]=x;});
+  return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return a.periodEnd.localeCompare(b.periodEnd)||a.snapshotDate.localeCompare(b.snapshotDate);});
+}
+function forecastFrozenContext(){
+  return {excluded:Object.keys(state.settings.categoryExcludeFromBudget||{}).filter(function(k){return categoryExcludedFromBudget(k);}),periodic:periodicPlanRulesForTiming().map(function(r){return {id:r.id,category:r.category,amount:Number(r.amount)||0};})};
+}
+function forecastCategoryTotals(start,end,scope,context){
+  var out=Object.create(null);
+  Object.keys(state.entries).forEach(function(ds){if(ds<start||ds>end)return;(state.entries[ds].items||[]).forEach(function(it){if(forecastItemInScope(it,scope,context)){var k=subcategoryKey(it);out[k]=(out[k]||0)+Math.max(0,Number(it.amount)||0);}});});
+  return out;
+}
+function forecastItemInScope(it,scope,context){
+  if(!isExpenseItem(it))return false;
+  var excluded=context.excluded.indexOf(String(it.category||""))!==-1;
+  return scope==="overall"||(scope==="budget"?!excluded:excluded);
+}
+function forecastIsScheduled(ds,it,context){return !!(it.recurringId||itemIsPlannedPeriodicCash(ds,it,context.periodic));}
+function forecastActualRange(start,end,scope,context,categories){
+  var sum=0;
+  Object.keys(state.entries).forEach(function(ds){if(ds<start||ds>end)return;
+    (state.entries[ds].items||[]).forEach(function(it){
+      if(!forecastItemInScope(it,scope,context))return;
+      if(categories&&(categories.indexOf(subcategoryKey(it))===-1||forecastIsScheduled(ds,it,context)))return;
+      sum+=Math.max(0,Number(it.amount)||0);
+    });
+  });return round2(sum);
+}
+function forecastObservedDigest(snap){
+  // Today is still open: later same-day entries are legitimate future outcomes.
+  var parts=[];
+  Object.keys(state.entries).sort().forEach(function(ds){if(ds<snap.periodStart||ds>=snap.snapshotDate)return;
+    var items=(state.entries[ds].items||[]).filter(function(it){return forecastItemInScope(it,snap.scope,snap.context);}).map(function(it){return JSON.stringify([it.id||"",subcategoryKey(it),Number(it.amount)||0,it.recurringId||"",it.periodicTimingPlanId||""]);}).sort();
+    if(items.length)parts.push(ds+items.join(";"));
+  });
+  var text=parts.join("|"),hash=2166136261;for(var i=0;i<text.length;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619);
+  return (hash>>>0).toString(16);
+}
+function forecastBaseline(scope,asOf,from,through,profiles){
+  var end=forecastHistoryEnd(asOf),first=Object.keys(state.entries).sort()[0]||end,start=toStr(addDays(parseD(end),-27));
+  if(first>start)start=first;
+  if(scope!=="overall"&&state.settings.trackingStartDate>start)start=state.settings.trackingStartDate;
+  var n=Math.max(0,daysBetween(start,end)+1),sum=0,byCat=Object.create(null),today=Object.create(null),rules=periodicPlanRulesForTiming();
+  function eligible(ds,it){return expenseCountsForScope(it,scope)&&!it.recurringId&&!itemIsPlannedPeriodicCash(ds,it,rules)&&categoryForecastBehavior(subcategoryKey(it))!=="oneoff";}
+  Object.keys(state.entries).forEach(function(ds){if(ds<start||ds>asOf)return;
+    (state.entries[ds].items||[]).forEach(function(it){if(!eligible(ds,it))return;var k=subcategoryKey(it),a=Math.max(0,Number(it.amount)||0);
+      if(ds<=end){sum+=a;byCat[k]=(byCat[k]||0)+a;}
+      if(ds===from&&ds===asOf)today[k]=(today[k]||0)+a;
+    });
+  });
+  var total=0,frequentTotal=0,byDate={},frequentByDate={},frequentCategoryDate={};
+  var keys=Object.keys(profiles||{}).filter(function(k){return profiles[k].mode==="frequent";});
+  var todayTotal=Object.keys(today).reduce(function(t,k){return t+today[k];},0),pace=n>0?sum/n:0;
+  for(var d=parseD(from);toStr(d)<=through;d=addDays(d,1)){
+    var ds=toStr(d),partial=ds===asOf,amount=partial?Math.max(0,pace-todayTotal):pace;
+    byDate[ds]=amount;total+=amount;frequentByDate[ds]=0;
+    keys.forEach(function(k){var p=n>0?(byCat[k]||0)/n:0,a=partial?Math.max(0,p-(today[k]||0)):p;
+      if(!frequentCategoryDate[k])frequentCategoryDate[k]={};frequentCategoryDate[k][ds]=a;frequentByDate[ds]+=a;frequentTotal+=a;
+    });
+  }
+  return {total:total,byDate:byDate,frequentTotal:frequentTotal,frequentByDate:frequentByDate,frequentCategoryDate:frequentCategoryDate,historyDays:n};
+}
+function blendFrequentForecast(behavioral,baseline,weight){
+  if(!(weight>0))return behavioral;
+  var total=0;
+  Object.keys(behavioral.profiles||{}).forEach(function(k){
+    var p=behavioral.profiles[k];if(p.mode!=="frequent")return;
+    var path=behavioral.bySubcategoryDate[k]||{},other=baseline.frequentCategoryDate[k]||{},dates=Object.keys(Object.assign({},path,other)),amount=0;
+    dates.forEach(function(ds){var before=path[ds]||0,after=before*(1-weight)+(other[ds]||0)*weight,delta=after-before;
+      path[ds]=after;amount+=after;behavioral.byDate[ds]=(behavioral.byDate[ds]||0)+delta;behavioral.frequentByDate[ds]=(behavioral.frequentByDate[ds]||0)+delta;
+      // Preserve the raw variance; candidate agreement is not proof of certainty.
+    });
+    behavioral.bySubcategoryDate[k]=path;
+    if(amount>0)behavioral.bySubcategory[k]=Object.assign({},behavioral.bySubcategory[k]||{kind:"frequent",profile:p,safeReserve:0},{amount:amount});
+    total+=amount;
+  });behavioral.frequentExpectedTotal=total;return behavioral;
+}
+function makeForecastSnapshot(scope,periodWord){
   var per=getPeriodBounds(periodWord,0,currentWeeklyTarget(),dailyAllowance());
   var stats=scope==="overall"?periodStatsOverall(per.startStr,per.endStr):periodStatsBudget(per.startStr,per.endStr);
-  if(!stats.rows.length) return null;
-  var start=scope==="budget"?effectiveRangeStart(per.startStr):per.startStr;
-  var days=daysBetween(start,per.endStr)+1;
-  if(days<=0) return null;
-  var fc=computeForecastNumbers(stats.rows,days,start,scope,periodWord);
-  if(!fc) return null;
-  var projectedIncome=(scope==="overall"&&periodWord==="month")?projectedIncomeForRange(per.startStr,per.endStr):null;
-  var projectedSaving=projectedIncome>0?round2(projectedIncome-fc.projectedSpend):null;
-  return {snapshotDate:todayStr(),scope:scope,period:periodWord,periodStart:start,periodEnd:per.endStr,forecastClose:round2(fc.projectedSpend),actualSoFar:round2(fc.actualSpentSoFar),target:scope==="budget"?round2(fullPeriodTarget(per.startStr,per.endStr)):0,projectedIncome:projectedIncome,projectedSaving:projectedSaving,scheduledUpcoming:round2(fc.scheduledUpcoming||0),behavioralForecast:round2(Math.max(0,fc.projectedSpend-fc.actualSpentSoFar-(fc.scheduledUpcoming||0))),modelVersion:FORECAST_MODEL_VERSION,breakdown:(fc.forecastBreakdown||[]).map(function(x){return {label:x.label,amount:round2(x.amount||0),kind:x.kind||""};}).slice(0,30)};
+  if(!stats.rows.length||!Object.keys(state.entries).length)return null;
+  var start=stats.rows[0].date,days=daysBetween(start,per.endStr)+1;
+  var fc=computeForecastNumbers(stats.rows,days,start,scope,periodWord);if(!fc)return null;
+  var income=scope==="overall"&&periodWord==="month"?projectedIncomeForRange(per.startStr,per.endStr):null;
+  var snap={schema:2,snapshotDate:todayStr(),scope:scope,period:periodWord,periodStart:start,periodEnd:per.endStr,modelVersion:FORECAST_MODEL_VERSION,
+    forecastClose:round2(fc.projectedSpend),actualSoFar:round2(fc.actualSpentSoFar),target:scope==="budget"?fullPeriodTarget(per.startStr,per.endStr):0,
+    projectedIncome:income,projectedSaving:income>0?round2(income-fc.projectedSpend):null,scheduledUpcoming:round2(fc.scheduledUpcoming||0),behavioralForecast:round2(Math.max(0,fc.projectedSpend-fc.actualSpentSoFar-fc.scheduledUpcoming)),
+    baselineClose:fc.baselineClose,rangeLow:fc.rangeLow,rangeHigh:fc.rangeHigh,rangeMethod:fc.rangeMethod,rangeScale:forecastRangeScale(fc.projectedSpend,fc.actualSpentSoFar+fc.scheduledUpcoming,fc.uncertainty),context:forecastFrozenContext(),components:fc.learningComponents||[],
+    breakdown:(fc.forecastBreakdown||[]).map(function(x){return {label:x.label,amount:round2(x.amount||0),kind:x.kind||""};})};
+  snap.openingByCategory=forecastCategoryTotals(start,snap.snapshotDate,scope,snap.context);
+  snap.components=snap.components.map(function(c){return Object.assign({},c,{opening:forecastActualRange(start,snap.snapshotDate,c.scope,snap.context,c.categories)});});
+  snap.observedDigest=forecastObservedDigest(snap);return snap;
 }
-function captureForecastSnapshotsIfNeeded() {
-  var snaps=normalizeForecastSnapshots(state.settings.forecastSnapshots), keyDate=todayStr(), changed=false;
+function captureForecastSnapshotsIfNeeded(){
+  forecastScoreCache=null;
+  var snaps=normalizeForecastSnapshots(state.settings.forecastSnapshots),date=todayStr(),changed=false;
   [["budget","week"],["budget","month"],["overall","month"]].forEach(function(pair){
-    var exists=snaps.some(function(x){return x.snapshotDate===keyDate&&x.scope===pair[0]&&x.period===pair[1]&&x.modelVersion===FORECAST_MODEL_VERSION;});
-    if(exists) return;
-    var snap=makeForecastSnapshot(pair[0],pair[1]); if(snap){snaps.push(snap);changed=true;}
+    if(snaps.some(function(x){return x.snapshotDate===date&&x.scope===pair[0]&&x.period===pair[1]&&x.modelVersion===FORECAST_MODEL_VERSION;}))return;
+    var snap=makeForecastSnapshot(pair[0],pair[1]);if(snap){snaps.push(snap);changed=true;}
   });
-  if(changed) state.settings.forecastSnapshots=normalizeForecastSnapshots(snaps);
+  if(changed){state.settings.forecastSnapshots=normalizeForecastSnapshots(snaps);forecastScoreCache=null;}
   return changed;
 }
-function actualForSnapshot(snap) {
+function actualForSnapshot(snap){
+  if(snap.schema===2)return forecastActualRange(snap.periodStart,snap.periodEnd,snap.scope,snap.context);
   var stats=snap.scope==="overall"?periodStatsOverall(snap.periodStart,snap.periodEnd):periodStatsBudget(snap.periodStart,snap.periodEnd);
   return round2(snap.scope==="overall"?stats.spentAll:stats.spent);
 }
-function forecastAccuracyRows() {
-  return normalizeForecastSnapshots(state.settings.forecastSnapshots).filter(function(x){return x.periodEnd<todayStr()&&x.modelVersion===FORECAST_MODEL_VERSION;}).map(function(x){
-    var actual=actualForSnapshot(x), error=round2(x.forecastClose-actual);
-    return Object.assign({},x,{actual:actual,error:error,absError:Math.abs(error),horizon:forecastHorizonBand(x)});
-  });
-}
-function forecastHorizonBand(x){
-  var total=Math.max(1,daysBetween(x.periodStart,x.periodEnd)+1),elapsed=Math.max(1,Math.min(total,daysBetween(x.periodStart,x.snapshotDate)+1)),progress=elapsed/total;
-  return progress<=1/3?"early":progress<=2/3?"middle":"late";
+function forecastAccuracyRows(){
+  if(forecastScoreCache)return forecastScoreCache;
+  var settled=toStr(addDays(parseD(todayStr()),-2));
+  var rows=normalizeForecastSnapshots(state.settings.forecastSnapshots).filter(function(x){return x.modelVersion===FORECAST_MODEL_VERSION&&x.schema===2&&x.periodEnd<settled;}).map(function(x){
+    var actual=actualForSnapshot(x),error=actual==null?0:x.forecastClose-actual;
+    var revised=!!x.invalidatedReason||forecastObservedDigest(x)!==x.observedDigest;
+    var components=x.components.map(function(c){var future=forecastActualRange(x.periodStart,x.periodEnd,c.scope,x.context,c.categories)-c.opening;
+      if(future<-.01)revised=true;return Object.assign({},c,{actual:Math.max(0,round2(future))});});
+    var categoryErrors=[];
+    if(x.openingByCategory){var finalCategories=forecastCategoryTotals(x.periodStart,x.periodEnd,x.scope,x.context),predicted=Object.create(null);x.breakdown.forEach(function(b){var k=b.label==='Uncategorised'?'__uncategorised__':b.label;predicted[k]=(predicted[k]||0)+(Number(b.amount)||0);});
+      Object.keys(Object.assign({},finalCategories,predicted,x.openingByCategory)).forEach(function(k){var remaining=(finalCategories[k]||0)-(x.openingByCategory[k]||0);if(remaining<-.01)revised=true;categoryErrors.push({category:k,error:(predicted[k]||0)-remaining});});
+    }
+    return Object.assign({},x,{actual:actual,error:error,absError:Math.abs(error),horizon:forecastHorizonBand(x),revised:revised,components:components,categoryErrors:categoryErrors});
+  });forecastScoreCache=rows;return rows;
 }
 function balancedForecastAccuracy(rows){
-  if(!rows.length)return {count:0,periodCount:0,mae:null,wape:null,bias:0};
-  var periods={};
-  rows.forEach(function(x){
-    var key=x.period+"|"+x.periodStart+"|"+x.periodEnd,p=periods[key];
-    if(!p)p=periods[key]={count:0,abs:0,signed:0,actual:x.actual};
-    p.count++;p.abs+=x.absError;p.signed+=x.error;
-  });
-  var list=Object.keys(periods).map(function(k){var p=periods[k];return {mae:p.abs/p.count,bias:p.signed/p.count,actual:p.actual};});
-  var mae=list.reduce(function(s,p){return s+p.mae;},0)/list.length,bias=list.reduce(function(s,p){return s+p.bias;},0)/list.length;
-  var actualTotal=list.reduce(function(s,p){return s+(p.actual>0?p.actual:0);},0),absoluteTotal=list.reduce(function(s,p){return s+p.mae;},0);
-  return {count:rows.length,periodCount:list.length,mae:round2(mae),wape:actualTotal>0?absoluteTotal/actualTotal*100:null,bias:round2(bias)};
+  var checkpoints=forecastCheckpoints(rows),periods=Object.create(null);
+  checkpoints.forEach(function(x){var key=forecastPeriodKey(x);if(!periods[key])periods[key]=[];periods[key].push(x);});
+  var list=Object.keys(periods).map(function(key){var a=periods[key],n=a.length,sum=function(fn){return a.reduce(function(t,x){return t+fn(x);},0)/n;};
+    return {actual:a[0].actual,mae:sum(function(x){return x.absError;}),mse:sum(function(x){return x.error*x.error;}),bias:sum(function(x){return x.error;}),baseline:sum(function(x){return x.baselineClose==null?0:Math.abs(x.baselineClose-x.actual);}),end:a[0].periodEnd};});
+  if(!list.length)return {count:rows.length,checkpointCount:0,periodCount:0,mae:null,rmse:null,wape:null,bias:0,biasPct:null,baselineMae:null,skill:null,coverage:null,rangeCount:0,intervalScore:null,width:null};
+  var mean=function(key){return list.reduce(function(t,p){return t+p[key];},0)/list.length;},actualTotal=list.reduce(function(t,p){return t+p.actual;},0);
+  var mae=mean("mae"),bias=mean("bias"),base=mean("baseline"),rangeRows=checkpoints.filter(function(x){return x.rangeLow!=null&&x.rangeHigh!=null;}),rangePeriods=Object.create(null);
+  rangeRows.forEach(function(x){var key=forecastPeriodKey(x);if(!rangePeriods[key])rangePeriods[key]=[];rangePeriods[key].push(x);});
+  var rlist=Object.keys(rangePeriods).map(function(key){var a=rangePeriods[key],n=a.length,coverage=0,width=0,score=0;
+    a.forEach(function(x){var w=x.rangeHigh-x.rangeLow,miss=Math.max(0,x.rangeLow-x.actual)+Math.max(0,x.actual-x.rangeHigh);coverage+=miss<=.01?1:0;width+=w;score+=w+10*miss;});return {coverage:coverage/n,width:width/n,score:score/n};});
+  var rmean=function(key){return rlist.length?rlist.reduce(function(t,p){return t+p[key];},0)/rlist.length:null;};
+  return {count:rows.length,checkpointCount:checkpoints.length,periodCount:list.length,mae:round2(mae),rmse:round2(Math.sqrt(mean("mse"))),wape:actualTotal>0?mae*list.length/actualTotal*100:null,bias:round2(bias),biasPct:actualTotal>0?bias*list.length/actualTotal*100:null,baselineMae:round2(base),skill:base>.005?(1-mae/base)*100:null,coverage:rmean("coverage"),rangeCount:rlist.length,intervalScore:rmean("score"),width:rmean("width")};
 }
-function forecastAccuracySummary(scope,period) {
-  var rows=forecastAccuracyRows().filter(function(x){return x.scope===scope&&x.period===period;});
-  var summary=balancedForecastAccuracy(rows);summary.period=period;summary.last=rows.length?rows[rows.length-1]:null;summary.horizons={};
+function forecastAccuracySummary(scope,period){
+  var all=forecastAccuracyRows().filter(function(x){return x.scope===scope&&x.period===period;}),rows=all.filter(function(x){return !x.revised;}),summary=balancedForecastAccuracy(rows);
+  summary.revisedCount=all.length-rows.length;summary.period=period;summary.horizons={};
+  var drivers=Object.create(null),checkpoints=forecastCheckpoints(rows),counts=Object.create(null);
+  checkpoints.forEach(function(x){var key=forecastPeriodKey(x);counts[key]=(counts[key]||0)+1;});
+  checkpoints.forEach(function(x){var n=counts[forecastPeriodKey(x)]*Math.max(1,summary.periodCount);(x.categoryErrors||[]).forEach(function(e){if(!drivers[e.category])drivers[e.category]={category:e.category,miss:0,bias:0};drivers[e.category].miss+=Math.abs(e.error)/n;drivers[e.category].bias+=e.error/n;});});
+  summary.drivers=Object.keys(drivers).map(function(k){return drivers[k];}).sort(function(a,b){return b.miss-a.miss;}).slice(0,5);
   ["early","middle","late"].forEach(function(key){summary.horizons[key]=balancedForecastAccuracy(rows.filter(function(x){return x.horizon===key;}));});
+  var periods=Array.from(new Set(rows.map(function(x){return x.periodEnd;}))).sort(),recent=periods.slice(-3),prior=periods.slice(-6,-3);
+  summary.drift=false;
+  if(prior.length===3&&recent.length===3){var a=balancedForecastAccuracy(rows.filter(function(x){return prior.indexOf(x.periodEnd)!==-1;})),b=balancedForecastAccuracy(rows.filter(function(x){return recent.indexOf(x.periodEnd)!==-1;}));summary.drift=b.wape!=null&&a.wape!=null&&b.wape>a.wape*1.5&&b.wape-a.wape>10;}
   return summary;
 }
+function forecastLearningState(scope,period,band){
+  var fallback={factor:1,weight:0,count:0,ready:false,reason:"Collecting comparable periods"};
+  if(forecastReplayActive||["budget","excluded"].indexOf(scope)===-1)return fallback;
+  var sourceScope=scope==="excluded"?"overall":"budget";
+  var rows=forecastCheckpoints(forecastAccuracyRows().filter(function(x){return !x.revised&&x.scope===sourceScope&&x.period===period&&x.horizon===band;}));
+  var points=rows.map(function(x){var c=x.components.find(function(c){return c.scope===scope;});return c&&c.categories.length?c:null;}).filter(Boolean).slice(-12);
+  if(points.length<3){fallback.count=points.length;return fallback;}
+  var weight=0,baseLoss=points.reduce(function(t,p){return t+Math.pow(p.adaptive-p.actual,2);},0);
+  // Small, regularized candidate set; require repeated wins before blending.
+  if(points.length>=6&&baseLoss>0){
+    var best=baseLoss;
+    [.25,.5].forEach(function(w){var loss=0,wins=0;points.forEach(function(p){var err=p.adaptive*(1-w)+p.baseline*w-p.actual;loss+=err*err;if(Math.abs(err)<Math.abs(p.adaptive-p.actual))wins++;});
+      if(loss<best*.8&&wins>=Math.ceil(points.length*.6)){best=loss;weight=w;}
+    });
+  }
+  var predicted=0,actual=0;points.forEach(function(p){predicted+=p.adaptive*(1-weight)+p.baseline*weight;actual+=p.actual;});
+  var shrink=Math.min(.5,points.length/20),factor=predicted>1?1+shrink*(actual/predicted-1):1;
+  factor=Math.max(.9,Math.min(1.1,factor));
+  return {factor:factor,weight:weight,count:points.length,ready:true,reason:weight>0?"Recent-average blend earned repeated wins":"Adaptive pace retained"};
+}
+function forecastCalibrationFactor(scope,totalDays,periodHint){return forecastLearningState(scope,periodHint||(totalDays<=8?"week":"month"),"early");}
+function forecastRangeScale(projected,floor,uncertainty){return Math.max(1,Number(uncertainty)||0,Math.max(0,projected-floor)*.2);}
+function forecastRange(scope,period,start,end,projected,floor,uncertainty){
+  var band=forecastHorizonBand({periodStart:start,periodEnd:end,snapshotDate:todayStr()}),scale=forecastRangeScale(projected,floor,uncertainty);
+  var rows=forecastReplayActive?[]:forecastCheckpoints(forecastAccuracyRows().filter(function(x){return !x.revised&&x.scope===scope&&x.period===period&&x.horizon===band&&x.rangeScale>0;})).slice(-24);
+  var method="estimated",radius=1.281552*scale;
+  if(rows.length>=12){var errors=rows.map(function(x){return x.absError/x.rangeScale;}).sort(function(a,b){return a-b;}),index=Math.min(errors.length-1,Math.ceil((errors.length+1)*.8)-1);radius=errors[index]*scale;method="empirical";}
+  if(projected<=floor+.005&&!(uncertainty>0))return {low:null,high:null,method:method,count:rows.length};
+  return {low:round2(Math.max(floor,projected-radius)),high:round2(Math.max(floor,projected+radius)),method:method,count:rows.length};
+}
+function forecastHealthDiagnostics(){
+  var profiles=forecastCategoryProfiles("overall",todayStr()),low=[],oneoffs=[],irregular=[];
+  Object.keys(profiles).forEach(function(k){var p=profiles[k];if(p.mode==="oneoff")oneoffs.push(p.label);else if(p.confidence==="Low")low.push(p.label);if(p.mode==="lumpy"&&p.activeDays===1)irregular.push(p.label);});
+  var last=Object.keys(state.entries).filter(function(d){return (state.entries[d].items||[]).some(isExpenseItem);}).sort().pop();
+  return {low:low,oneoffs:oneoffs,irregular:irregular,daysSince:last?Math.max(0,daysBetween(last,todayStr())):null};
+}
+function forecastAccuracyCard(title,x,scope){
+  var ready=x.periodCount>=3,review=ready&&(x.drift||(x.wape!=null&&x.wape>30)||(x.biasPct!=null&&Math.abs(x.biasPct)>10)||(x.skill!=null&&x.skill< -10)),status=!x.count?"Learning":!ready?"Early evidence":review?"Needs attention":"Monitoring";
+  var h='<div class="card forecast-score-card"><div class="fh-top"><b>'+esc(title)+'</b><span class="fh-pill '+(review?'review':ready?'ready':'')+'">'+status+'</span></div>';
+  if(!x.count)h+='<p class="fh-copy">Live forecasts will be scored two full days after the '+x.period+' ends. Older model scores stay separate.</p>';
+  else{
+    h+='<div class="fh-metrics"><div class="fh-metric"><strong class="mono">'+fmt(x.mae,0)+' AED</strong><span>Average forecast miss</span></div><div class="fh-metric"><strong class="mono">'+(x.wape==null?'—':fmt(x.wape,1)+'%')+'</strong><span>Weighted error · lower is better</span></div></div>';
+    h+='<p class="fh-copy">'+x.periodCount+' completed '+x.period+(x.periodCount===1?'':'s')+' · '+x.checkpointCount+' scored checkpoints · '+x.count+' retained daily forecasts</p>';
+    h+='<div class="fh-note">'+(Math.abs(x.bias)<1?'No net high or low bias.':'Forecasts average '+fmt(Math.abs(x.bias),0)+' AED '+(x.bias>0?'too high.':'too low.'))+'</div>';
+    h+='<p class="fh-copy">Simple benchmark miss: <b>'+fmt(x.baselineMae,0)+' AED</b>. '+(x.skill==null?'Both methods need non-zero benchmark error for a percentage comparison.':fmt(Math.abs(x.skill),1)+'% '+(x.skill>=0?'less':'more')+' error with Ledger.')+(ready?'':' This is early evidence.')+'</p>';
+    if(x.drift)h+='<div class="fh-note">Error increased across the latest three periods. Check recent spending changes and logging completeness.</div>';
+    if(x.drivers&&x.drivers.length){h+='<details class="fh-detail"><summary>Biggest sources of error</summary><div class="fh-table-wrap"><table class="fh-table"><thead><tr><th>Category</th><th>Average miss</th><th>Direction</th></tr></thead><tbody>';x.drivers.forEach(function(d){h+='<tr><td>'+esc(d.category==='__uncategorised__'?'Uncategorised':d.category)+'</td><td>'+fmt(d.miss,0)+' AED</td><td>'+(Math.abs(d.bias)<1?'Mixed':d.bias>0?'High':'Low')+'</td></tr>';});h+='</tbody></table></div><p class="fh-copy">Remaining spending, including scheduled payments and unexpected purchases. Category errors can offset each other, so their misses need not sum to the total miss.</p></details>';}
+    h+='<details class="fh-detail"><summary>Accuracy by timing</summary><div class="fh-table-wrap"><table class="fh-table"><thead><tr><th>Forecast made</th><th>Miss, AED</th><th>Error</th><th>Periods</th></tr></thead><tbody>';
+    ["early","middle","late"].forEach(function(k){var z=x.horizons[k];h+='<tr><td>'+k.charAt(0).toUpperCase()+k.slice(1)+'</td><td>'+(z.count?fmt(z.mae,0):'—')+'</td><td>'+(z.wape!=null?fmt(z.wape,1)+'%':'—')+'</td><td>'+z.periodCount+'</td></tr>';});
+    h+='</tbody></table></div><p class="fh-copy">First saved forecast in each third of the period. Each period gets equal weight. This prevents late forecasts or frequent app use dominating the score.</p></details>';
+    h+='<details class="fh-detail"><summary>Range reliability</summary><p class="fh-copy">'+(x.coverage==null?'No ranges have settled yet.':fmt(x.coverage*100,0)+'% of outcomes landed inside the saved range, across '+x.rangeCount+' periods. Target: 80%.')+'</p>';
+    if(x.width!=null)h+='<p class="fh-copy">Average width: '+fmt(x.width,0)+' AED. Interval score: '+fmt(x.intervalScore,0)+' AED (lower is better; penalizes wide ranges and misses).</p>';
+    h+='<p class="fh-copy">Ranges start as rough estimates. After 12 comparable periods, past forecast errors set their width. The 80% target is checked against future outcomes; it is not a guarantee.</p></details>';
+  }
+  var per=getPeriodBounds(x.period,0,currentWeeklyTarget(),dailyAllowance()),band=forecastHorizonBand({periodStart:per.startStr,periodEnd:per.endStr,snapshotDate:todayStr()}),learn=forecastLearningState(scope==="overall"?"excluded":"budget",x.period,band);
+  h+='<details class="fh-detail"><summary>What the engine is learning</summary><p class="fh-copy">'+(scope==="overall"?'Outside-budget everyday spending; the budget portion uses its own learner. ':'Budget everyday spending. ')+esc(learn.reason)+'.</p><p class="fh-copy">'+learn.count+' comparable periods for '+band+' forecasts. Bias adjustment: '+(learn.factor>=1?'+':'')+fmt((learn.factor-1)*100,1)+'%. Recent-average weight: '+fmt(learn.weight*100,0)+'%.</p><p class="fh-copy">Bias correction needs 3 periods and is capped at ±10%. Blending needs 6 periods, at least 20% lower squared error and wins in 60% of periods. All learning uses earlier settled outcomes only.</p></details>';
+  if(x.revisedCount)h+='<p class="fh-copy">'+x.revisedCount+' forecasts excluded because earlier transactions or category names changed. Historical predictions are preserved.</p>';
+  return h+'</div>';
+}
+function renderForecastHealth(){
+  var h='<div class="fh-top"><span class="eyebrow">Live accuracy</span>'+infoButton('forecastHealth')+'</div><p class="fh-copy">Live results, compared fairly. All calculations and learning stay on this device.</p>';
+  if(state.forecastCaptureError)h+='<div class="fh-note">'+esc(state.forecastCaptureError)+'</div>';
+  h+=forecastAccuracyCard('Budget · Week',forecastAccuracySummary('budget','week'),'budget');
+  h+=forecastAccuracyCard('Budget · Month',forecastAccuracySummary('budget','month'),'budget');
+  h+=forecastAccuracyCard('Total spending · Month',forecastAccuracySummary('overall','month'),'overall');
+  var diag=forecastHealthDiagnostics(),snaps=normalizeForecastSnapshots(state.settings.forecastSnapshots),old=snaps.filter(function(x){return x.modelVersion!==FORECAST_MODEL_VERSION;}).length,pending=snaps.filter(function(x){return x.modelVersion===FORECAST_MODEL_VERSION&&x.periodEnd>=toStr(addDays(parseD(todayStr()),-2));}).length;
+  h+='<div class="card forecast-score-card"><b>Data & assumptions</b><p class="fh-copy">'+pending+' daily forecasts awaiting a settled outcome. '+old+' older-model forecasts preserved separately.</p>';
+  if(diag.daysSince==null)h+='<div class="fh-note">Add transactions to start learning.</div>';
+  else if(diag.daysSince>=3)h+='<div class="fh-note">No expenses logged for '+diag.daysSince+' days. If entries are missing, forecasts and accuracy will understate spending.</div>';
+  h+='<p class="fh-copy">Days without entries are treated as zero spending. Forecasts cannot tell a quiet day from a missing entry.</p>';
+  if(diag.irregular.length)h+='<p class="fh-copy">Single-purchase evidence: '+esc(diag.irregular.join(', '))+'. These contribute a small irregular allowance; no repeat date is assumed.</p>';
+  h+='<details class="fh-detail"><summary>Category evidence & exclusions</summary><p class="fh-copy">Low evidence: '+esc(diag.low.join(', ')||'None currently')+'.</p><p class="fh-copy">One-off / no repeat: '+esc(diag.oneoffs.join(', ')||'None selected')+'. Change this in Settings → Categories → Forecast behavior. Actual expenses always remain included.</p></details>';
+  h+='<details class="fh-detail"><summary>How self-evaluation works</summary><ul class="fh-list"><li>One immutable live forecast per day and scope, captured when Ledger is open.</li><li>Wait two full days after period-end for late entries.</li><li>Freeze budget exclusions and frequent-category membership at prediction time.</li><li>Compare Ledger with scheduled bills plus the previous 28 days’ average unscheduled spending.</li><li>Score the first saved forecast in each third of a period; balance those checkpoints and periods equally.</li><li>Keep 45 days of daily records, then checkpoints for up to two years. Existing legacy records are retained.</li><li>Historical edits can revise outcomes. Edits to completed days before a snapshot exclude it from learning. Same-day edits and future plan changes remain part of the forecast’s uncertainty.</li></ul><p class="fh-copy">Weighted error = total period-average absolute miss ÷ total actual spending. Bias is forecast minus actual. Zero-spend periods still count in AED errors; percentage error is unavailable when total actual spending is zero.</p><p class="fh-copy">Needs attention is a practical review flag, not a statistical confidence test: after 3 periods, error above 30%, absolute bias above 10%, or over 10% worse than the benchmark. A sharp error increase across two groups of 3 periods also triggers review.</p></details></div>';
+  var replay=state.settings.forecastReplayReport;
+  h+='<div class="card forecast-score-card"><b>Historical check</b><p class="fh-copy">Replay the last six completed months of unscheduled spending. Uses only earlier transactions at each forecast date, with today’s categories and plan labels. This is reconstructed evidence, separate from live accuracy and never used for automatic learning.</p>';
+  if(forecastReplayRunning)h+='<p class="fh-copy" role="status">'+esc(state.forecastReplayProgress||'Checking history…')+'</p>';
+  if(replay&&replay.modelVersion===FORECAST_MODEL_VERSION){h+='<p class="fh-copy">Last run: '+esc(replay.date)+'. '+replay.count+' checkpoints · '+replay.periods+' months.</p>';
+    if(replay.count)h+='<div class="fh-metrics"><div class="fh-metric"><strong>'+fmt(replay.mae,0)+' AED</strong><span>Ledger average miss</span></div><div class="fh-metric"><strong>'+fmt(replay.baselineMae,0)+' AED</strong><span>Simple benchmark miss</span></div></div>';
+    else h+='<p class="fh-copy">Needs a completed month and at least 28 earlier days of history.</p>';
+    h+='<p class="fh-copy">Changes to transactions or settings after this run require another check.</p>';
+  }
+  if(state.forecastReplayError)h+='<div class="fh-note">'+esc(state.forecastReplayError)+'</div>';
+  h+='<div class="fh-actions"><button class="btn-accent" data-action="forecast-history-check" '+(forecastReplayRunning?'disabled':'')+'>'+(forecastReplayRunning?'Checking…':'Run history check')+'</button><button class="btn-outline" data-action="forecast-export-health">Export health</button></div></div>';
+  return h;
+}
+async function runForecastHistoryCheck(){
+  if(forecastReplayRunning)return;
+  forecastReplayRunning=true;state.forecastReplayError=null;state.forecastReplayProgress='Preparing historical checkpoints…';render();
+  var entries=JSON.parse(JSON.stringify(state.entries)),settings=JSON.parse(JSON.stringify(state.settings)),first=Object.keys(entries).sort()[0],now=parseD(todayStr()),jobs=[],results=[];
+  try{
+    for(var m=6;m>=1;m--){var date=new Date(now.getFullYear(),now.getMonth()-m,1),end=toStr(new Date(date.getFullYear(),date.getMonth()+1,0)),start=toStr(date);
+      var dim=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();
+      [1,Math.floor(dim/3)+1,Math.floor(2*dim/3)+1].forEach(function(day){var origin=toStr(new Date(date.getFullYear(),date.getMonth(),day));if(first&&daysBetween(first,origin)>=28)jobs.push({start:start,end:end,origin:origin});});}
+    for(var i=0;i<jobs.length;i++){
+      var job=jobs[i],savedEntries=state.entries,savedSettings=state.settings,context;
+      try{
+        state.settings=settings;state.entries=entries;context=forecastFrozenContext();
+        var truncated={};Object.keys(entries).forEach(function(ds){if(ds>=job.origin)return;truncated[ds]=Object.assign({},entries[ds],{items:(entries[ds].items||[]).filter(function(it){return !forecastIsScheduled(ds,it,context);})});});
+        state.entries=truncated;state.settings=Object.assign({},settings,{recurringRules:[],forecastSnapshots:[]});forecastReplayActive=true;
+        // asOf is the last completed day; no clock rewriting or persisted mutations.
+        var asOf=toStr(addDays(parseD(job.origin),-1)),raw=buildBehavioralForecastRaw('overall',asOf,job.origin,job.end),base=forecastBaseline('overall',asOf,job.origin,job.end,raw.profiles),future=Object.keys(raw.byDate).reduce(function(t,k){return t+raw.byDate[k];},0);
+        var known=0,actual=0;Object.keys(entries).forEach(function(ds){if(ds<job.start||ds>job.end)return;(entries[ds].items||[]).forEach(function(it){if(!isExpenseItem(it)||forecastIsScheduled(ds,it,context))return;actual+=Number(it.amount)||0;if(ds<job.origin)known+=Number(it.amount)||0;});});
+        var predicted=known+future,baselineClose=known+base.total;
+        results.push({period:'month',periodStart:job.start,periodEnd:job.end,snapshotDate:job.origin,actual:round2(actual),forecastClose:round2(predicted),baselineClose:round2(baselineClose),error:predicted-actual,absError:Math.abs(predicted-actual),horizon:forecastHorizonBand({periodStart:job.start,periodEnd:job.end,snapshotDate:job.origin})});
+      }finally{state.entries=savedEntries;state.settings=savedSettings;forecastReplayActive=false;forecastScoreCache=null;}
+      state.forecastReplayProgress='Checked '+(i+1)+' of '+jobs.length+' dates';if(i%3===2){render();await new Promise(function(resolve){setTimeout(resolve,0);});}
+    }
+    var summary=balancedForecastAccuracy(results),report={modelVersion:FORECAST_MODEL_VERSION,date:todayStr(),count:results.length,periods:summary.periodCount,mae:summary.mae,baselineMae:summary.baselineMae,rows:results};
+    persistAll(Object.assign({},state.settings,{forecastReplayReport:report}),state.entries,'forecast historical check');
+  }catch(e){state.forecastReplayError='The historical check could not finish. Your transactions are unchanged.';}
+  finally{forecastReplayRunning=false;forecastReplayActive=false;forecastScoreCache=null;render();}
+}
+function exportForecastHealth(){
+  var report={appVersion:APP_VERSION,modelVersion:FORECAST_MODEL_VERSION,exportedAt:new Date().toISOString(),method:'Prospective checkpoints, equal period/horizon weighting; replay is separate.',live:{budgetWeek:forecastAccuracySummary('budget','week'),budgetMonth:forecastAccuracySummary('budget','month'),overallMonth:forecastAccuracySummary('overall','month')},historicalCheck:state.settings.forecastReplayReport||null};
+  var blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Ledger_Forecast_Health_'+todayStr()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
 
 /* Builds the shared forecast card. Repeat-type subcategories are forecast as
    conditional events first; a transaction today resets that subcategory's
@@ -8245,7 +8500,7 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
   s += '<div class="eyebrow" style="margin-bottom:10px;">Forecasted '+(scope==="budget"?"budget spend":"total spend")+'</div>';
   s += '<div class="row between" style="align-items:flex-start; margin-bottom:14px;">';
   s += '<div><div class="muted caption">THIS '+esc(periodWord.toUpperCase())+'</div><div class="mono" style="font-size:22px; font-weight:700; margin-top:2px;">'+fmt(projectedSpend,0)+' AED</div>';
-  if (rangeLow != null && rangeHigh != null) s += '<div class="muted caption" style="margin-top:3px;">Likely range '+fmt(rangeLow,0)+'–'+fmt(rangeHigh,0)+' AED</div>';
+  if (rangeLow != null && rangeHigh != null) s += '<div class="muted caption" style="margin-top:3px;">'+(fc.rangeMethod==='empirical'?'80% target range':'Estimated range · learning')+' '+fmt(rangeLow,0)+'–'+fmt(rangeHigh,0)+' AED</div>';
   s += '</div>';
   if (hasTarget) {
     var statusLabel=goalContext&&goalContext.statusLabel?goalContext.statusLabel:(goalTarget!=null?"Savings target":(refLabel||"Budget"));
@@ -9822,6 +10077,12 @@ document.addEventListener("click", function(e) {
       state.tagDeletePending=null; state.tagRenameEditing=null;
       persistAll(Object.assign({},state.settings,{transactionTags:keptTags,transactionTagColors:keptColors,recurringRules:cleanedRules}),cleanedEntries,"your tags"); showToast("Tag removed"); render();
       break;
+    case "forecast-history-check":
+      runForecastHistoryCheck();
+      break;
+    case "forecast-export-health":
+      exportForecastHealth();
+      break;
     case "settings-section":
       var nextSettingsSection = el.dataset.section || null;
       settingsNavigateForward(function(){
@@ -11042,6 +11303,12 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',update
 window.addEventListener('resize',updateVisualViewportOffset);window.addEventListener('orientationchange',updateVisualViewportOffset);setTimeout(updateVisualViewportOffset,300);setTimeout(updateVisualViewportOffset,1000);
 document.addEventListener('focusin',function(e){var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))document.documentElement.classList.add('keyboard-open');[30,120,260,420].forEach(function(ms){setTimeout(updateVisualViewportOffset,ms);});});
 document.addEventListener('focusout',function(){ scheduleViewportRecovery(); });
+function refreshForecastObservation(){
+  if(state.loading||!state.storageOK||forecastReplayRunning)return;
+  try{if(captureForecastSnapshotsIfNeeded())persistAll(state.settings,state.entries,"forecast learning");}catch(e){state.forecastCaptureError="Could not save a forecast observation. Check Data & Backup.";}
+}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)refreshForecastObservation();});
+setInterval(function(){if(!document.hidden)refreshForecastObservation();},60000);
 loadInitial();
 render();
 scheduleViewportRecovery();
