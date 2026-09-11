@@ -224,13 +224,13 @@ details[open]>summary::after { content:'−'; }
 .txn-entry-header,.settings-header,.dashboard-editor-header { position:sticky; top:0; z-index:30; display:grid; grid-template-columns:44px minmax(0,1fr) 44px; gap:8px; align-items:center; min-height:calc(var(--app-safe-top) + 68px); padding:calc(var(--app-safe-top) + 10px) 20px 10px; margin:0 -20px 8px; background:var(--bg); border-bottom:1px solid var(--sep); }
 .txn-entry-header-title,.settings-title,.dashboard-editor-title { font-size:1.125rem; line-height:1.3; font-weight:650; letter-spacing:-.02em; text-align:center; overflow-wrap:anywhere; }
 .txn-entry-content { padding-bottom:16px; }.txn-entry-page input,.txn-entry-page select,.txn-entry-page textarea,.plan-entry-page input,.settings-page input { scroll-margin-top:100px; }
-.fx-amount-shell { display:flex; align-items:flex-end; gap:12px; min-height:92px; padding:10px 0 8px; border:0; border-bottom:1px solid var(--hairline); border-radius:0; background:transparent; }
-.fx-currency-select { flex:0 0 70px; width:70px; min-height:42px; padding:6px 4px; background:transparent; color:var(--text-muted); font-size:15px; border:0; border-radius:8px; }
-.fx-amount-wrap { flex:1; min-width:0; display:flex; align-items:flex-end; justify-content:flex-end; gap:6px; }
-.fx-amount-sign { flex:0 0 auto; font-size:30px; line-height:1; font-weight:700; letter-spacing:-.02em; color:var(--text-muted); transform:translateY(-4px); }
+.fx-amount-shell { display:flex; align-items:flex-end; gap:10px; min-height:74px; padding:4px 0 2px; border:0; border-bottom:1px solid var(--hairline); border-radius:0; background:transparent; }
+.fx-currency-select { flex:0 0 64px; width:64px; min-height:38px; padding:4px 2px; background:transparent; color:var(--text-muted); font-size:14px; border:0; border-radius:8px; }
+.fx-amount-wrap { flex:0 1 auto; width:auto; max-width:calc(100% - 8px); min-width:0; margin-left:auto; display:inline-flex; align-items:flex-end; justify-content:flex-end; gap:4px; }
+.fx-amount-sign { flex:0 0 auto; align-self:flex-end; font-size:28px; line-height:1; font-weight:700; letter-spacing:-.02em; color:var(--text-muted); transform:translateY(-3px); }
 .fx-amount-shell[data-kind="income"] .fx-amount-sign { color:var(--positive); }
 .fx-amount-shell[data-kind="expense"] .fx-amount-sign { color:color-mix(in srgb,var(--text) 82%,var(--text-muted)); }
-.fx-amount-input { display:block; width:100%; min-width:0; font-size:46px; line-height:1.05; font-weight:600; letter-spacing:-.055em; background:transparent; border:0; padding:0; margin:0; text-align:right; }
+.fx-amount-input { display:block; width:min(100%,10ch); min-width:4ch; max-width:10ch; flex:0 1 auto; font-size:42px; line-height:1.02; font-weight:650; letter-spacing:-.055em; background:transparent; border:0; padding:0; margin:0; text-align:left; }
 .fx-amount-input::placeholder { color:var(--text-muted); opacity:.42; }
 /* The large amount field uses the caret and a subtle underline for focus.
    Avoid the browser's rectangular blue focus ring, which reads like an input
@@ -240,8 +240,8 @@ details[open]>summary::after { content:'−'; }
 .fx-panel { border-radius:14px; padding:14px; background:var(--raised); margin-bottom:18px; }.fx-rate-line { display:flex; align-items:center; gap:8px; margin-top:8px; }.fx-rate-input { width:130px; min-height:40px; background:var(--card); border:1px solid var(--hairline); border-radius:8px; padding:8px; }
 .txn-entry-save { min-height:54px; margin-top:20px; width:100%; }
 .txn-hscroll { display:flex; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; touch-action:pan-x; overscroll-behavior-x:contain; gap:8px; }
-.txn-hscroll::-webkit-scrollbar { display:none; }.txn-date-time-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.72fr); gap:8px; margin:10px 0 14px; align-items:stretch; }.txn-date-time-row label { min-width:0; }.txn-date-time-row input { text-align:center; padding:12px 6px; min-width:0; }.txn-date-time-row input::-webkit-date-and-time-value { text-align:center; width:100%; }
-.txn-quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:10px 0 6px; }.txn-category-tile { min-width:0; min-height:84px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:7px; background:var(--card); border:1px solid var(--sep); border-radius:14px; padding:10px 8px; text-align:center; }.txn-category-tile[aria-pressed="true"] { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 9%,var(--card)); box-shadow:inset 0 0 0 1px var(--accent); }.txn-category-tile>span:last-child { max-width:100%; font-size:var(--type-label); line-height:1.24; min-height:2.48em; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; text-wrap:balance; }.txn-category-more { display:flex; justify-content:center; align-items:center; gap:8px; width:100%; min-height:42px; margin:0 0 14px; border:0; color:var(--accent-text); background:transparent; font-size:14px; font-weight:600; }
+.txn-hscroll::-webkit-scrollbar { display:none; }.txn-date-time-row { display:grid; grid-template-columns:minmax(0,7fr) minmax(0,3fr); gap:8px; margin:8px 0 10px; align-items:stretch; }.txn-date-time-row label { min-width:0; overflow:hidden; }.txn-date-time-row input { width:100%; text-align:center; padding:11px 8px; min-width:0; }.txn-date-time-row input::-webkit-date-and-time-value { text-align:center; width:100%; }
+.txn-quick-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:1fr; align-items:stretch; gap:8px; margin:8px 0 4px; }.txn-category-tile { min-width:0; min-height:84px; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:7px; background:var(--card); border:1px solid var(--sep); border-radius:14px; padding:10px 8px; text-align:center; }.txn-category-tile[aria-pressed="true"] { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 9%,var(--card)); box-shadow:inset 0 0 0 1px var(--accent); }.txn-category-tile>span:last-child { width:100%; max-width:100%; font-size:var(--type-label); line-height:1.24; min-height:2.48em; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; text-wrap:balance; }.txn-category-more { display:flex; justify-content:center; align-items:center; gap:8px; width:100%; min-height:40px; margin:0 0 12px; border:0; color:var(--accent-text); background:transparent; font-size:14px; font-weight:600; }
 .txn-options { margin:18px 0; border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); padding:4px 0; }.txn-options>summary { min-height:52px; }.txn-options-body { padding:12px 0 8px; }.txn-note { margin-top:16px; }
 .category-picker-group-title { margin:20px 4px 8px; color:var(--text-muted); font-size:var(--type-label); font-weight:600; }.category-picker-list { overflow:hidden; background:var(--card); border:1px solid var(--sep); border-radius:var(--radius); }.category-picker-row { display:flex; align-items:center; gap:12px; width:100%; min-height:60px; padding:12px 16px; border:0; border-bottom:1px solid var(--sep); color:var(--text); background:transparent; text-align:left; }.category-picker-row:last-child { border:0; }
 /* Budget and planning */
@@ -318,7 +318,7 @@ details[open]>summary::after { content:'−'; }
 /* Responsive behavior and motion */
 .txn-entry-content input,.settings-detail input,.txn-entry-content textarea { scroll-margin-bottom:24px; }
 
-/* Phone-first density pass — v113.4. These are responsive component
+/* Phone-first density pass — v113.5. These are responsive component
    dimensions, not a second visual theme. Touch targets stay accessible while
    chrome and non-interactive spacing stop competing with the financial data. */
 @media (max-width:599px) {
@@ -359,11 +359,11 @@ details[open]>summary::after { content:'−'; }
   .settings-row { min-height:60px; padding:11px 14px; }
   .taxonomy-open { min-height:64px; padding:11px 14px; }
   .txn-category-tile { min-height:76px; gap:6px; padding:8px 6px; }
-  .txn-date-time-row { margin:10px 0 12px; }
+  .txn-date-time-row { margin:8px 0 10px; }
   .txn-options { margin:12px 0; }
-  .fx-amount-shell { min-height:84px; padding:8px 0 6px; }
-  .fx-amount-sign { font-size:28px; transform:translateY(-3px); }
-  .fx-amount-input { font-size:42px; }
+  .fx-amount-shell { min-height:70px; padding:3px 0 2px; }
+  .fx-amount-sign { font-size:26px; transform:translateY(-2px); }
+  .fx-amount-input { width:min(100%,9ch); max-width:9ch; font-size:40px; }
   .modal-backdrop { padding-left:8px; padding-right:8px; }
   .modal-card { padding-left:18px; padding-right:18px; }
 
@@ -408,8 +408,9 @@ details[open]>summary::after { content:'−'; }
   .txn-entry-shell,.settings-shell,.dashboard-editor-shell { padding-top:8px; }.modal-backdrop { align-items:center; padding:24px; }.modal-card { border-radius:24px; max-height:90%; }
 }
 @media (max-width:430px) {
-  .txn-date-time-row.txn-primary-date-time { grid-template-columns:1fr; gap:10px; }
-  .txn-date-time-row.txn-primary-date-time input { font-size:15px; }
+  .txn-date-time-row.txn-primary-date-time { grid-template-columns:minmax(0,7fr) minmax(0,3fr); gap:8px; }
+  .txn-date-time-row.txn-primary-date-time label { min-width:0; overflow:hidden; }
+  .txn-date-time-row.txn-primary-date-time input { font-size:14px; padding-left:8px; padding-right:8px; }
   .home-dashboard-editor-row { grid-template-columns:minmax(0,1fr); }
   .home-dashboard-editor-actions { justify-content:flex-start; }
 }
@@ -434,7 +435,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.4";
+var APP_VERSION = "v113.5";
 var FORECAST_MODEL_VERSION = "v11238-periodic-cash-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: ["budgetStatus","cashBalance","monthlySavings"], homeYearSectionOrder: null, homeYearHiddenSections: ["yearDaily","yearCashBalance"], incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
@@ -6510,7 +6511,7 @@ function renderAddTxnPage() {
   h += '<select id="entryCurrencyInput" class="fx-currency-select" aria-label="Transaction currency">';
   TXN_CURRENCIES.forEach(function(c){ h += '<option value="'+c+'"'+(selectedCurrency===c?' selected':'')+'>'+c+'</option>'; });
   h += '</select>';
-  h += '<div class="fx-amount-wrap"><span class="fx-amount-sign" aria-hidden="true">'+(txnKind==='income'?'+':'−')+'</span><input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0.01" aria-label="Amount" class="mono fx-amount-input" placeholder="0.00" value="'+esc(amountShown)+'" /></div>';
+  h += '<div class="fx-amount-wrap"><span class="fx-amount-sign" aria-hidden="true">'+(txnKind==='income'?'+':'−')+'</span><input id="entryAmountInput" type="number" inputmode="decimal" step="0.01" min="0.01" aria-label="Amount" size="1" class="mono fx-amount-input" placeholder="0.00" value="'+esc(amountShown)+'" /></div>';
   h += '</div>';
   h += '<div id="entryFxPanel" class="fx-panel" style="display:'+(selectedCurrency===reportingCurrency()?'none':'block')+';">';
   h += '<div class="row between" style="gap:8px;"><span id="entryFxStatus" class="muted caption">'+(selectedCurrency===reportingCurrency()?'':(fxSourceShown?('Saved rate · '+esc(fxSourceShown)):'Rate for '+shortLabel(formDate)))+'</span><button data-action="refresh-fx-rate" class="btn-plain" style="font-size:12px;">Use reference rate</button></div>';
@@ -6522,8 +6523,8 @@ function renderAddTxnPage() {
   /* Date and time are primary transaction fields, so keep them visible rather
      than hiding them in the secondary disclosure. */
   h += '<div class="txn-date-time-row txn-primary-date-time">';
-  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:5px;">Date</span><input id="entryDateInput" type="date" class="field mono" style="width:100%;font-size:15px;" value="'+formDate+'" max="'+todayStr()+'" /></label>';
-  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:5px;">Time</span><input id="entryTimeInput" type="time" class="field mono" style="width:100%;font-size:15px;" value="'+esc(selectedTime)+'" /></label>';
+  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:4px;">Date</span><input id="entryDateInput" type="date" class="field mono" style="width:100%;font-size:15px;" value="'+formDate+'" max="'+todayStr()+'" /></label>';
+  h += '<label style="display:block;min-width:0;"><span class="eyebrow" style="display:block;margin-bottom:4px;">Time</span><input id="entryTimeInput" type="time" class="field mono" style="width:100%;font-size:15px;" value="'+esc(selectedTime)+'" /></label>';
   h += '</div>';
 
   if (txnKind === "expense") {
