@@ -115,30 +115,33 @@ details[open]>summary::after { content:'−'; }
 .planning-switch button[aria-selected="true"],.insight-switch button[aria-selected="true"] { color:var(--accent-text); border-color:var(--accent); }
 /* Home */
 .section-title { margin:0; font-size:var(--type-section); font-weight:650; line-height:1.4; letter-spacing:-.015em; }
-.budget-overview-card { padding:20px; }
-.budget-legend { display:flex; flex-wrap:wrap; gap:8px 14px; margin:8px 0 16px; font-size:12px; color:var(--text-muted); }
+/* Budget overview is deliberately dense on phones: the comparison detail is
+   still present, but each budget reads as one compact scan row rather than a
+   mini-card with its own large vertical rhythm. */
+.budget-overview-card { padding:17px 18px; }
+.budget-legend { display:flex; flex-wrap:wrap; gap:6px 12px; margin:6px 0 10px; font-size:11.5px; color:var(--text-muted); }
 .budget-legend>span { display:inline-flex; align-items:center; gap:5px; }
-.budget-legend i { display:inline-block; width:14px; height:5px; }
+.budget-legend i { display:inline-block; width:13px; height:4px; }
 .legend-current { background:var(--accent); border-radius:2px; }
 .legend-previous { border:1px solid var(--text-muted); border-radius:2px; }
-.budget-legend .legend-today { width:0; height:12px; border-left:2px dotted var(--text-muted); }
-.budget-overview-row { padding:12px 0; border-top:1px solid var(--sep); }
-.budget-overview-row.is-main { border:0; padding:0 0 18px; }
-.budget-overview-top { display:flex; justify-content:space-between; align-items:baseline; gap:14px; }
-.budget-overview-name { font-size:var(--type-label); font-weight:550; min-width:0; overflow-wrap:anywhere; }
-.budget-overview-pct { font-size:var(--type-label); font-weight:600; flex-shrink:0; }
-.is-main .budget-overview-name { font-size:1rem; font-weight:600; }
-.is-main .budget-overview-pct { font-size:1.125rem; }
-.budget-overview-amount { font-size:2rem; line-height:1.2; font-weight:650; margin:8px 0 4px; }
-.budget-overview-amount>span { font-size:var(--type-meta); font-weight:400; color:var(--text-muted); letter-spacing:0; }
-.budget-overview-limit { margin-top:3px; font-size:var(--type-meta); color:var(--text-muted); }
-.budget-compare { position:relative; height:18px; margin-top:10px; }
-.budget-compare-current { height:6px; background:var(--fill); border-radius:3px; overflow:hidden; }
+.budget-legend .legend-today { width:0; height:11px; border-left:2px dotted var(--text-muted); }
+.budget-overview-row { padding:9px 0; border-top:1px solid var(--sep); }
+.budget-overview-row.is-main { border:0; padding:0 0 12px; }
+.budget-overview-top { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+.budget-overview-name { font-size:var(--type-label); font-weight:600; min-width:0; overflow-wrap:anywhere; }
+.budget-overview-pct { font-size:var(--type-label); font-weight:650; flex-shrink:0; }
+.is-main .budget-overview-name { font-size:.975rem; font-weight:650; }
+.is-main .budget-overview-pct { font-size:1.05rem; }
+.budget-overview-amount { font-size:1.7rem; line-height:1.12; font-weight:680; margin:5px 0 1px; }
+.budget-overview-amount>span { font-size:12px; font-weight:450; color:var(--text-muted); letter-spacing:0; }
+.budget-overview-limit { margin-top:2px; font-size:12.5px; line-height:1.35; color:var(--text-muted); }
+.budget-compare { position:relative; height:14px; margin-top:7px; }
+.budget-compare-current { height:5px; background:var(--fill); border-radius:3px; overflow:hidden; }
 .budget-compare-current>span { display:block; height:100%; background:var(--budget-color); border-radius:3px; }
-.budget-compare-previous { margin-top:4px; height:4px; }
+.budget-compare-previous { margin-top:3px; height:3px; }
 .budget-compare-previous>span { display:block; height:100%; border:1px solid var(--text-muted); border-radius:3px; }
-.budget-compare-today { position:absolute; top:-3px; bottom:0; border-left:2px dotted var(--text-muted); transform:translateX(-1px); }
-.card-link { display:flex; align-items:center; gap:8px; margin-top:4px; }
+.budget-compare-today { position:absolute; top:-2px; bottom:0; border-left:2px dotted var(--text-muted); transform:translateX(-1px); }
+.card-link { display:flex; align-items:center; gap:7px; margin-top:7px; }
 .home-secondary { box-shadow:none; }
 .home-secondary .section-title { font-size:.9375rem; }
 .home-month-mode { font-size:12px; line-height:1.4; color:var(--text-muted); text-align:right; max-width:45%; }
@@ -245,7 +248,22 @@ details[open]>summary::after { content:'−'; }
 .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }.stat-block { min-width:0; }.stat-block-value { margin-top:6px; font-size:22px; line-height:1.3; font-weight:600; }.stat-block-label { font-size:12px; }.plans-cycle-row { padding:14px 0; }.plans-cycle-row+.plans-cycle-row { border-top:1px solid var(--sep); }.plans-cycle-meta { margin-top:4px; font-size:12px; color:var(--text-muted); }.plan-card { padding:18px; margin-bottom:12px; }.plan-card summary { padding:0; }.plan-detail-actions { padding-top:16px; }.plan-section { margin:18px 0; border-top:1px solid var(--sep); padding-top:8px; }.planning-empty { padding:28px; text-align:left; }.planning-empty .title2 { margin:15px 0 10px; }.planning-empty p { color:var(--text-muted); max-width:35ch; }
 /* Charts, tables, and contextual detail */
 .chart-shell { width:100%; min-width:0; }.chart-shell svg { max-width:100%; }.chart-hit { touch-action:none; }.chart-shell text { font-family:var(--f-ui); }.forecast-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 9px; border-radius:8px; background:var(--raised); font-size:12px; }.forecast-target-summary { margin-top:14px; padding-top:12px; border-top:1px solid var(--sep); }.forecast-target-badge { padding:5px 8px; border-radius:8px; background:var(--fill); font-size:12px; }.forecast-target-gap,.forecast-target-save { font-size:13px; }.pie-legend-chip { font-size:12px; padding:7px 9px; border-radius:9px; }
-.monthly-savings-list { margin-top:20px; }.monthly-savings-row { display:grid; grid-template-columns:34px minmax(0,1fr) minmax(90px,auto); align-items:center; gap:12px; padding:9px 0; }.monthly-savings-track { position:relative; display:block; height:7px; min-height:7px; padding:0; border:0; border-radius:3px; background:var(--fill); overflow:visible; }.monthly-savings-track>span { display:block; height:100%; border-radius:3px; }.monthly-savings-value { text-align:right; white-space:nowrap; }.monthly-savings-ytd { text-align:right; }.monthly-savings-ytd-summary { border:0; padding:0; background:transparent; text-align:right; position:relative; }.monthly-savings-ytd-line { display:block; margin-top:3px; }.has-tip { position:relative; }.has-tip::after { content:attr(data-tip); position:absolute; z-index:20; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:max-content; max-width:230px; padding:9px 12px; border-radius:10px; background:var(--text); color:var(--card); font-size:12px; line-height:1.4; box-shadow:var(--shadow-float); pointer-events:none; opacity:0; transition:opacity .12s; }.has-tip:hover::after,.has-tip:focus::after { opacity:1; }.monthly-savings-ytd-summary::after { left:auto; right:0; transform:none; bottom:auto; top:calc(100% + 8px); }
+.monthly-savings-card { margin-bottom:0; }
+.monthly-savings-list { margin-top:12px; }
+.monthly-savings-row { display:grid; grid-template-columns:30px minmax(70px,1fr) minmax(68px,auto) 46px; align-items:center; gap:8px; min-height:44px; padding:1px 0; }
+/* The visible chart stays thin, but the full 40px lane is tappable for the
+   target tooltip. This fixes the tiny mobile hit area without making the chart
+   itself visually heavy. */
+.monthly-savings-track { position:relative; display:block; height:40px; min-height:40px; padding:0; border:0; border-radius:8px; background:transparent; overflow:visible; }
+.monthly-savings-track::before { content:''; position:absolute; left:0; right:0; top:50%; height:6px; transform:translateY(-50%); border-radius:3px; background:var(--fill); }
+.monthly-savings-track>span { position:absolute; left:0; top:50%; height:6px; transform:translateY(-50%); border-radius:3px; z-index:1; }
+.monthly-savings-value,.monthly-savings-rate { text-align:right; white-space:nowrap; }
+.monthly-savings-rate { min-width:42px; }
+.monthly-savings-ytd { text-align:right; flex-shrink:0; }
+.monthly-savings-ytd-summary { border:0; padding:0; background:transparent; text-align:right; position:relative; }
+.monthly-savings-ytd-line { display:block; margin-top:2px; }
+.monthly-savings-toggle { display:inline-flex; align-items:center; min-height:40px; margin-top:6px; padding:6px 0; border:0; background:transparent; color:var(--accent-text); font-size:12px; font-weight:650; }
+.has-tip { position:relative; }.has-tip::after { content:attr(data-tip); position:absolute; z-index:20; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:max-content; max-width:230px; padding:9px 12px; border-radius:10px; background:var(--text); color:var(--card); font-size:12px; line-height:1.4; box-shadow:var(--shadow-float); pointer-events:none; opacity:0; transition:opacity .12s; }.has-tip:hover::after,.has-tip:focus::after { opacity:1; }.monthly-savings-ytd-summary::after { left:auto; right:0; transform:none; bottom:auto; top:calc(100% + 8px); }
 .insight-content { display:grid; gap:16px; }.insight-content .card { margin-bottom:0; }.insight-content>div { min-width:0; }.scope-switch { scrollbar-width:none; }.calendar-day { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border:0; border-radius:12px; background:var(--card); min-width:0; }
 /* Settings */
 .settings-header+.settings-group-title { margin-top:12px; }
@@ -279,6 +297,75 @@ details[open]>summary::after { content:'−'; }
 /* Responsive behavior and motion */
 .txn-entry-content input,.settings-detail input,.txn-entry-content textarea { scroll-margin-bottom:24px; }
 
+/* Phone-first density pass — v113.2. These are responsive component
+   dimensions, not a second visual theme. Touch targets stay accessible while
+   chrome and non-interactive spacing stop competing with the financial data. */
+@media (max-width:599px) {
+  html { scroll-padding-top:calc(var(--app-safe-top) + 68px); scroll-padding-bottom:88px; }
+  .wrap { max-width:none; padding-left:16px; padding-right:16px; padding-bottom:calc(env(safe-area-inset-bottom,0px) + 84px); }
+  .app-topbar { min-height:calc(var(--app-safe-top) + 64px); margin:0 -16px 4px; padding:calc(var(--app-safe-top) + 8px) 16px 8px; background:color-mix(in srgb,var(--bg) 94%,transparent); -webkit-backdrop-filter:saturate(160%) blur(22px); backdrop-filter:saturate(160%) blur(22px); }
+  .brand-lockup { gap:9px; }
+  .brand-mark { width:30px; height:32px; border-radius:8px; font-size:22px; }
+  .brand-title { font-size:19px; }
+  .app-topbar .icon-btn { width:40px; height:40px; min-width:40px; min-height:40px; padding:9px; border-radius:13px; }
+  .page-heading-row { margin:8px 0 13px; }
+  .home-toolbar { margin:8px 0 13px; }
+  .home-toolbar .title2 { font-size:26px; }
+  .home-period-switch button { min-height:40px; padding:7px 10px; }
+  .dashboard-grid { gap:12px; }
+  .card-pad { padding:16px; }
+  .daily-card { padding:18px; }
+  .daily-card-value { font-size:40px; margin:6px 0 10px; }
+  .budget-position-card,.cashflow-card,.recent-card,.daily-metric-card { padding:16px; }
+  .metric-pair { gap:14px; }
+  .metric-value { font-size:23px; margin:4px 0; }
+  .progress-track { margin:10px 0; }
+  .home-flex-pace { margin-top:12px; padding-top:10px; }
+  .home-flex-pace-grid { gap:12px; margin-top:6px; }
+  .home-target-summary { margin-top:10px; padding-top:10px; }
+  .recent-row { padding:11px 0; }
+  .category-ranking { margin-top:12px; }
+  .category-rank { padding:12px 0; gap:10px; }
+  .rank-bottom { margin-top:6px; }
+  .year-summary-grid { gap:14px; padding-top:14px; }
+  .year-summary-cell strong { font-size:24px; }
+  .insight-content { gap:12px; }
+  .planning-switch,.insight-switch { margin-bottom:14px; gap:20px; }
+  .planning-switch button,.insight-switch button { min-height:44px; padding:7px 0 9px; }
+  .plan-card { padding:16px; margin-bottom:10px; }
+  .plan-section { margin:14px 0; }
+  .settings-group-title { margin:20px 2px 6px; }
+  .settings-row { min-height:60px; padding:11px 14px; }
+  .taxonomy-open { min-height:64px; padding:11px 14px; }
+  .txn-category-tile { min-height:78px; gap:6px; padding:8px 5px; }
+  .txn-date-time-row { margin:12px 0; }
+  .txn-options { margin:14px 0; }
+  .fx-amount-shell { min-height:104px; padding:12px 0; }
+  .fx-amount-input { font-size:46px; }
+  .modal-backdrop { padding-left:8px; padding-right:8px; }
+  .modal-card { padding-left:18px; padding-right:18px; }
+
+  /* Navigation owns the bottom edge instead of hovering a full card-height
+     above content. This reclaims vertical space and removes the large dead zone
+     visible on iPhones while retaining safe-area padding. */
+  .tabbar { bottom:0; left:0; transform:none; width:100%; max-width:none; min-height:58px; grid-template-columns:1fr 1fr 56px 1fr 1fr; border-left:0; border-right:0; border-bottom:0; border-radius:18px 18px 0 0; padding:5px 8px calc(env(safe-area-inset-bottom,0px) + 5px); box-shadow:0 -6px 24px #172C3510; }
+  .tabbar-item { min-height:48px; gap:2px; padding:4px 2px; border-radius:12px; }
+  .tabbar-item svg { width:20px; height:20px; }
+  .tabbar-label { font-size:11px; }
+  .nav-add { width:46px; height:46px; border-radius:15px; }
+
+  .budget-overview-card { padding:16px; }
+  .budget-overview-row { padding:8px 0; }
+  .budget-overview-row.is-main { padding-bottom:11px; }
+  .budget-legend { margin-bottom:8px; }
+  .budget-overview-amount { font-size:1.62rem; }
+  .budget-compare { margin-top:6px; }
+
+  .monthly-savings-card { padding:16px; }
+  .monthly-savings-list { margin-top:8px; }
+  .monthly-savings-row { grid-template-columns:28px minmax(64px,1fr) minmax(64px,auto) 43px; gap:7px; }
+}
+
 @media (min-width:900px) {
   .wrap { max-width:1180px; padding:0 36px 50px 230px; }
   .app-topbar { margin-left:-10px; margin-right:-10px; padding-left:10px; padding-right:10px; min-height:82px; }
@@ -310,7 +397,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.1";
+var APP_VERSION = "v113.2";
 var FORECAST_MODEL_VERSION = "v11238-periodic-cash-1";
 var TEST_KEY = "ledger-selftest";
 var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: ["budgetStatus","cashBalance","monthlySavings"], homeYearSectionOrder: null, homeYearHiddenSections: ["yearDaily","yearCashBalance"], incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
@@ -1736,6 +1823,7 @@ var state = {
   homeYearOffset: 0,
   homeDashboardEditing: false,
   homeDashboardEditorMode: "month",
+  monthlySavingsShowAll: false,
   cbEditingIndex: null,
   entryTimeDraft: null,
   categoryStyleEditing: null,
@@ -5234,12 +5322,18 @@ function renderMonthlySavingsCard(year,T,title){
   ytdSummary+='<strong class="mono subhead" style="color:'+(totalSaving>=0?'var(--positive)':'var(--rust)')+';">'+(totalSaving>=0?'+':'−')+fmt(Math.abs(totalSaving),0)+' AED</strong><span class="monthly-savings-ytd-line mono caption muted">'+(totalPct==null?'—':totalPct.toFixed(1)+'%')+(pctTarget>0?' · target '+fmt(pctTarget,pctTarget%1?1:0)+'%':'')+'</span>';
   if(hasTarget)ytdSummary+='</button>';
   ytdSummary+='</div>';
-  var h='<div class="card card-pad" style="margin-bottom:16px;"><div class="row between" style="align-items:flex-start;gap:12px;"><div class="info-title-row"><div class="eyebrow">'+esc(title||('Monthly savings · '+year))+'</div>'+infoButton('monthlySavings')+'</div>'+ytdSummary+'</div>';
-  h+='<div class="monthly-savings-list">';rows.forEach(function(r){var pct=r.pct,disabled=r.saving==null,w=pct==null?0:Math.min(100,Math.abs(pct)),color=pct==null?'var(--text-muted)':(pct>=0?'var(--positive)':'var(--rust)'),targetText=r.targetSaving==null?'':('Target '+(r.targetSaving>=0?'+':'−')+fmt(Math.abs(r.targetSaving),0)+' AED'+(r.targetPct==null?'':' · '+r.targetPct.toFixed(1)+'%'));
+  var showAll=!!state.monthlySavingsShowAll,visibleRows=showAll?rows:actual,hiddenCount=Math.max(0,rows.length-visibleRows.length);
+  /* A brand-new ledger can have no available month yet. Keep one current row
+     visible so the card still explains itself rather than becoming empty. */
+  if(!visibleRows.length){var currentRow=rows.filter(function(r){return r.current;})[0];if(currentRow)visibleRows=[currentRow];}
+  var h='<div class="card card-pad monthly-savings-card"><div class="row between" style="align-items:flex-start;gap:12px;"><div class="info-title-row"><div class="eyebrow">'+esc(title||('Monthly savings · '+year))+'</div>'+infoButton('monthlySavings')+'</div>'+ytdSummary+'</div>';
+  h+='<div class="monthly-savings-list">';visibleRows.forEach(function(r){var pct=r.pct,disabled=r.saving==null,w=pct==null?0:Math.min(100,Math.abs(pct)),color=pct==null?'var(--text-muted)':(pct>=0?'var(--positive)':'var(--rust)'),targetText=r.targetSaving==null?'':('Target '+(r.targetSaving>=0?'+':'−')+fmt(Math.abs(r.targetSaving),0)+' AED'+(r.targetPct==null?'':' · '+r.targetPct.toFixed(1)+'%'));
     var aria=r.label+' saving '+(r.saving==null?'not available':fmt(r.saving,0)+' AED'+(pct==null?'':' · '+pct.toFixed(1)+'%')+(targetText?' · '+targetText:''));
     var trackTag=targetText?'button':'div',trackAttrs=targetText?' type="button" class="monthly-savings-track has-tip" data-tip="'+esc(targetText)+'"':' class="monthly-savings-track"';
-    h+='<div class="monthly-savings-row" style="'+(disabled?'opacity:.38;':'')+'"><span class="caption" style="font-weight:650;">'+esc(r.label)+'</span><'+trackTag+trackAttrs+' role="img" aria-label="'+esc(aria)+'"><span style="width:'+w.toFixed(1)+'%;background:'+color+';opacity:'+(pct!=null&&pct<0?'.85':'1')+';"></span></'+trackTag+'><span class="monthly-savings-value"><strong class="mono caption" style="color:'+color+';">'+(r.saving==null?'—':((r.saving>=0?'+':'−')+fmt(Math.abs(r.saving),0)))+'</strong><span class="mono caption muted"> '+(pct==null?'':pct.toFixed(1)+'%')+'</span></span></div>';});
-  return h+'</div></div>';
+    h+='<div class="monthly-savings-row" style="'+(disabled?'opacity:.38;':'')+'"><span class="caption" style="font-weight:650;">'+esc(r.label)+'</span><'+trackTag+trackAttrs+' role="img" aria-label="'+esc(aria)+'"><span style="width:'+w.toFixed(1)+'%;background:'+color+';opacity:'+(pct!=null&&pct<0?'.85':'1')+';"></span></'+trackTag+'><span class="monthly-savings-value"><strong class="mono caption" style="color:'+color+';">'+(r.saving==null?'—':((r.saving>=0?'+':'−')+fmt(Math.abs(r.saving),0)))+'</strong></span><span class="monthly-savings-rate mono caption muted">'+(pct==null?'—':pct.toFixed(1)+'%')+'</span></div>';});
+  h+='</div>';
+  if(hiddenCount>0||showAll)h+='<button type="button" data-action="toggle-monthly-savings-rows" class="monthly-savings-toggle">'+(showAll?'Show active months':'Show full year')+'</button>';
+  return h+'</div>';
 }
 function renderHomeSpendPieCard(startStr,endStr,T,title,subtitle){
   var stats=periodStatsOverall(startStr,endStr),totals={};
@@ -9329,6 +9423,7 @@ document.addEventListener("click", function(e) {
     case 'open-spending-insights':state.page='analysis';state.analysisPanel='spending';render();window.scrollTo(0,0);break;
     case "open-info": state.infoSheet=el.dataset.info||null;render();break;
     case "close-info": state.infoSheet=null;render();break;
+    case "toggle-monthly-savings-rows": state.monthlySavingsShowAll=!state.monthlySavingsShowAll;render();break;
     case "open-category-budgets":
       cbPrepareDraft();state.cbEditingIndex=null;settingsRootSnapshot=captureTxnVisual();settingsNavStack=[];state.settingsSection="categoryBudgets";state.showSettings=true;render();break;
     case "save-category-budgets":saveCategoryBudgetDraft();break;
