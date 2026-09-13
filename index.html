@@ -308,18 +308,70 @@ details[open]>summary::after { content:'−'; }
 .has-tip { position:relative; }.has-tip::after { content:attr(data-tip); position:absolute; z-index:20; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:max-content; max-width:230px; padding:9px 12px; border-radius:10px; background:var(--text); color:var(--card); font-size:12px; line-height:1.4; box-shadow:var(--shadow-float); pointer-events:none; opacity:0; transition:opacity .12s; }.has-tip:hover::after,.has-tip:focus::after { opacity:1; }.monthly-savings-ytd-summary::after { left:auto; right:0; transform:none; bottom:auto; top:calc(100% + 8px); }
 .insight-content { display:grid; gap:16px; }.insight-content .card { margin-bottom:0; }.insight-content>div { min-width:0; }.scope-switch { scrollbar-width:none; }.calendar-day { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border:0; border-radius:12px; background:var(--card); min-width:0; }
 /* Settings */
-.settings-header+.settings-group-title { margin-top:12px; }
-.settings-detail>.card { border:0; box-shadow:none; background:var(--raised); border-radius:12px; }
+/* Settings · v113.20 quiet hierarchy. A settings page is a form/list, not a dashboard:
+   one page title, flat grouped rows, and detail only after disclosure. */
+.settings-header+.settings-group-title { margin-top:10px; }
+.settings-detail { background:transparent; border:0; border-radius:0; padding:4px 0 0; }
+.settings-detail-categoryBudgets,.settings-detail-categories { padding:0; }
+.settings-detail>.card { box-shadow:none; background:var(--card); border:1px solid var(--sep); border-radius:16px; }
+.settings-page-note { display:flex; align-items:flex-start; gap:8px; margin:0 2px 14px; color:var(--text-muted); font-size:13px; line-height:1.45; }
+.settings-page-note .info-btn { margin-top:-3px; }
+.settings-group-title { margin:20px 2px 7px; color:var(--text-muted); font-size:12px; font-weight:650; letter-spacing:.01em; }
+.settings-list { background:var(--card); border:1px solid var(--sep); border-radius:16px; overflow:hidden; }
+.settings-row { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:60px; border:0; border-bottom:1px solid var(--sep); padding:11px 14px; background:transparent; text-align:left; }
+.settings-row:last-child { border:0; }
+.settings-row-main { display:flex; flex:1; min-width:0; flex-direction:column; gap:2px; }
+.settings-row-label { font-size:15px; line-height:1.35; font-weight:620; overflow-wrap:anywhere; }
+.settings-row-sub { font-size:12px; line-height:1.35; color:var(--text-muted); }
+.settings-row-value { max-width:45%; overflow:hidden; text-overflow:ellipsis; font-size:12px; color:var(--text-muted); white-space:nowrap; text-align:right; }
+.settings-row>span:last-child svg { width:15px; color:var(--text-muted); }
+.settings-danger { color:var(--rust); }
+.settings-header-action { border:0; background:transparent; color:var(--accent-text); min-height:44px; padding:0; font-size:14px; }
+.settings-back { border:0; background:transparent; width:40px; height:40px; padding:8px; border-radius:12px; }
+.settings-back:active { background:var(--raised); }
+.settings-control-card,.settings-item-card { padding:14px 0; margin:0; border:0; border-bottom:1px solid var(--sep); border-radius:0; }
 .settings-control-card:last-child,.settings-item-card:last-child { border-bottom:0; }
-.taxonomy-fields { border:1px solid var(--sep); border-radius:var(--radius); background:var(--card); overflow:hidden; margin-bottom:16px; }
-.taxonomy-fields>.taxonomy-form-card { border:0; border-bottom:1px solid var(--sep); border-radius:0; margin:0; padding:16px; }
+.settings-control-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.settings-control-title { font-size:14px; font-weight:620; }
+.settings-control-separator { border-top:1px solid var(--sep); margin:12px 0; }
+.settings-color-input { width:48px; height:40px; padding:3px; border:1px solid var(--hairline); border-radius:10px; background:var(--card); }
+.settings-range { width:100%; accent-color:var(--accent); }
+.settings-range-ends { display:flex; justify-content:space-between; color:var(--text-muted); font-size:11px; }
+.settings-action-stack { display:grid; gap:8px; margin-top:14px; }
+.settings-detail .icon-btn { width:36px; height:36px; min-width:36px; min-height:36px; padding:8px; border:0; border-radius:10px; background:transparent; color:var(--text-muted); }
+.settings-detail .icon-btn:active { background:var(--raised); }
+.taxonomy-fields { border:1px solid var(--sep); border-radius:16px; background:var(--card); overflow:hidden; margin-bottom:14px; }
+.taxonomy-fields>.taxonomy-form-card { border:0; border-bottom:1px solid var(--sep); border-radius:0; margin:0; padding:14px; }
 .taxonomy-fields>.taxonomy-form-card:last-child { border-bottom:0; }
 .picker-label { display:block; font-size:1rem; font-weight:550; overflow-wrap:anywhere; }
 .category-picker-row[aria-pressed="true"] { background:var(--selection-bg); box-shadow:inset 3px 0 0 var(--accent); }
 .cb-subcat-option:has(input:checked) { background:var(--selection-bg); border-radius:8px; }
 .cb-check:has(input:checked) { color:var(--accent-text); }
-
-.settings-group-title { margin:24px 2px 8px; color:var(--text-muted); font-size:var(--type-meta); font-weight:600; letter-spacing:0; }.settings-list { background:var(--card); border:1px solid var(--sep); border-radius:var(--radius); overflow:hidden; }.settings-row { display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:68px; border:0; border-bottom:1px solid var(--sep); padding:14px 16px; background:transparent; text-align:left; }.settings-row:last-child { border:0; }.settings-row-main { display:flex; flex:1; min-width:0; flex-direction:column; gap:3px; }.settings-row-label { font-size:1rem; line-height:1.4; font-weight:600; overflow-wrap:anywhere; }.settings-row-sub { font-size:var(--type-meta); line-height:1.4; color:var(--text-muted); }.settings-row-value { font-size:13px; color:var(--text-muted); white-space:nowrap; }.settings-row>span:last-child svg { width:16px; color:var(--text-muted); }.settings-danger { color:var(--rust); }.settings-header-action { border:0; background:transparent; color:var(--accent-text); min-height:44px; padding:0; font-size:14px; }.settings-detail { background:var(--card); border:1px solid var(--sep); border-radius:var(--radius); padding:20px; }.settings-detail-categoryBudgets,.settings-detail-categories { padding:0; background:transparent; border:0; }.settings-control-card,.settings-item-card { padding:16px 0; margin:0; border:0; border-bottom:1px solid var(--sep); border-radius:0; }.settings-control-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }.settings-control-title { font-size:14px; font-weight:600; }.settings-control-separator { border-top:1px solid var(--sep); margin:14px 0; }.settings-color-input { width:52px; height:44px; padding:4px; border:1px solid var(--hairline); border-radius:10px; background:var(--card); }.settings-range { width:100%; accent-color:var(--accent); }.settings-range-ends { display:flex; justify-content:space-between; color:var(--text-muted); font-size:12px; }.settings-action-stack { display:grid; gap:10px; margin-top:16px; }
+.settings-disclosure-list { overflow:hidden; border:1px solid var(--sep); border-radius:16px; background:var(--card); }
+.settings-disclosure { margin:0; border:0; border-bottom:1px solid var(--sep); background:transparent; }
+.settings-disclosure:last-child { border-bottom:0; }
+.settings-disclosure>summary { min-height:66px; padding:12px 14px; gap:12px; }
+.settings-disclosure>summary::after { content:'›'; width:18px; color:var(--text-muted); font-size:24px; line-height:1; font-weight:300; transition:transform .15s; }
+details.settings-disclosure[open]>summary::after { content:'›'; transform:rotate(90deg); }
+.settings-disclosure-body { border-top:1px solid var(--sep); padding:14px; background:color-mix(in srgb,var(--raised) 52%,var(--card)); }
+.settings-add-disclosure { margin-top:10px; border:1px solid var(--sep); border-radius:14px; background:var(--card); overflow:hidden; }
+.settings-add-disclosure>summary { min-height:52px; padding:9px 14px; color:var(--accent-text); font-weight:650; }
+.settings-add-disclosure>summary::after { content:'+'; font-size:20px; font-weight:400; transform:none; }
+details.settings-add-disclosure[open]>summary::after { content:'−'; transform:none; }
+.reserve-summary-main { min-width:0; flex:1; }
+.reserve-summary-name { font-size:15px; line-height:1.3; font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reserve-summary-scope { margin-top:2px; color:var(--text-muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reserve-summary-amount { flex:0 0 auto; text-align:right; }
+.reserve-summary-amount strong { display:block; font-size:15px; line-height:1.3; }
+.reserve-summary-amount span { display:block; margin-top:2px; color:var(--text-muted); font-size:11px; }
+.reserve-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid var(--sep); }
+.reserve-stat { min-width:0; }
+.reserve-stat span { display:block; color:var(--text-muted); font-size:11px; line-height:1.3; }
+.reserve-stat strong { display:block; margin-top:3px; font-size:13px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.settings-summary-box { padding:13px 14px; border:1px solid var(--sep); border-radius:14px; background:var(--card); }
+.plan-calc-details { margin-top:10px; border-top:1px solid var(--sep); }
+.plan-calc-details>summary { min-height:40px; color:var(--text-muted); font-size:12px; font-weight:600; }
+.plan-calc-details .plan-equation { border-top:0; padding-top:0; }
 .taxonomy-hero { display:flex; align-items:center; gap:12px; }
 .taxonomy-open { display:flex; align-items:center; gap:12px; width:100%; min-height:72px; border:0; padding:14px 16px; background:transparent; text-align:left; }
 .taxonomy-chevron { color:var(--text-muted); flex:0 0 auto; }
@@ -395,11 +447,13 @@ body.dashboard-reordering { user-select:none; -webkit-user-select:none; }
   .planning-switch button,.insight-switch button { min-height:44px; padding:7px 0 9px; }
   .plan-card { padding:16px; margin-bottom:10px; }
   .plan-section { margin:14px 0; }
-  .settings-group-title { margin:18px 2px 6px; }
+  .settings-group-title { margin:16px 2px 6px; }
   .settings-row { min-height:56px; padding:10px 13px; }
-  .settings-detail { padding:16px; border-radius:18px; }
-  .settings-detail>.card { margin-bottom:12px !important; }
-  .settings-control-card,.settings-item-card { padding:13px 0; }
+  .settings-detail { padding:2px 0 0; }
+  .settings-detail>.card { margin-bottom:10px !important; }
+  .settings-control-card,.settings-item-card { padding:12px 0; }
+  .settings-disclosure>summary { min-height:62px; padding:11px 13px; }
+  .settings-disclosure-body { padding:13px; }
   .settings-control-separator { margin:12px 0; }
   .settings-action-stack { gap:8px; margin-top:14px; }
   .taxonomy-open { min-height:60px; padding:10px 13px; }
@@ -544,7 +598,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.19";
+var APP_VERSION = "v113.20";
 var SAFE_SPEND_MODEL_VERSION = "v11319-lending-2";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var FORECAST_RANGE_MODEL_VERSION = "v11319-range-2";
@@ -2331,19 +2385,21 @@ function monthlyBudgetPlanPreview(shownBudget){
   var shown=Number(shownBudget),valid=isFinite(shown)&&shown>=0,budget=valid?fromReporting(shown):0;
   if(!valid)return '<div class="plan-link-status is-warning"><strong>Enter a valid monthly budget</strong><span>Use zero or a positive amount.</span></div>';
   var rel=monthlyPlanningRelationship(todayStr(),budget),comparison=currentSavingsBudgetComparison(),tone='is-neutral',title='',detail='';
-  if(!(rel.income>0)){title='Set recurring income first';detail='Ledger needs income to translate this budget into a saving percentage.';tone='is-warning';}
-  else if(rel.supportedSaving<0){title='This plan spends more than recurring income';detail='It exceeds income by '+planMoney(-rel.supportedSaving)+' before any one-time income.';tone='is-danger';}
-  else if(!(rel.targetPct>0)){title='This budget supports '+fmt(rel.supportedPct,1)+'% saving';detail='No savings goal is active for '+parseD(rel.start).toLocaleDateString('en-GB',{month:'long'})+'.';tone='is-neutral';}
-  else if(rel.meetsGoal){title='This budget supports '+fmt(rel.supportedPct,1)+'% saving';detail=rel.goalGap>.5?('That is '+planMoney(rel.goalGap)+' more than the '+fmt(rel.targetPct,1)+'% goal.'):'It matches the '+fmt(rel.targetPct,1)+'% savings goal.';tone='is-good';}
-  else {title='This budget supports '+fmt(rel.supportedPct,1)+'% saving';detail='The '+fmt(rel.targetPct,1)+'% goal needs '+planMoney(-rel.goalGap)+' less controllable spending.';tone='is-warning';}
+  if(!(rel.income>0)){title='Set recurring income first';detail='Income is needed to calculate the saving rate.';tone='is-warning';}
+  else if(rel.supportedSaving<0){title='Budget is above recurring income';detail='Short by '+planMoney(-rel.supportedSaving)+' before one-time income.';tone='is-danger';}
+  else if(!(rel.targetPct>0)){title='Supports '+fmt(rel.supportedPct,1)+'% saving';detail='No savings goal is active this month.';}
+  else if(rel.meetsGoal){title='Supports '+fmt(rel.supportedPct,1)+'% saving';detail=rel.goalGap>.5?('About '+planMoney(rel.goalGap)+' above the '+fmt(rel.targetPct,1)+'% goal.'):'Aligned with the '+fmt(rel.targetPct,1)+'% goal.';tone='is-good';}
+  else {title='Supports '+fmt(rel.supportedPct,1)+'% saving';detail='About '+planMoney(-rel.goalGap)+' above the spending level for your '+fmt(rel.targetPct,1)+'% goal.';tone='is-warning';}
   var h='<div class="plan-link-status '+tone+'"><strong>'+title+'</strong><span>'+detail+'</span></div>';
-  h+='<div class="plan-equation" aria-label="Income minus protected costs minus budget equals budget-supported saving">';
-  [['Recurring income',rel.income],['Protected costs',-rel.protectedTotal],['Controllable budget',-rel.budget],['Budget-supported saving',rel.supportedSaving]].forEach(function(row,i){h+='<div'+(i===3?' class="is-total"':'')+'><span>'+row[0]+'</span><strong class="mono">'+(i>0&&row[1]>=0&&i<3?'− ':'')+planMoney(row[1])+'</strong></div>';});
-  h+='</div>';
+  if(rel.income>0){
+    h+='<div class="plan-preview-pair"><div><span>Budget-supported saving</span><strong class="mono">'+(rel.supportedPct==null?'—':fmt(rel.supportedPct,1)+'%')+'</strong><small>'+planMoney(rel.supportedSaving)+'</small></div><div><span>'+(rel.targetPct>0?'Goal-compatible budget':'Protected costs')+'</span><strong class="mono">'+(rel.targetPct>0?planMoney(rel.compatibleBudget):planMoney(rel.protectedTotal))+'</strong><small>'+(rel.targetPct>0?fmt(rel.targetPct,1)+'% savings goal':'Outside the monthly budget')+'</small></div></div>';
+    h+='<details class="plan-calc-details"><summary>How it is calculated</summary><div class="plan-equation" aria-label="Income minus protected costs minus budget equals budget-supported saving">';
+    [['Recurring income',rel.income],['Protected costs',-rel.protectedTotal],['Monthly budget',-rel.budget],['Budget-supported saving',rel.supportedSaving]].forEach(function(row,i){h+='<div'+(i===3?' class="is-total"':'')+'><span>'+row[0]+'</span><strong class="mono">'+planMoney(row[1])+'</strong></div>';});
+    h+='</div></details>';
+  }
   if(rel.targetPct>0){
     var currentFloor=Math.min(budget,minimumControllableBudget()),operationalCompatible=comparison?comparison.compatibleBudget:rel.compatibleBudget,operational=round2(Math.min(budget,Math.max(operationalCompatible,currentFloor)));
-    h+='<div class="plan-goal-row"><div><span>Savings goal</span><strong>'+fmt(rel.targetPct,1)+'% · '+planMoney(rel.goalSaving)+'</strong></div><div><span>Goal-compatible budget</span><strong>'+planMoney(rel.compatibleBudget)+'</strong></div></div>';
-    if(comparison&&Math.abs(operational-rel.budget)>.5)h+='<p class="plan-inline-note">This month’s cash timing, catch-up or minimum floor makes the effective spendable budget about <strong class="mono">'+planMoney(operational)+'</strong>. Raising the ceiling alone will not override the savings goal.</p>';
+    if(comparison&&Math.abs(operational-rel.budget)>.5)h+='<p class="plan-inline-note">Effective spendable budget this month is about <strong class="mono">'+planMoney(operational)+'</strong> after timing, catch-up or the minimum safeguard.</p>';
   }
   return h;
 }
@@ -2354,11 +2410,11 @@ function refreshMonthlyBudgetPlanPreview(){
 function savingsBudgetRelationshipHtml(settings){
   settings=settings||state.settings;
   var rel=monthlyPlanningRelationship(todayStr(),currentMonthlyBudget(),null,settings),tone=rel.targetPct>0?(rel.meetsGoal?'is-good':'is-warning'):'is-neutral';
-  var headline=rel.supportedPct==null?'Set recurring income to connect the plan':('Your budget supports '+fmt(rel.supportedPct,1)+'% saving');
-  var copy=rel.targetPct>0?(rel.meetsGoal?(rel.goalGap>.5?'The budget saves '+planMoney(rel.goalGap)+' beyond this month’s goal.':'The budget and savings goal are aligned.'):'The goal is tighter by '+planMoney(-rel.goalGap)+'. Ledger will use the lower effective budget.'):'No savings goal is active for this month.';
-  var h='<div class="plan-relationship-card '+tone+'"><span class="eyebrow">Budget relationship · '+parseD(rel.start).toLocaleDateString('en-GB',{month:'long'})+'</span><strong>'+headline+'</strong><p>'+copy+'</p>';
-  if(rel.income>0&&rel.targetPct>0)h+='<div class="plan-goal-row"><div><span>Current budget</span><strong>'+planMoney(rel.budget)+'</strong></div><div><span>Budget at '+fmt(rel.targetPct,1)+'%</span><strong>'+planMoney(rel.compatibleBudget)+'</strong></div></div>';
-  return h+'<button type="button" class="btn-plain" data-action="open-budget-settings">Review spending plan</button></div>';
+  var headline=rel.supportedPct==null?'Set recurring income first':('Budget supports '+fmt(rel.supportedPct,1)+'% saving');
+  var copy=rel.targetPct>0?(rel.meetsGoal?'Budget and goal are aligned.':'Goal-compatible budget: '+planMoney(rel.compatibleBudget)+'.'):'No savings goal is active this month.';
+  var h='<div class="plan-relationship-card '+tone+'"><strong>'+headline+'</strong><p>'+copy+'</p>';
+  if(rel.income>0&&rel.targetPct>0)h+='<div class="plan-goal-row"><div><span>Current budget</span><strong>'+planMoney(rel.budget)+'</strong></div><div><span>Goal</span><strong>'+fmt(rel.targetPct,1)+'% · '+planMoney(rel.goalSaving)+'</strong></div></div>';
+  return h+'</div>';
 }
 function refreshSavingsBudgetRelationship(){
   var d=savingsEditorDraft(),box=document.getElementById('savingsBudgetRelationship');
@@ -2404,33 +2460,32 @@ function refreshSavingsEditorPreview(){
   if(preview)preview.innerHTML=savingsEditorPreview();
   summary.rows.forEach(function(row){
     var label=document.getElementById('savingsMonthEffective_'+row.month),input=document.getElementById('savingsMonthInput_'+row.month);
-    if(label)label.textContent=row.active===false?'Not included in the tracked-year savings goal':(fmt(row.pct,2)+'% · '+fmt(toReporting(row.target),0)+' '+reportingCurrency()+' saving · budget '+(row.compatibleBudget==null?'—':('up to '+fmt(toReporting(row.compatibleBudget),0)+' '+reportingCurrency()))+' · '+row.source);
+    if(label)label.textContent=row.active===false?'Not included in the tracked-year savings goal':(fmt(row.pct,2)+'% · budget '+(row.compatibleBudget==null?'—':(fmt(toReporting(row.compatibleBudget),0)+' '+reportingCurrency()))+' · '+row.source);
     if(input&&document.activeElement!==input)input.value=Object.prototype.hasOwnProperty.call(d.plan.months,row.month)?String(d.plan.months[row.month]):'';
   });
   refreshSavingsBudgetRelationship();
 }
 function renderSavingsPlanEditor(){
   var d=savingsEditorDraft(),year=String(d.year),plan=d.plan,settings=savingsEditorSettings(d),summary=savingsYearBudgetSummary(d.year,settings),fixed=summary.mode==='fixedAnnual',customCount=summary.rows.filter(function(row){return row.explicit;}).length;
-  var h='<div class="info-title-row"><div class="eyebrow">Savings plan</div>'+infoButton('savingsTarget')+'</div>';
-  h+='<p class="muted caption" style="line-height:1.5;">Set the saving side of the same monthly plan. Each target immediately shows the controllable budget it can support after protected costs.</p>';
+  var h='<div class="settings-page-note"><span>Set yearly goals and override only the months that need to differ.</span>'+infoButton('savingsTarget')+'</div>';
   h+='<div id="savingsBudgetRelationship" style="margin:14px 0;">'+savingsBudgetRelationshipHtml(settings)+'</div>';
   h+='<div class="row between" style="gap:12px;margin:14px 0;"><button type="button" class="btn-outline" data-action="savings-year-step" data-delta="-1" aria-label="Previous year">‹</button><strong class="subhead">'+year+'</strong><button type="button" class="btn-outline" data-action="savings-year-step" data-delta="1" aria-label="Next year">›</button></div>';
   h+='<div class="plan-mode-switch" role="radiogroup" aria-label="How monthly savings targets affect the year"><button type="button" role="radio" aria-checked="'+(!fixed)+'" data-action="savings-set-mode" data-mode="monthly">Flexible months</button><button type="button" role="radio" aria-checked="'+fixed+'" data-action="savings-set-mode" data-mode="fixedAnnual">Keep annual goal fixed</button></div>';
-  h+='<p class="muted caption" style="line-height:1.4;margin:7px 0 12px;">'+(fixed?'Monthly overrides are pinned; remaining months rebalance to preserve the year’s goal.':'A monthly override changes that month only, so the year’s planned total changes honestly.')+'</p>';
+  h+='<p class="muted caption" style="line-height:1.4;margin:7px 0 12px;">'+(fixed?'Overrides are pinned; other months rebalance.':'Overrides affect only the selected month.')+'</p>';
   var inheritedYearPct=savingsTargetPriorYearBase(d.year,settings),hasExplicitYear=Object.prototype.hasOwnProperty.call(plan.years,year);
   h+='<label class="eyebrow" for="savingsYearDefault">'+year+(fixed?' annual goal (%)':' default monthly target (%)')+'</label><input id="savingsYearDefault" data-savings-kind="years" data-savings-key="'+year+'" type="number" inputmode="decimal" min="0" max="100" step="0.01" class="field mono" style="margin:6px 0 6px;" placeholder="Inherit '+fmt(inheritedYearPct,2)+'%" value="'+(hasExplicitYear?plan.years[year]:'')+'"/>';
-  h+='<div class="muted caption" style="line-height:1.4;margin-bottom:10px;">'+(hasExplicitYear?'This year has its own target. Clear it to continue the last configured annual target.':'No new target is set for this year, so '+fmt(savingsTargetYearBase(d.year,settings),2)+'% carries forward from the latest configured year.')+' Changing this setting preserves closed months.</div>';
-  h+='<details style="margin:2px 0 12px;" '+uiDetailsAttrs('savings-catchup-policy')+'><summary class="subhead">Annual catch-up · '+(d.catchUpPolicy==='symmetric'?'Full true-up':'Shortfalls only')+'</summary><div style="padding-top:8px;"><div class="plan-mode-switch" role="radiogroup" aria-label="Annual savings catch-up policy"><button type="button" role="radio" aria-checked="'+(d.catchUpPolicy!=='symmetric')+'" data-action="savings-set-catchup" data-policy="shortfallOnly">Shortfalls only</button><button type="button" role="radio" aria-checked="'+(d.catchUpPolicy==='symmetric')+'" data-action="savings-set-catchup" data-policy="symmetric">Full true-up</button></div><p class="muted caption" style="line-height:1.45;margin:7px 0 0;">'+(d.catchUpPolicy==='symmetric'?'Being behind tightens future months; being ahead can loosen them so the year converges toward the exact goal.':'Being behind tightens future months. Being ahead stays as extra saving instead of automatically increasing future spending room.')+'</p></div></details>';
+  h+='<div class="muted caption" style="line-height:1.4;margin-bottom:10px;">'+(hasExplicitYear?'Set for this year · clear to inherit the previous target.':fmt(savingsTargetYearBase(d.year,settings),2)+'% inherited from the latest configured year.')+'</div>';
+  h+='<details style="margin:2px 0 12px;" '+uiDetailsAttrs('savings-catchup-policy')+'><summary class="subhead">Catch-up · '+(d.catchUpPolicy==='symmetric'?'Full true-up':'Shortfalls only')+'</summary><div style="padding-top:8px;"><div class="plan-mode-switch" role="radiogroup" aria-label="Annual savings catch-up policy"><button type="button" role="radio" aria-checked="'+(d.catchUpPolicy!=='symmetric')+'" data-action="savings-set-catchup" data-policy="shortfallOnly">Shortfalls only</button><button type="button" role="radio" aria-checked="'+(d.catchUpPolicy==='symmetric')+'" data-action="savings-set-catchup" data-policy="symmetric">Full true-up</button></div><p class="muted caption" style="line-height:1.45;margin:7px 0 0;">'+(d.catchUpPolicy==='symmetric'?'Shortfalls tighten; surplus can loosen later months.':'Shortfalls tighten later months; surplus stays saved.')+'</p></div></details>';
   h+='<details class="savings-month-details" '+uiDetailsAttrs('savings-months-'+year)+'><summary><span>Monthly targets</span><span class="muted caption">'+customCount+' custom · '+(fixed?'others balanced':'others inherit')+'</span></summary><div class="savings-month-list">';
   summary.rows.forEach(function(row){
     var mk=row.month,closed=mk<todayStr().slice(0,7),inactive=row.active===false,label=parseD(mk+'-01').toLocaleDateString('en-GB',{month:'long'}),value=Object.prototype.hasOwnProperty.call(plan.months,mk)?plan.months[mk]:'';
-    h+='<div class="savings-month-row"'+(inactive?' style="opacity:.58;"':'')+'><div class="row between" style="gap:10px;"><label for="savingsMonthInput_'+mk+'" class="caption" style="flex:1;min-width:0;font-weight:650;">'+label+(inactive?' <span class="muted">· before tracking</span>':(closed?' <span class="muted">· closed</span>':''))+'</label><input id="savingsMonthInput_'+mk+'" data-savings-kind="months" data-savings-key="'+mk+'" aria-label="'+label+' '+year+' savings override percent" type="number" inputmode="decimal" min="0" max="100" step="0.01" class="field mono" style="width:90px;min-width:0;text-align:right;" placeholder="'+(inactive?'Not tracked':(fixed?'Balanced':'Inherit'))+'" value="'+value+'" '+(inactive?'disabled':'')+'/><button type="button" class="btn-outline" style="font-size:12px;padding:10px 8px;" data-action="savings-month-reset" data-month="'+mk+'" aria-label="Reset '+label+' target" '+(inactive?'disabled':'')+'>Reset</button></div><div id="savingsMonthEffective_'+mk+'" class="muted caption" style="margin-top:5px;">'+(inactive?'Not included in the tracked-year savings goal':(fmt(row.pct,2)+'% · '+fmt(toReporting(row.target),0)+' '+esc(reportingCurrency())+' saving · budget '+(row.compatibleBudget==null?'—':('up to '+fmt(toReporting(row.compatibleBudget),0)+' '+esc(reportingCurrency())))+' · '+row.source))+'</div></div>';
+    h+='<div class="savings-month-row"'+(inactive?' style="opacity:.58;"':'')+'><div class="row between" style="gap:10px;"><label for="savingsMonthInput_'+mk+'" class="caption" style="flex:1;min-width:0;font-weight:650;">'+label+(inactive?' <span class="muted">· before tracking</span>':(closed?' <span class="muted">· closed</span>':''))+'</label><input id="savingsMonthInput_'+mk+'" data-savings-kind="months" data-savings-key="'+mk+'" aria-label="'+label+' '+year+' savings override percent" type="number" inputmode="decimal" min="0" max="100" step="0.01" class="field mono" style="width:90px;min-width:0;text-align:right;" placeholder="'+(inactive?'Not tracked':(fixed?'Balanced':'Inherit'))+'" value="'+value+'" '+(inactive?'disabled':'')+'/><button type="button" class="btn-outline" style="font-size:12px;padding:10px 8px;" data-action="savings-month-reset" data-month="'+mk+'" aria-label="Reset '+label+' target" '+(inactive?'disabled':'')+'>Reset</button></div><div id="savingsMonthEffective_'+mk+'" class="muted caption" style="margin-top:5px;">'+(inactive?'Not included in the tracked-year savings goal':(fmt(row.pct,2)+'% · budget '+(row.compatibleBudget==null?'—':(fmt(toReporting(row.compatibleBudget),0)+' '+esc(reportingCurrency())))+' · '+row.source))+'</div></div>';
   });
   h+='</div></details>';
-  h+='<div id="savingsPlanPreview" class="card card-pad" style="margin:14px 0;">'+savingsEditorPreview()+'</div>';
+  h+='<div id="savingsPlanPreview" class="settings-summary-box" style="margin:12px 0;">'+savingsEditorPreview()+'</div>';
   h+='<button data-action="save-savings-target" class="btn-accent" style="width:100%;">Save savings goals</button><button data-action="savings-discard" class="btn-outline" style="width:100%;margin-top:8px;">Discard unsaved changes</button>';
   var current=currentSavingsBudgetComparison();
-  h+='<details style="margin-top:18px;"><summary class="subhead">Saved current-month calculation · '+fmt(savingsTargetPct(),2)+'%</summary><div class="muted caption" style="margin:10px 0;">Updates after Save. Future years do not change this month.</div>';
+  h+='<details style="margin-top:16px;"><summary class="subhead">Current month calculation · '+fmt(savingsTargetPct(),2)+'%</summary><div class="muted caption" style="margin:8px 0;">Saved values for this month.</div>';
   if(current){
     [['Base savings target',current.baseTargetSaving],['Annual catch-up adjustment',current.catchUp.monthlyAdjustment],['This month savings target',current.targetSaving],['Normalized outside-budget costs',current.normalizedExcluded],['Target-compatible budget',current.compatibleBudget],['This month controllable budget',current.effectiveBudget]].forEach(function(row){h+='<div class="row between" style="gap:12px;margin:9px 0;"><span class="muted caption">'+row[0]+'</span><strong class="mono caption" style="white-space:nowrap;">'+fmt(toReporting(row[1]),0)+' '+esc(reportingCurrency())+'</strong></div>';});
     if(current.floorActive)h+='<p class="caption" style="color:var(--amber);">Minimum floor exceeds the target-compatible budget by '+fmt(toReporting(current.floorGap),0)+' '+esc(reportingCurrency())+'. This is a possible savings shortfall.</p>';
@@ -4638,24 +4693,24 @@ function renderPlanningEmpty() {
 function renderSettingsIndex() {
   function row(action,section,title,value,sub) {return '<button class="settings-row" data-action="'+action+'" data-section="'+section+'"><span class="settings-row-main"><span class="settings-row-label">'+title+'</span>'+(sub?'<span class="settings-row-sub">'+sub+'</span>':'')+'</span><span class="row gap2">'+(value?'<span class="settings-row-value">'+value+'</span>':'')+ICONS.chevronRight+'</span></button>';}
   var s=state.settings,h='',rel=monthlyPlanningRelationship(todayStr(),currentMonthlyBudget()),planValue=currentMonthlyBudget()>0?uiMoney(currentMonthlyBudget(),0)+' '+esc(reportingCurrency()):'Not set';
-  if(rel.supportedPct!=null&&currentMonthlyBudget()>0)planValue+=' · '+fmt(rel.supportedPct,1)+'%';
+  if(rel.supportedPct!=null&&currentMonthlyBudget()>0)planValue+=' · '+fmt(rel.supportedPct,1)+'% save';
   h+='<div class="settings-group-title">Everyday</div><div class="settings-list">';
-  h+=row('settings-section','categories','Categories & rules',String((s.categories||[]).length),'Groups, appearance and budget inclusion');
+  h+=row('settings-section','categories','Categories',String((s.categories||[]).length),'Rules, budget inclusion & icons');
   h+=row('settings-section','people','People',String((s.people||[]).length),'');
   h+=row('settings-section','tags','Tags',String((s.transactionTags||[]).length),'');
   h+=row('settings-section','currency','Currencies',reportingCurrency(),'');h+='</div>';
   h+='<div class="settings-group-title">Planning</div><div class="settings-list">';
-  h+=row('settings-section','budget','Spending & saving plan',planValue,'Budget ceiling, savings goals and minimum floor');
-  h+=row('open-category-budgets','','Sub-budgets',categoryBudgetsEnabled()?'On':'Optional','Allocation, rhythm and rollover');
-  h+=row('settings-section','annualReserves','Annual reserves',String(activeAnnualReserves().length),'');
-  h+=row('settings-section','forecastAccuracy','Forecast health','','');h+='</div>';
-  h+='<div class="settings-group-title">Your app</div><div class="settings-list">';
+  h+=row('settings-section','budget','Budget & savings',planValue,'Main monthly plan');
+  h+=row('open-category-budgets','','Sub-budgets',categoryBudgetsEnabled()?'On':'Off','Split the main budget');
+  h+=row('settings-section','annualReserves','Annual reserves',String(activeAnnualReserves().length),'Yearly costs spread across months');
+  h+=row('settings-section','forecastAccuracy','Forecast health','','Accuracy & protection');h+='</div>';
+  h+='<div class="settings-group-title">App & data</div><div class="settings-list">';
   h+=row('settings-section','theme','Appearance',s.theme==='dark'?'Dark':'Light','');
   h+=row('settings-section','tracking','Tracking start',s.trackingStartDate?esc(shortLabel(s.trackingStartDate)):'Today','');
-  h+=row('settings-section','backup','Backup & recovery','','Your data and automatic recovery points');
-  h+=row('settings-section','demo','Demo mode',IS_DEMO_MODE?'Active':'Off','Explore with fictional data');h+='</div>';
-  if(IS_DEMO_MODE)h+='<button class="btn-outline" data-action="exit-demo-mode" style="width:100%;margin-top:16px;">Exit demo</button>';
-  h+='<details class="plan-section"><summary class="muted">Reset options</summary><div class="settings-list">'+row('settings-section','clearEntries','Clear transactions','','Keep settings')+row('settings-section','factoryReset','Reset The Ledger','','Remove data, settings and recovery history')+'</div></details>';
+  h+=row('settings-section','backup','Backup & recovery','','Local recovery & export');
+  h+=row('settings-section','demo','Demo mode',IS_DEMO_MODE?'Active':'Off','');h+='</div>';
+  if(IS_DEMO_MODE)h+='<button class="btn-outline" data-action="exit-demo-mode" style="width:100%;margin-top:14px;">Exit demo</button>';
+  h+='<details class="plan-section"><summary class="muted">Reset options</summary><div class="settings-list">'+row('settings-section','clearEntries','Clear transactions','','Keep settings')+row('settings-section','factoryReset','Reset The Ledger','','Remove everything')+'</div></details>';
   h+='<p class="caption muted" style="text-align:center;">The Ledger '+APP_VERSION+' · On this device</p>';
   return h;
 }
@@ -6653,7 +6708,7 @@ function openCategoryBudgetActivity(month,category,person){
 
 function renderSettingsPage() {
   var section = state.settingsSection || "";
-  var titles = { categoryBudgets:"Sub-budgets", budget:"Spending & saving plan", savings:"Savings goals", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast health", categories:"Categories", people:"People", tags:"Transaction tags", theme:"Appearance", tracking:"Tracking start", backup:"Data & Backup", clearEntries:"Clear all entries", factoryReset:"Reset app to defaults", demo:"Demo & showcase" };
+  var titles = { categoryBudgets:"Sub-budgets", budget:"Budget & savings", savings:"Savings goals", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast health", categories:"Categories", people:"People", tags:"Tags", theme:"Appearance", tracking:"Tracking start", backup:"Backup & recovery", clearEntries:"Clear transactions", factoryReset:"Reset The Ledger", demo:"Demo mode" };
   var categoryHeaderTitle = "Categories";
   if (section === "categories") {
     if (state.settingsSubcategorySelected) categoryHeaderTitle = state.settingsSubcategorySelected;
@@ -6677,49 +6732,48 @@ function renderSettingsPage() {
   if(section === "categoryBudgets")h+=renderCategoryBudgetEditor();
   if (section === "budget") {
     var curMonthly=currentMonthlyBudget(),monthBounds=getPeriodBounds("month",0,currentWeeklyTarget(),dailyAllowance()),dim=daysInMonth(new Date()),monthName=new Date().toLocaleDateString("en-GB",{month:"long"}),rel=monthlyPlanningRelationship(todayStr(),curMonthly);
-    h+='<div class="info-title-row"><div class="eyebrow">One monthly plan</div>'+infoButton('monthlyBudget')+'</div>';
-    h+='<p class="muted caption" style="line-height:1.5;">Change the controllable budget and Ledger shows the saving percentage it supports. Change the savings goal and Ledger shows the compatible budget. Ledger uses the tighter limit; an optional advanced safeguard can set a realistic minimum floor.</p>';
-    h+='<label class="eyebrow" for="monthlyDraftInput">Controllable budget ceiling</label><div style="position:relative;margin:6px 0 6px;"><span class="muted" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;">'+reportingCurrency()+'</span><input id="monthlyDraftInput" aria-label="Monthly controllable budget ceiling" type="number" inputmode="decimal" min="0" class="field mono" style="padding-left:44px;font-size:20px;font-weight:650;" value="'+round2(toReporting(curMonthly))+'" /></div>';
-    h+='<div class="muted" id="monthlyBudgetDerivedText" style="font-size:12px;margin-bottom:12px;">= '+fmt(toReporting(curMonthly)/dim,2)+' '+esc(reportingCurrency())+'/day in '+esc(monthName)+' · about '+fmt((toReporting(curMonthly)/dim)*7,0)+' '+esc(reportingCurrency())+'/week</div>';
+    h+='<div class="settings-page-note"><span>Set the monthly budget. Ledger shows the saving rate it supports.</span>'+infoButton('monthlyBudget')+'</div>';
+    h+='<label class="eyebrow" for="monthlyDraftInput">Monthly budget</label><div style="position:relative;margin:6px 0 6px;"><span class="muted" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;">'+reportingCurrency()+'</span><input id="monthlyDraftInput" aria-label="Monthly controllable budget ceiling" type="number" inputmode="decimal" min="0" class="field mono" style="padding-left:44px;font-size:20px;font-weight:650;" value="'+round2(toReporting(curMonthly))+'" /></div>';
+    h+='<div class="muted" id="monthlyBudgetDerivedText" style="font-size:12px;margin-bottom:12px;">'+fmt(toReporting(curMonthly)/dim,0)+' '+esc(reportingCurrency())+'/day · '+fmt((toReporting(curMonthly)/dim)*7,0)+' '+esc(reportingCurrency())+'/week</div>';
     h+='<div id="monthlyBudgetPlanPreview" class="plan-relationship-card" style="margin-bottom:14px;">'+monthlyBudgetPlanPreview(toReporting(curMonthly))+'</div>';
     if(rel.targetPct>0)h+='<button type="button" data-action="budget-use-compatible" class="btn-outline" style="width:100%;margin-bottom:14px;">Use '+fmt(toReporting(rel.compatibleBudget),0)+' '+esc(reportingCurrency())+' goal-compatible budget</button>';
     h+='<details style="margin:2px 0 10px;"><summary class="subhead">Advanced safeguard'+(minimumControllableBudget()>0?' · '+fmt(toReporting(minimumControllableBudget()),0)+' '+esc(reportingCurrency())+' minimum':'')+'</summary><div class="settings-control-card" style="padding-top:10px;"><label class="settings-control-title" for="monthlyMinimumBudgetInput">Minimum realistic budget</label><div style="position:relative;margin-top:8px;"><span class="muted" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;">'+reportingCurrency()+'</span><input id="monthlyMinimumBudgetInput" aria-label="Minimum realistic controllable budget" type="number" inputmode="decimal" min="0" class="field mono" style="padding-left:44px;" value="'+round2(toReporting(minimumControllableBudget()))+'" /></div><p class="muted caption" style="line-height:1.45;margin-bottom:0;">Optional exception floor. Use it only if the goal-compatible budget would be unrealistically low; Ledger will show the resulting savings shortfall instead of pretending the goal still fits.</p></div></details>';
-    h+='<button data-action="apply-budget" data-scope="future" class="btn-accent" style="width:100%;margin:14px 0 8px;">Save from this month onward</button><div class="muted caption" style="margin-bottom:14px;">Starts '+esc(shortLabel(monthBounds.startStr))+'</div>';
-    h+='<button data-action="apply-budget" data-scope="all" class="btn-outline" style="width:100%;margin-bottom:14px;">Apply budget to all periods</button>';
-    h+='<div class="settings-action-stack"><button type="button" data-action="open-savings-plan" class="btn-outline">Edit yearly & monthly savings goals</button><button data-action="open-category-budgets" class="btn-outline">Set up sub-budgets</button></div>';
+    h+='<button data-action="apply-budget" data-scope="future" class="btn-accent" style="width:100%;margin:14px 0 6px;">Save from '+esc(monthName)+'</button>';
+    h+='<details class="plan-section" style="margin-top:10px;"><summary class="muted">Other budget actions</summary><div class="settings-action-stack"><button data-action="apply-budget" data-scope="all" class="btn-outline">Apply to all periods</button><button type="button" data-action="open-savings-plan" class="btn-outline">Savings goals</button><button data-action="open-category-budgets" class="btn-outline">Sub-budgets</button></div></details>';
   }
   if (section === "savings") { h += renderSavingsPlanEditor(); }
   if (section === "annualReserves") {
     var reservesSettings=normalizeAnnualReserves(state.settings.annualReserves,state.settings.categories,state.settings.categoryGroups), reserveYear=new Date().getFullYear(), reserveCurrency=reportingCurrency();
-    h += '<div class="info-title-row"><label class="eyebrow">Annual reserves</label>'+infoButton('annualReserves')+'</div>';
-    if(!reservesSettings.length) h += '<div class="card card-pad" style="margin-bottom:14px;"><div class="info-title-row"><div class="subhead" style="font-weight:700;">No annual reserves yet</div>'+infoButton('annualReserves')+'</div></div>';
+    h += '<div class="settings-page-note"><span>Set aside monthly room for large yearly costs.</span>'+infoButton('annualReserves')+'</div>';
+    if(!reservesSettings.length) h += '<div class="settings-summary-box"><div class="subhead" style="font-weight:650;">No reserves yet</div><div class="muted caption" style="margin-top:3px;">Add travel, gifts, insurance or any planned yearly cost.</div></div>';
+    if(reservesSettings.length) h += '<div class="settings-disclosure-list">';
     reservesSettings.forEach(function(r,idx){
-      var st=annualReserveStatusForYear(r,reserveYear), monthly=round2((Number(r.annualAmount)||0)/12), scopeValue=annualReserveScopeValue(r);
-      h += '<details class="card card-pad" style="margin-bottom:12px;">';
-      h += '<summary class="row between" style="gap:12px;cursor:pointer;list-style:none;"><div style="min-width:0;"><div class="subhead" style="font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.name||'Annual reserve')+'</div><div class="muted caption" style="margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(annualReserveScopeLabel(r))+'</div></div><div style="text-align:right;flex-shrink:0;"><div class="mono subhead" style="font-weight:650;">'+fmt(toReporting(r.annualAmount||0),0)+' '+esc(reserveCurrency)+'/yr</div><div class="muted mono caption" style="margin-top:2px;">≈ '+fmt(toReporting(monthly),0)+'/mo</div></div></summary>';
-      h += '<div class="hairline-top" style="margin-top:13px;padding-top:13px;">';
-      h += '<label class="eyebrow">Name</label><input id="annualReserveName_'+idx+'" type="text" class="field" maxlength="40" style="margin-top:6px;" value="'+esc(r.name||'')+'" />';
-      h += '<label class="eyebrow" style="display:block;margin-top:13px;">Annual amount</label><div style="position:relative;margin-top:6px;"><span class="muted" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;">'+esc(reserveCurrency)+'</span><input id="annualReserveAmount_'+idx+'" data-reserve-preview="'+idx+'" type="number" inputmode="decimal" min="0" step="100" class="field mono" style="padding-left:38px;text-align:right;font-weight:700;" value="'+round2(toReporting(r.annualAmount||0))+'" /></div>';
-      h += '<label class="eyebrow" style="display:block;margin-top:13px;">Linked spending</label><select id="annualReserveScope_'+idx+'" class="field" style="margin-top:6px;">'+annualReserveScopeOptions(scopeValue)+'</select>';
-      h += '<div class="row" style="justify-content:flex-end;margin-top:7px;">'+infoButton('reserveLink')+'</div>';
-      h += '<div class="hairline-top" style="margin-top:14px;padding-top:12px;"><div class="row between"><span class="muted subhead">Normalized protection</span><span id="annualReserveMonthlyPreview_'+idx+'" class="mono subhead" style="font-weight:700;">≈ '+fmt(toReporting(monthly),0)+' '+esc(reserveCurrency)+'/month</span></div><div class="row between" style="margin-top:8px;"><span class="muted subhead">Spent this year</span><span class="mono subhead">'+fmt(toReporting(st.spent),0)+' '+esc(reserveCurrency)+'</span></div><div class="row between" style="margin-top:8px;"><span class="muted subhead">Remaining</span><span class="mono subhead" style="font-weight:650;color:'+(st.over>0?'var(--rust)':'var(--positive)')+';">'+(st.over>0?('−'+fmt(toReporting(st.over),0)+' over'):fmt(toReporting(st.remaining),0)+' '+esc(reserveCurrency))+'</span></div></div>';
-      h += '<div class="row gap2" style="margin-top:14px;"><button data-action="save-annual-reserve" data-index="'+idx+'" class="btn-accent" style="flex:1;">Save</button><button data-action="delete-annual-reserve" data-index="'+idx+'" class="btn-outline" style="flex:0 0 auto;">Delete</button></div>';
+      var st=annualReserveStatusForYear(r,reserveYear), monthly=round2((Number(r.annualAmount)||0)/12), scopeValue=annualReserveScopeValue(r), leftLabel=st.over>0?('−'+fmt(toReporting(st.over),0)+' over'):(fmt(toReporting(st.remaining),0)+' '+reserveCurrency);
+      h += '<details class="settings-disclosure" '+uiDetailsAttrs('annual-reserve-'+idx)+'>';
+      h += '<summary><div class="reserve-summary-main"><div class="reserve-summary-name">'+esc(r.name||'Annual reserve')+'</div><div class="reserve-summary-scope">'+esc(annualReserveScopeLabel(r))+'</div></div><div class="reserve-summary-amount"><strong class="mono">'+fmt(toReporting(r.annualAmount||0),0)+' '+esc(reserveCurrency)+'</strong><span class="mono">'+fmt(toReporting(monthly),0)+'/mo</span></div></summary>';
+      h += '<div class="settings-disclosure-body">';
+      h += '<label class="eyebrow">Name</label><input id="annualReserveName_'+idx+'" type="text" class="field" maxlength="40" style="margin-top:5px;" value="'+esc(r.name||'')+'" />';
+      h += '<label class="eyebrow" style="display:block;margin-top:12px;">Annual amount</label><div style="position:relative;margin-top:5px;"><span class="muted" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;">'+esc(reserveCurrency)+'</span><input id="annualReserveAmount_'+idx+'" data-reserve-preview="'+idx+'" type="number" inputmode="decimal" min="0" step="100" class="field mono" style="padding-left:38px;text-align:right;font-weight:700;" value="'+round2(toReporting(r.annualAmount||0))+'" /></div>';
+      h += '<div class="info-title-row" style="margin-top:12px;"><label class="eyebrow">Linked spending</label>'+infoButton('reserveLink')+'</div><select id="annualReserveScope_'+idx+'" class="field" style="margin-top:5px;">'+annualReserveScopeOptions(scopeValue)+'</select>';
+      h += '<div class="reserve-stats"><div class="reserve-stat"><span>Monthly</span><strong id="annualReserveMonthlyPreview_'+idx+'" class="mono">'+fmt(toReporting(monthly),0)+' '+esc(reserveCurrency)+'</strong></div><div class="reserve-stat"><span>Spent '+reserveYear+'</span><strong class="mono">'+fmt(toReporting(st.spent),0)+' '+esc(reserveCurrency)+'</strong></div><div class="reserve-stat"><span>'+(st.over>0?'Over':'Left')+'</span><strong class="mono" style="color:'+(st.over>0?'var(--rust)':'var(--positive)')+';">'+leftLabel+'</strong></div></div>';
+      h += '<div class="row gap2" style="margin-top:14px;"><button data-action="save-annual-reserve" data-index="'+idx+'" class="btn-accent" style="flex:1;">Save</button><button data-action="delete-annual-reserve" data-index="'+idx+'" class="btn-plain" style="color:var(--rust);padding-left:10px;padding-right:4px;">Delete</button></div>';
       h += '</div></details>';
     });
-    h += '<details class="card card-pad" style="margin-top:14px;"><summary class="subhead" style="font-weight:650;cursor:pointer;list-style:none;">+ Add annual reserve</summary><div class="hairline-top" style="margin-top:13px;padding-top:13px;">';
-    h += '<label class="eyebrow">Name</label><input id="newAnnualReserveName" type="text" class="field" maxlength="40" style="margin-top:6px;" placeholder="e.g. Gifts" />';
-    h += '<label class="eyebrow" style="display:block;margin-top:13px;">Annual amount</label><div style="position:relative;margin-top:6px;"><span class="muted" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;">'+esc(reserveCurrency)+'</span><input id="newAnnualReserveAmount" data-reserve-preview="new" type="number" inputmode="decimal" min="0" step="100" class="field mono" style="padding-left:38px;text-align:right;font-weight:700;" placeholder="0" /></div>';
-    h += '<label class="eyebrow" style="display:block;margin-top:13px;">Linked spending</label><select id="newAnnualReserveScope" class="field" style="margin-top:6px;">'+annualReserveScopeOptions('')+'</select>';
-    h += '<div class="hairline-top" style="margin-top:14px;padding-top:12px;"><div class="row between"><span class="muted subhead">Normalized protection</span><span id="annualReserveMonthlyPreview_new" class="mono subhead" style="font-weight:700;">≈ 0 '+esc(reserveCurrency)+'/month</span></div></div>';
-    h += '<button data-action="add-annual-reserve" class="btn-accent" style="width:100%;margin-top:14px;">Add annual reserve</button></div></details>';
+    if(reservesSettings.length) h += '</div>';
+    h += '<details class="settings-add-disclosure" '+uiDetailsAttrs('annual-reserve-new')+'><summary>Add reserve</summary><div class="settings-disclosure-body">';
+    h += '<label class="eyebrow">Name</label><input id="newAnnualReserveName" type="text" class="field" maxlength="40" style="margin-top:5px;" placeholder="e.g. Gifts" />';
+    h += '<label class="eyebrow" style="display:block;margin-top:12px;">Annual amount</label><div style="position:relative;margin-top:5px;"><span class="muted" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;">'+esc(reserveCurrency)+'</span><input id="newAnnualReserveAmount" data-reserve-preview="new" type="number" inputmode="decimal" min="0" step="100" class="field mono" style="padding-left:38px;text-align:right;font-weight:700;" placeholder="0" /></div>';
+    h += '<div class="info-title-row" style="margin-top:12px;"><label class="eyebrow">Linked spending</label>'+infoButton('reserveLink')+'</div><select id="newAnnualReserveScope" class="field" style="margin-top:5px;">'+annualReserveScopeOptions('')+'</select>';
+    h += '<div class="reserve-stats"><div class="reserve-stat"><span>Monthly</span><strong id="annualReserveMonthlyPreview_new" class="mono">0 '+esc(reserveCurrency)+'</strong></div></div>';
+    h += '<button data-action="add-annual-reserve" class="btn-accent" style="width:100%;margin-top:14px;">Add reserve</button></div></details>';
   }
   if (section === "currency") {
     var fxCache = normalizeFxCache(state.settings.fxRateCache), rc=reportingCurrency();
     var popularFx = ["AED","EGP","USD","EUR","GBP","SAR"].filter(function(c){return c!==rc;}).slice(0,4);
-    h += '<div class="card card-pad" style="margin-bottom:14px;"><div class="info-title-row"><div class="eyebrow">BASE / REPORTING CURRENCY</div>'+infoButton('currencyReporting')+'</div><div class="row gap2" style="margin-top:8px;"><select id="baseCurrencyInput" class="field" style="flex:1;">';
+    h += '<div class="settings-summary-box" style="margin-bottom:12px;"><div class="info-title-row"><div class="settings-control-title">Reporting currency</div>'+infoButton('currencyReporting')+'</div><div class="row gap2" style="margin-top:8px;"><select id="baseCurrencyInput" class="field" style="flex:1;">';
     TXN_CURRENCIES.forEach(function(c){h+='<option value="'+c+'"'+(c===rc?' selected':'')+'>'+c+' · '+esc(CURRENCY_NAMES[c]||c)+'</option>';});
     h += '</select><button data-action="save-base-currency" class="btn-accent">Apply</button></div><div id="baseCurrencyStatus" class="muted caption" style="margin-top:6px;"></div></div>';
-    h += '<div class="card card-pad" style="margin-bottom:14px;"><div class="row between"><div class="info-title-row"><div class="eyebrow">EXCHANGE RATES</div>'+infoButton('currencyReporting')+'</div><button data-action="refresh-popular-fx" class="btn-outline" style="padding:7px 10px;font-size:12px;flex-shrink:0;">Refresh</button></div>';
+    h += '<div class="settings-summary-box" style="margin-bottom:12px;"><div class="row between"><div class="info-title-row"><div class="settings-control-title">Exchange rates</div>'+infoButton('currencyReporting')+'</div><button data-action="refresh-popular-fx" class="btn-outline" style="padding:7px 10px;font-size:12px;flex-shrink:0;">Refresh</button></div>';
     popularFx.forEach(function(code,idx){
       var quote = readCachedFxPair(code,rc,todayStr());
       h += '<div class="row between" style="padding:10px 0;'+(idx?'border-top:1px solid var(--sep);':'')+'"><span class="subhead" style="font-weight:600;">'+code+' <span class="muted caption">'+esc(CURRENCY_NAMES[code]||'')+'</span></span><span class="mono subhead" id="fxSettings_'+code+'">'+(quote&&quote.rate?'1 '+code+' = '+fmt(quote.rate,4)+' '+rc:'—')+'</span></div>';
@@ -6772,7 +6826,7 @@ function renderSettingsPage() {
     var selectedSub = state.settingsSubcategorySelected;
 
     if (!selectedGroup) {
-      h += '<div class="info-title-row" style="margin:0 2px 12px;"><div class="eyebrow">Categories & rules</div>'+infoButton('categoryRules')+'</div>';
+      h += '<div class="settings-page-note"><span>Organize transaction categories and their rules.</span>'+infoButton('categoryRules')+'</div>';
       h += '<div class="taxonomy-list">';
       groupList.forEach(function(g,gi){
         var members = catListAll.filter(function(c){ return categoryGroupOf(c)===g; }),controls='';
@@ -6796,10 +6850,10 @@ function renderSettingsPage() {
       h += '</select></div>';
       h += '<div class="taxonomy-form-card"><div class="row between"><div style="padding-right:12px;"><div class="headline">Counts toward budget</div><div class="muted caption" style="margin-top:2px;">Overall Analysis always includes it.</div></div><button data-action="toggle-category-budget" data-cat="'+esc(selectedSub)+'" class="btn-outline" style="color:'+(categoryExcludedFromBudget(selectedSub)?'var(--rust)':'var(--positive)')+';">'+(categoryExcludedFromBudget(selectedSub)?'Excluded':'Included')+'</button></div></div>';
       var forecastBehavior=categoryForecastBehavior(selectedSub);
-      h += '<div class="taxonomy-form-card"><label class="eyebrow">Forecast behavior</label><select id="subcategoryForecastBehaviorInput" aria-label="Forecast behavior" data-cat="'+esc(selectedSub)+'" class="field" style="margin-top:7px;"><option value="auto"'+(forecastBehavior==='auto'?' selected':'')+'>Auto</option><option value="frequent"'+(forecastBehavior==='frequent'?' selected':'')+'>Frequent</option><option value="cadence"'+(forecastBehavior==='cadence'?' selected':'')+'>Cadence</option><option value="monthly"'+(forecastBehavior==='monthly'?' selected':'')+'>Monthly bill</option><option value="yearly"'+(forecastBehavior==='yearly'?' selected':'')+'>Yearly bill</option><option value="lumpy"'+(forecastBehavior==='lumpy'?' selected':'')+'>Irregular</option><option value="oneoff"'+(forecastBehavior==='oneoff'?' selected':'')+'>One-off / no repeat</option></select><div class="muted caption" style="margin-top:6px;">One-off keeps actual expenses but adds no automatic repeats. Monthly bill stops after this month\'s payment. Yearly bill is fully automatic: Ledger learns the annual cost from Plans or transaction history and annualizes it in the background.</div></div>';
+      h += '<div class="taxonomy-form-card"><label class="eyebrow">Forecast behavior</label><select id="subcategoryForecastBehaviorInput" aria-label="Forecast behavior" data-cat="'+esc(selectedSub)+'" class="field" style="margin-top:7px;"><option value="auto"'+(forecastBehavior==='auto'?' selected':'')+'>Auto</option><option value="frequent"'+(forecastBehavior==='frequent'?' selected':'')+'>Frequent</option><option value="cadence"'+(forecastBehavior==='cadence'?' selected':'')+'>Cadence</option><option value="monthly"'+(forecastBehavior==='monthly'?' selected':'')+'>Monthly bill</option><option value="yearly"'+(forecastBehavior==='yearly'?' selected':'')+'>Yearly bill</option><option value="lumpy"'+(forecastBehavior==='lumpy'?' selected':'')+'>Irregular</option><option value="oneoff"'+(forecastBehavior==='oneoff'?' selected':'')+'>One-off / no repeat</option></select><div class="muted caption" style="margin-top:6px;">Controls how Ledger predicts future spending. Auto is recommended unless this category has a known pattern.</div></div>';
       if(forecastBehavior==='yearly'){
         var ycfg=yearlyBillConfigForCategory(selectedSub);
-        h += '<div class="taxonomy-form-card"><div class="row between" style="align-items:flex-start;gap:14px;"><div style="min-width:0;flex:1;"><div class="headline">Annualized monthly cost</div><div class="muted caption" style="margin-top:4px;line-height:1.45;">'+(ycfg.amount>0?('About '+fmt(ycfg.amount/12,2)+' AED/month is calculated automatically in the background. '+(ycfg.hasExactPlan?'Your Plan keeps the real installment dates.':'No yearly-bill setup is required.')):'Ledger will calculate this automatically once a finite/yearly Plan or transaction history is available.')+'</div></div><span class="chip" style="flex-shrink:0;">Automatic</span></div></div>';
+        h += '<div class="taxonomy-form-card"><div class="row between" style="align-items:flex-start;gap:14px;"><div style="min-width:0;flex:1;"><div class="headline">Annualized monthly cost</div><div class="muted caption" style="margin-top:4px;line-height:1.45;">'+(ycfg.amount>0?('≈ '+fmt(ycfg.amount/12,2)+' AED/month · '+(ycfg.hasExactPlan?'real dates come from its Plan':'learned automatically')):'Waiting for a Plan or transaction history.')+'</div></div><span class="chip" style="flex-shrink:0;">Automatic</span></div></div>';
       }
       h += '<div class="taxonomy-form-card"><div class="row between"><div style="padding-right:12px;"><div class="headline">Include in People analysis</div><div class="muted caption" style="margin-top:2px;">Turn off for household/fixed costs such as rent or mortgage.</div></div><button data-action="toggle-subcategory-people-analysis" data-cat="'+esc(selectedSub)+'" class="btn-outline" style="color:'+(subcategoryExcludedFromPeopleAnalysis(selectedSub)?'var(--text-muted)':'var(--positive)')+';">'+(subcategoryExcludedFromPeopleAnalysis(selectedSub)?'Excluded':'Included')+'</button></div></div>';
       h += '<div class="taxonomy-form-card"><label class="eyebrow">Icon</label><div class="taxonomy-icon-grid" style="margin-top:10px;">';
@@ -6837,8 +6891,7 @@ function renderSettingsPage() {
   }
 
   if (section === "people") {
-    h += '<label class="eyebrow">People</label>';
-    h += '<div class="muted caption" style="margin:4px 0 10px;">Tag transactions with who they were for, then see the breakdown in Analysis.</div>';
+    h += '<div class="settings-page-note"><span>Optional attribution for transaction analysis.</span></div>';
     var peopleListForDefault = state.settings.people||[];
     if (peopleListForDefault.length) {
       h += '<label class="eyebrow">Default person</label>';
@@ -6848,7 +6901,7 @@ function renderSettingsPage() {
         h += '<option value="'+esc(p)+'"'+(state.settings.defaultPerson===p?" selected":"")+'>'+esc(p)+'</option>';
       });
       h += '</select>';
-      h += '<div class="muted caption" style="margin:-10px 0 16px;">Pre-fills this person on every new transaction \u2014 still changeable per transaction.</div>';
+      h += '<div class="muted caption" style="margin:-10px 0 16px;">Pre-filled on new transactions.</div>';
     }
     h += '<div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">';
     var peopleList = state.settings.people||[];
@@ -6883,7 +6936,7 @@ function renderSettingsPage() {
 
   if (section === "tags") {
     var tagList=state.settings.transactionTags||[];
-    h += '<div class="muted caption" style="margin:2px 2px 14px;">Add optional labels to any transaction. Tags are searchable/filterable and never change budget or forecast calculations.</div>';
+    h += '<div class="muted caption" style="margin:2px 2px 12px;">Optional labels for search and filtering. They do not affect calculations.</div>';
     h += '<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px;">';
     tagList.forEach(function(tag){
       var renaming=state.tagRenameEditing===tag, deleting=state.tagDeletePending===tag;
@@ -6927,7 +6980,7 @@ function renderSettingsPage() {
   if (section === "backup") {
     var backupText = JSON.stringify({settings:state.settings, entries:state.entries}, null, 2);
     var dp=state.dataProtection||{}, dpHealthy=dp.primaryStatus==="healthy", autoOn=dp.available===true;
-    h += '<div class="card card-pad" style="margin-bottom:16px;"><div class="info-title-row"><div class="eyebrow">LOCAL DATA PROTECTION</div>'+infoButton('localRecovery')+'</div>';
+    h += '<div class="settings-summary-box" style="margin-bottom:12px;"><div class="info-title-row"><div class="settings-control-title">Local protection</div>'+infoButton('localRecovery')+'</div>';
     h += '<div class="row between" style="margin-top:11px;"><span class="muted subhead">Primary ledger</span><span class="subhead" style="font-weight:650;color:'+(dpHealthy?'var(--positive)':'var(--rust)')+';">'+(dpHealthy?'Healthy':esc(dp.primaryStatus||'Checking'))+'</span></div>';
     h += '<div class="row between" style="margin-top:9px;"><span class="muted subhead">Automatic recovery</span><span class="subhead" style="font-weight:650;color:'+(autoOn?'var(--positive)':'var(--rust)')+';">'+(autoOn?'Active':(dp.available===null?'Checking':'Unavailable'))+'</span></div>';
     h += '<div class="row between" style="margin-top:9px;"><span class="muted subhead">Last local snapshot</span><span class="mono subhead">'+esc(formatLocalBackupTime(dp.lastBackupAt))+'</span></div>';
@@ -6943,7 +6996,7 @@ function renderSettingsPage() {
       });
       h += '</div>';
     }
-    h += '<div class="card card-pad" style="margin-bottom:16px;"><div class="info-title-row"><div class="eyebrow">OFF-DEVICE SAFETY</div>'+infoButton('offDeviceSafety')+'</div></div>';
+    h += '<div class="settings-summary-box" style="margin-bottom:12px;"><div class="info-title-row"><div class="settings-control-title">Off-device backup</div>'+infoButton('offDeviceSafety')+'</div></div>';
     h += '<div class="info-title-row"><label class="eyebrow">Manual backup</label>'+infoButton('manualBackup')+'</div>';
     h += '<details class="plan-section"><summary>View backup text</summary><textarea readonly class="field mono" style="height:130px; font-size:16px; margin-bottom:8px; resize:none;" onfocus="this.select()">'+esc(backupText)+'</textarea></details>';
     h += '<button id="copyBackupBtn" data-action="copy-backup" class="btn-accent" style="width:100%; margin-bottom:24px;">Copy backup</button>';
@@ -11473,7 +11526,7 @@ document.addEventListener("input", function(e) {
   }
   if (e.target && e.target.dataset && e.target.dataset.reservePreview != null) {
     var reservePreviewKey=String(e.target.dataset.reservePreview), reservePreviewEl=document.getElementById("annualReserveMonthlyPreview_"+reservePreviewKey), reservePreviewShown=Number(e.target.value), reservePreviewBase=isFinite(reservePreviewShown)?Math.max(0,fromReporting(reservePreviewShown)):0;
-    if(reservePreviewEl) reservePreviewEl.textContent="≈ "+fmt(toReporting(reservePreviewBase/12),0)+" "+reportingCurrency()+"/month";
+    if(reservePreviewEl) reservePreviewEl.textContent=fmt(toReporting(reservePreviewBase/12),0)+" "+reportingCurrency();
     return;
   }
   if(e.target&&e.target.dataset&&e.target.dataset.savingsKind){
