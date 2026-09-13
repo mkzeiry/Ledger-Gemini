@@ -323,7 +323,8 @@ details[open]>summary::after { content:'−'; }
 .settings-row-main { display:flex; flex:1; min-width:0; flex-direction:column; gap:2px; }
 .settings-row-label { font-size:15px; line-height:1.35; font-weight:620; overflow-wrap:anywhere; }
 .settings-row-sub { font-size:12px; line-height:1.35; color:var(--text-muted); }
-.settings-row-value { max-width:45%; overflow:hidden; text-overflow:ellipsis; font-size:12px; color:var(--text-muted); white-space:nowrap; text-align:right; }
+.settings-row-value { max-width:none; overflow:visible; text-overflow:clip; flex:0 0 auto; font-size:12px; color:var(--text-muted); white-space:nowrap; text-align:right; }
+.settings-row>.row:last-child { flex:0 0 auto; max-width:none; white-space:nowrap; }
 .settings-row>span:last-child svg { width:15px; color:var(--text-muted); }
 .settings-danger { color:var(--rust); }
 .settings-header-action { border:0; background:transparent; color:var(--accent-text); min-height:44px; padding:0; font-size:14px; }
@@ -613,7 +614,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.22";
+var APP_VERSION = "v113.23";
 var SAFE_SPEND_MODEL_VERSION = "v11319-lending-2";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var FORECAST_RANGE_MODEL_VERSION = "v11319-range-2";
@@ -4983,6 +4984,21 @@ document.addEventListener("touchend", function() {
 var settingsNavStack = [];
 var settingsSwipe = null;
 var settingsRootSnapshot = null;
+/* A Settings route owns its scroll position. Forward navigation must start a
+   new route at the top, while Back restores the exact position of the previous
+   route. This cannot rely on window.scrollTo immediately before render because
+   the app enables CSS smooth scrolling, so iOS can still report the old
+   scrollY while the new Settings screen is being rebuilt. */
+var settingsNextScrollY = null;
+function settingsScrollInstant(y) {
+  y=Math.max(0,Number(y)||0);
+  var html=document.documentElement, body=document.body;
+  var oldHtml=html.style.scrollBehavior, oldBody=body?body.style.scrollBehavior:"";
+  html.style.scrollBehavior="auto"; if(body)body.style.scrollBehavior="auto";
+  window.scrollTo(0,y);
+  html.scrollTop=y; if(body)body.scrollTop=y;
+  html.style.scrollBehavior=oldHtml; if(body)body.style.scrollBehavior=oldBody;
+}
 
 function captureSettingsVisual() {
   var page = document.querySelector('.settings-page');
@@ -5063,7 +5079,7 @@ function settingsNavigateForward(mutator) {
   var fromSnapshot = captureSettingsVisual();
   if (fromSnapshot) settingsNavStack.push(fromSnapshot);
   mutator();
-  window.scrollTo(0,0);
+  settingsNextScrollY = 0;
   render();
   var toSnapshot = captureSettingsVisual();
   animateSettingsForward(fromSnapshot, toSnapshot);
@@ -5076,8 +5092,8 @@ function settingsNavigateBack() {
   if (!destination || !current || settingsReducedMotion()) {
     if (settingsNavStack.length) settingsNavStack.pop();
     applySettingsBackState();
+    settingsNextScrollY = destination ? (destination.scrollY || 0) : 0;
     render();
-    if (destination) window.scrollTo(0, destination.scrollY || 0); else window.scrollTo(0,0);
     return;
   }
 
@@ -5094,8 +5110,8 @@ function settingsNavigateBack() {
       setTimeout(function(){
         settingsNavStack.pop();
         applySettingsBackState();
+        settingsNextScrollY = destination.scrollY || 0;
         render();
-        window.scrollTo(0, destination.scrollY || 0);
         removeSettingsNavOverlay(parts);
       }, 310);
     });
@@ -5168,6 +5184,7 @@ function finishSettingsSwipe(commit) {
     parts.front.style.transform = 'translate3d(100%,0,0)';
     setTimeout(function(){
       if (sw.rootClose) {
+        var appRestoreY=sw.destination.scrollY || 0;
         settingsNavStack = [];
         state.settingsSection = null;
         state.settingsCategorySelected = null;
@@ -5176,12 +5193,15 @@ function finishSettingsSwipe(commit) {
         state.settingsCategoryEditMode = false;
         state.showSettings = false;
         settingsRootSnapshot = null;
+        settingsNextScrollY = null;
+        render();
+        settingsScrollInstant(appRestoreY);
       } else {
         settingsNavStack.pop();
         applySettingsBackState();
+        settingsNextScrollY = sw.destination.scrollY || 0;
+        render();
       }
-      render();
-      window.scrollTo(0, sw.destination.scrollY || 0);
       removeSettingsNavOverlay(parts);
     }, 260);
   } else {
@@ -5592,10 +5612,11 @@ function render() {
   }
 
   if (state.showSettings) {
+    var settingsScrollTarget = settingsNextScrollY == null ? savedSettingsScrollY : settingsNextScrollY;
+    settingsNextScrollY = null;
     root.innerHTML = renderSettingsPage() + renderResetConfirmationOverlays() + renderInfoOverlay();
     applyReportingCurrencyText(root);
-    
-    if (!(state.showResetConfirm || state.showFactoryResetConfirm)) window.scrollTo(0, savedSettingsScrollY);
+    if (!(state.showResetConfirm || state.showFactoryResetConfirm)) settingsScrollInstant(settingsScrollTarget);
     return;
   }
 
@@ -5626,7 +5647,7 @@ function render() {
 
   // Sticky primary-app header. Editors and Settings have their own bars.
   html += '<div class="app-topbar">';
-  html += '<div class="brand-lockup"><span class="brand-mark" aria-hidden="true">L</span><div class="brand-title">The Ledger</div>'+demoHeaderBadgeHtml()+'</div>';
+  html += '<div class="brand-lockup"><span class="brand-mark" aria-hidden="true">L</span><div class="brand-title">The Ledger</div><span class="version-badge">'+APP_VERSION+'</span>'+demoHeaderBadgeHtml()+'</div>';
   html += '<div class="row gap2">';
   html += '<button class="icon-btn press" data-action="toggle-theme" aria-label="'+(state.settings.theme==="dark"?"Switch to light mode":"Switch to dark mode")+'">'+(state.settings.theme==="dark"?ICONS.sun:ICONS.moon)+'</button>';
   html += '<button class="icon-btn press" data-action="open-settings" aria-label="Settings">'+ICONS.settings+'</button>';
@@ -10443,7 +10464,7 @@ document.addEventListener("click", function(e) {
     case "show-budget-compare-detail": showToast(el.dataset.detail||"Budget comparison");render();break;
     case "toggle-monthly-savings-rows": state.monthlySavingsShowAll=!state.monthlySavingsShowAll;render();break;
     case "open-category-budgets":
-      cbPrepareDraft();state.cbEditingIndex=null;settingsRootSnapshot=captureTxnVisual();settingsNavStack=[];state.settingsSection="categoryBudgets";state.showSettings=true;render();break;
+      cbPrepareDraft();state.cbEditingIndex=null;settingsRootSnapshot=captureTxnVisual();settingsNavStack=[];state.settingsSection="categoryBudgets";state.showSettings=true;settingsNextScrollY=0;render();break;
     case "save-category-budgets":saveCategoryBudgetDraft();break;
     case "add-category-budget":
       if(!state.cbDraft)cbPrepareDraft();
@@ -10467,8 +10488,8 @@ document.addEventListener("click", function(e) {
     
     case "open-backup": state.showBackup = true; render(); break;
     case "close-backup": state.showBackup = false; state.restoreError = null; render(); break;
-    case "open-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = null; state.showSettings = true; render(); break;
-    case "open-budget-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = "budget"; state.showSettings = true; render(); break;
+    case "open-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = null; state.showSettings = true; settingsNextScrollY=0; render(); break;
+    case "open-budget-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = "budget"; state.showSettings = true; settingsNextScrollY=0; render(); break;
     case "open-savings-plan": settingsNavigateForward(function(){state.settingsSection="savings";}); break;
     case "budget-use-compatible":
       var compatibleInput=document.getElementById("monthlyDraftInput"),compatiblePct=document.getElementById("monthlySavingsTargetInput"),compatibleRel=monthlyPlanningRelationship(todayStr(),compatibleInput?fromReporting(Number(compatibleInput.value)||0):currentMonthlyBudget(),compatiblePct?Number(compatiblePct.value):savingsTargetPct());
@@ -10728,7 +10749,7 @@ document.addEventListener("click", function(e) {
       break;
 
     case "settings-back":
-      if(state.settingsSection==="categoryBudgets"&&state.cbEditingIndex!=null){state.cbEditingIndex=null;state.cbDraftError="";render();window.scrollTo(0,0);break;}
+      if(state.settingsSection==="categoryBudgets"&&state.cbEditingIndex!=null){state.cbEditingIndex=null;state.cbDraftError="";settingsNextScrollY=0;render();break;}
       var wasSettingsRoot = !settingsNavStack.length;
       settingsNavigateBack();
       if(wasSettingsRoot) settingsRootSnapshot=null;
@@ -10808,7 +10829,7 @@ document.addEventListener("click", function(e) {
       render();
       break;
     case "open-annual-reserves-settings":
-      settingsRootSnapshot=captureTxnVisual(); settingsNavStack=[]; state.settingsSection="annualReserves"; state.showSettings=true; render(); window.scrollTo(0,0);
+      settingsRootSnapshot=captureTxnVisual(); settingsNavStack=[]; state.settingsSection="annualReserves"; state.showSettings=true; settingsNextScrollY=0; render();
       break;
     case "edit-recurring":
       var editRuleId=el.dataset.id;
