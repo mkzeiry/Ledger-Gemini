@@ -521,9 +521,11 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.15";
+var APP_VERSION = "v113.16";
+var SAFE_SPEND_MODEL_VERSION = "v11315-plans-1";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var TEST_KEY = "ledger-selftest";
+/* v113.16 merges the effective-dated savings plan with the versioned plan-aware Safe-to-Spend protections introduced in the alternate v113.15 branch. */
 var DEFAULT_SETTINGS = { categoryBudgetPlans:null, categoryBudgetFunding:null, categoryBudgetTransfers:null,  weeklyTarget: 0, monthlyBudget: null, monthlyBudgetHistory: null, theme: "light", trackingStartDate: null, categories: ["Cafés & Snacks","Restaurants","Groceries","Clothes","Home Cleaning","Fuel","Health","Entertainment","Parking","Maid","Services","Home Maintenance","Electronics","Car Maintenance","Salik","Fines","Rent","Mortgage","Phone Bill","Subscriptions","Car Insurance","Bank Fees","Home Internet","Fitness & Gym","Car Wash","Gift","Electricity / Utilities","Flights","Hotels & Accommodation","Food & Dining","Local Transport / Car Rental","Activities & Attractions","Shopping & Souvenirs","Visa / Travel Fees / Insurance","Miscellaneous Travel"], rateHistory: null, analysisSectionOrder: null, analysisHiddenSections: null, budgetSectionOrder: null, budgetHiddenSections: null, homeSimpleSectionOrder: null, homeSimpleHiddenSections: ["budgetStatus","cashBalance","monthlySavings"], homeYearSectionOrder: null, homeYearHiddenSections: ["yearDaily","yearCashBalance"], incomeMode: "monthly", incomeAmount: 0, incomeHistory: null, customDarkBg: null, customAccent: null, customCardLightness: null, chromeTransparency: 32, startingCashBalance: 0, categoryStyles: {"Groceries":{"icon":"cart","color":"#cd1300"},"Fuel":{"icon":"fuel","color":"#7a219e"},"Parking":{"icon":"parking","color":"#7a219e"},"Clothes":{"icon":"shirt","color":"#0042a9"},"Health":{"icon":"heart","color":"#76bb40"},"Entertainment":{"icon":"film","color":"#76bb40"},"Maid":{"icon":"baby","color":"#76bb40"},"Home Maintenance":{"icon":"wrench","color":"#ff6a00"},"Electronics":{"icon":"phone","color":"#0042a9"},"Home Cleaning":{"icon":"sparkles","color":"#ff6a00"},"Restaurants":{"icon":"cloche","color":"#cd1300"},"Car Insurance":{"icon":"shield","color":"#7a219e"},"Car Maintenance":{"icon":"wrench","color":"#7a219e"},"Fines":{"icon":"receipt","color":"#7a219e"},"Rent":{"icon":"key","color":"#ff6a00"},"Mortgage":{"icon":"house","color":"#ff6a00"},"Phone Bill":{"icon":"handset","color":"#5e30eb"},"Salik":{"icon":"tollgate","color":"#7a219e"},"Bank Fees":{"icon":"bank","color":"#C77FA3"},"Home Internet":{"icon":"wifi","color":"#ff6a00"},"Fitness & Gym":{"icon":"dumbbell","color":"#76bb40"},"Gift":{"icon":"gift","color":"#0042a9"},"Electricity / Utilities":{"icon":"bolt","color":"#ff6a00"},"Cafés & Snacks":{"icon":"fork","color":"#cd1300"},"Subscriptions":{"icon":"subscription","color":"#5e30eb"},"Car Wash":{"icon":"sparkles","color":"#7a219e"},"Flights":{"icon":"plane","color":"#0A84FF"},"Hotels & Accommodation":{"icon":"bed","color":"#5856D6"},"Food & Dining":{"icon":"fork","color":"#D4614A"},"Local Transport / Car Rental":{"icon":"taxi","color":"#5AC8FA"},"Activities & Attractions":{"icon":"ticket","color":"#FF9F0A"},"Shopping & Souvenirs":{"icon":"gift","color":"#AF52DE"},"Visa / Travel Fees / Insurance":{"icon":"shield","color":"#34C759"},"Miscellaneous Travel":{"icon":"travel","color":"#8E8E93"}}, categoryGroupStyles: {"Shopping":{"icon":"shirt","color":"#0042a9"},"Communication":{"icon":"phone","color":"#5e30eb"},"Travel":{"icon":"plane","color":"#0A84FF"}}, recurringRules: null, categoryGroups: ["Food & Drinks","Life","Vehicle","Shopping","Home","Communication","Travel","Other"], categoryGroupOf: {"Groceries":"Food & Drinks","Clothes":"Shopping","Fuel":"Vehicle","Parking":"Vehicle","Health":"Life","Entertainment":"Life","Maid":"Life","Home Maintenance":"Home","Services":"Other","Electronics":"Shopping","Home Cleaning":"Home","Restaurants":"Food & Drinks","Car Insurance":"Vehicle","Car Maintenance":"Vehicle","Fines":"Vehicle","Rent":"Home","Mortgage":"Home","Phone Bill":"Communication","Salik":"Vehicle","Bank Fees":"Other","Home Internet":"Home","Fitness & Gym":"Life","Gift":"Shopping","Electricity / Utilities":"Home","Cafés & Snacks":"Food & Drinks","Subscriptions":"Communication","Car Wash":"Vehicle","Flights":"Travel","Hotels & Accommodation":"Travel","Food & Dining":"Travel","Local Transport / Car Rental":"Travel","Activities & Attractions":"Travel","Shopping & Souvenirs":"Travel","Visa / Travel Fees / Insurance":"Travel","Miscellaneous Travel":"Travel"}, people: null, personColors: null, defaultPerson: null, categoryExcludeFromBudget: {"Fuel":true,"Health":true,"Maid":true,"Rent":true,"Mortgage":true,"Phone Bill":true,"Subscriptions":true,"Car Insurance":true,"Bank Fees":true,"Home Internet":true,"Fitness & Gym":true,"Electricity / Utilities":true,"Flights":true,"Hotels & Accommodation":true,"Food & Dining":true,"Local Transport / Car Rental":true,"Activities & Attractions":true,"Shopping & Souvenirs":true,"Visa / Travel Fees / Insurance":true,"Miscellaneous Travel":true}, categoryForecastBehavior: null, categoryYearlyBillSettings: null, peopleAnalysisExcluded: null, fxRateCache: null, baseCurrency: "AED", forecastSnapshots: null, transactionTags: null, transactionTagColors: null, analysisForecastV52Visible: false, savingsTargetPct: 0, savingsTargetYears: null, savingsTargetMonths: null, savingsTargetScheduleMigrationV11315: true, minimumControllableBudget: 0, safeSpendPriorities: null, homeAheadBehindResolution: "hourly", safeSpendHistory: null, homeMetricHistory: null, safeSpendAnnualizedMigrationV1119: true, yearlyBillAutoMigrationV11110: true, yearlyBillBackgroundMigrationV11111: true, safeSpendStableMigrationV11114: true, monthlyBillActualMigrationV11115: true, cadenceBoundarySmoothingMigrationV11219: true, homeDeltaModelEpochV11219: null, annualReserves: null, annualReserveMigrationV11222: null, travelTaxonomyMigrationV11224: true, travelOutsideBudgetMigrationV11225: true, periodicPlanAlignmentMigrationV11237: true, periodicForecastMatchMigrationV11238: true, controllableBudgetMigrationV11246: true, categoryBudgetModelMigrationV11247: true, annualSavingsCatchUpMigrationV11257: true, categoryBudgetAutoRebalanceFrom: "1900-01", categoryBudgetAutoRebalanceMigrationV11260: true, minimumControllableBudgetMigrationV11267: true };
 /* Forecast backtesting is independent of the removed Accounts feature.
    Keep its saved snapshots normalized on every boot so an older/corrupt
@@ -2189,7 +2191,7 @@ function normalizeSafeSpendHistory(v){
     if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||"")))return;
     var opening=Number(x.openingSafe), sustainable=Number(x.sustainableDaily);
     if(!isFinite(opening)||!isFinite(sustainable))return;
-    byDate[x.date]={date:x.date,scopeKey:String(x.scopeKey||"legacy"),openingSafe:round2(Math.max(0,opening)),sustainableDaily:round2(Math.max(0,sustainable)),flexibilityPct:clampPct(x.flexibilityPct),maxFlexibilityPct:clampPct(x.maxFlexibilityPct==null?x.flexibilityPct:x.maxFlexibilityPct),effectiveBudget:round2(Math.max(0,Number(x.effectiveBudget)||0)),futureReserve:round2(Math.max(0,Number(x.futureReserve)||0))};
+    byDate[x.date]={date:x.date,scopeKey:String(x.scopeKey||"legacy"),safeModelVersion:String(x.safeModelVersion||"legacy"),rawOpening:x.rawOpening!=null&&isFinite(Number(x.rawOpening))?round2(Number(x.rawOpening)):null,rhythmShare:x.rhythmShare!=null&&isFinite(Number(x.rhythmShare))?Math.max(0,Math.min(1,Number(x.rhythmShare))):null,openingSafe:round2(Math.max(0,opening)),sustainableDaily:round2(Math.max(0,sustainable)),flexibilityPct:clampPct(x.flexibilityPct),maxFlexibilityPct:clampPct(x.maxFlexibilityPct==null?x.flexibilityPct:x.maxFlexibilityPct),effectiveBudget:round2(Math.max(0,Number(x.effectiveBudget)||0)),futureReserve:round2(Math.max(0,Number(x.futureReserve)||0))};
   });
   return Object.keys(byDate).sort().map(function(k){return byDate[k];}).slice(-120);
 }
@@ -2242,13 +2244,13 @@ function homeOpeningMetricRow(date,current){
    monthly budget by D changes that day's sustainable opening by D/days-left. */
 function safeOpeningAtCurrentBudget(date,current){
   var row=safeSpendHistory().find(function(x){return x.date===date;})||null;
-  if(!row)return null;
+  if(!row||row.safeModelVersion!==SAFE_SPEND_MODEL_VERSION)return null;
   if(String(row.scopeKey||"legacy")!==categoryBudgetDailySignature())return null;
-  var opening=Number(row.openingSafe),sourceBudget=Number(row.effectiveBudget),currentBudget=Number(current&&current.effectiveBudget);
+  var opening=Number(row.rawOpening!=null?row.rawOpening:row.openingSafe),sourceBudget=Number(row.effectiveBudget),currentBudget=Number(current&&current.effectiveBudget);
   if(!isFinite(opening))return null;
   if(current&&date>=current.periodStart&&date<=current.periodEnd&&isFinite(sourceBudget)&&sourceBudget>=0&&isFinite(currentBudget)&&currentBudget>=0){
     var daysLeft=Math.max(1,daysBetween(date,current.periodEnd)+1);
-    opening+=round2((currentBudget-sourceBudget)/daysLeft);
+    opening+=round2((currentBudget-sourceBudget)*(row.rhythmShare!=null?row.rhythmShare:1/daysLeft));
   }
   return round2(Math.max(0,opening));
 }
@@ -2263,10 +2265,7 @@ function homeOpeningMetricDeltasAndRecord(current){
   var modelEpoch=String(state.settings.homeDeltaModelEpochV11219||"");
   var modelComparable=!modelEpoch||yesterday>=modelEpoch;
   var todaySafe=safeOpeningAtCurrentBudget(date,current),yesterdaySafe=safeOpeningAtCurrentBudget(yesterday,current);
-  if(!categoryBudgetsEnabled()){
-    if(todaySafe==null&&todayOpening)todaySafe=todayOpening.safeToSpend;
-    if(yesterdaySafe==null&&yesterdayOpening)yesterdaySafe=yesterdayOpening.safeToSpend;
-  }
+  // Only compare versioned openings; legacy fallbacks mix calculation methods.
   return {
     safeToSpend:(!modelComparable||todaySafe==null||yesterdaySafe==null)?null:round2(todaySafe-yesterdaySafe),
     projectedBudgetSpend:(!modelComparable||!samePeriod||todayOpening.projectedBudgetSpend==null||yesterdayOpening.projectedBudgetSpend==null)?null:round2(todayOpening.projectedBudgetSpend-yesterdayOpening.projectedBudgetSpend),
@@ -2285,12 +2284,13 @@ function homeMetricDeltaHtml(delta,higherIsBetter){
   return '<span class="mono home-opening-delta" style="color:'+color+';" title="'+esc(label)+'" aria-label="'+esc(label)+'">('+sign+fmt(Math.abs(shown),0)+')</span>';
 }
 function ensureSafeSpendSnapshot(){
-  var date=todayStr(), hist=safeSpendHistory();
-  if(hist.some(function(x){return x.date===date;}))return false;
+  var date=todayStr(), hist=safeSpendHistory(), existing=hist.find(function(x){return x.date===date;})||null;
+  if(existing&&existing.safeModelVersion===SAFE_SPEND_MODEL_VERSION)return false;
   var pacing=liveBudgetPacing(), m=pacing&&pacing.month;
   if(!m||m.openingSafe==null||m.sustainableDaily==null)return false;
   var info=currentEffectiveBudgetInfo();
-  hist.push({date:date,scopeKey:categoryBudgetDailySignature(),openingSafe:round2(Math.max(0,m.openingSafe)),sustainableDaily:round2(Math.max(0,m.sustainableDaily)),flexibilityPct:0,maxFlexibilityPct:0,effectiveBudget:info?(info.categoryBudget?info.categoryBudget.dailyAvailable:info.effectiveBudget):0,futureReserve:m.futureReserve||0});
+  hist=hist.filter(function(x){return x.date!==date;});
+  hist.push({date:date,safeModelVersion:SAFE_SPEND_MODEL_VERSION,rawOpening:m.sustainableDaily,rhythmShare:m.todayRhythmShare,scopeKey:categoryBudgetDailySignature(),openingSafe:round2(Math.max(0,m.openingSafe)),sustainableDaily:round2(Math.max(0,m.sustainableDaily)),flexibilityPct:0,maxFlexibilityPct:0,effectiveBudget:info?(info.categoryBudget?info.categoryBudget.dailyAvailable:info.effectiveBudget):0,futureReserve:m.futureReserve||0});
   var nextSettings=Object.assign({},state.settings,{safeSpendHistory:normalizeSafeSpendHistory(hist)});
   persistAll(nextSettings,state.entries,"Safe-to-Spend history");
   return true;
@@ -5310,11 +5310,10 @@ function liveBudgetPacing() {
       var amount = Number(it.amount) || 0;
       var key = subcategoryKey(it);
       if (it.recurringId) {
-        if (subcategoryEssentialForSafeSpend(key)) {
-          recurring += amount;
-          recurringBySub[key] = round2((recurringBySub[key] || 0) + amount);
-          recurringCountBySub[key] = 1;
-        } else flexible += amount;
+        // Linked plan payments replace a reserve, not daily flexible spend.
+        recurring += amount;
+        recurringBySub[key] = round2((recurringBySub[key] || 0) + amount);
+        recurringCountBySub[key] = 1;
         return;
       }
       var p = openingProfiles ? openingProfiles[key] : null;
@@ -5409,19 +5408,20 @@ function liveBudgetPacing() {
     var futureScheduledBySub=scheduledExpenseBreakdown(today,per.endStr,scope), futureScheduledAfterToday=0;
     Object.keys(futureScheduledBySub).forEach(function(k){
       var a=round2(futureScheduledBySub[k]||0), scheduledMeta={kind:"scheduled",expectedAmount:a,protectedAmount:a,probability:1,likelyAmount:a,profile:null};
-      if(subcategoryEssentialForSafeSpend(k)){futureScheduledAfterToday+=a;addReserveBreakdown(k,a,"scheduled",scheduledMeta);}
-      else addFlexibleForecast(k,a,"scheduled",scheduledMeta);
+      futureScheduledAfterToday+=a;addReserveBreakdown(k,a,"scheduled",scheduledMeta);
     });
     futureScheduledAfterToday=round2(futureScheduledAfterToday);
     var dueTodayBySub=scheduledExpenseBreakdown(yesterday,today,scope), dueTodayEssential=0, dueTodayEssentialBySub={};
     Object.keys(dueTodayBySub).forEach(function(k){
       var a=round2(dueTodayBySub[k]||0);
-      if(subcategoryEssentialForSafeSpend(k)){dueTodayEssential+=a;dueTodayEssentialBySub[k]=a;}
-      else addFlexibleForecast(k,a,"scheduled",{kind:"scheduled",expectedAmount:a,protectedAmount:a,probability:1,likelyAmount:a,profile:null});
+      dueTodayEssential+=a;dueTodayEssentialBySub[k]=a;
     });
     dueTodayEssential=round2(dueTodayEssential);
-    var openingScheduledToday=round2(Math.max(dueTodayEssential,buckets.recurring));
-    var todayScheduledBreakdown=buckets.recurring>=dueTodayEssential?buckets.recurringBySub:dueTodayEssentialBySub;
+    // Outstanding occurrences already exclude logged ones. Paid and unpaid
+    // commitments are disjoint, even when they share a category.
+    var openingScheduledToday=round2(dueTodayEssential+buckets.recurring);
+    var todayScheduledBreakdown=Object.assign({},dueTodayEssentialBySub);
+    Object.keys(buckets.recurringBySub).forEach(function(k){todayScheduledBreakdown[k]=round2((todayScheduledBreakdown[k]||0)+buckets.recurringBySub[k]);});
     Object.keys(todayScheduledBreakdown||{}).forEach(function(k){var a=round2(todayScheduledBreakdown[k]||0);addReserveBreakdown(k,a,"scheduled",{kind:"scheduled",expectedAmount:a,protectedAmount:a,probability:1,likelyAmount:a,profile:null});});
     var openingScheduledReserve=round2(futureScheduledAfterToday+openingScheduledToday);
 
@@ -5519,7 +5519,7 @@ function liveBudgetPacing() {
     var cadenceAdjustment=0;
     Object.keys(buckets.cadenceBySub||{}).forEach(function(k){cadenceAdjustment+=(buckets.cadenceBySub[k]||0)-(fulfilledCadenceReserveBySub[k]||0);});
     cadenceAdjustment=round2(cadenceAdjustment);
-    var scheduledAdjustment=buckets.recurring>0?round2(buckets.recurring-openingScheduledToday):0;
+    var scheduledAdjustment=0; // Actual linked payments already substituted in opening reserve.
 
     var rawSafe=openingSafe;
     if(rawSafe!=null){ rawSafe=round2(rawSafe-buckets.flexible); if(days>0)rawSafe=round2(rawSafe-(cadenceAdjustment+scheduledAdjustment)*(todayRhythmShare!=null?todayRhythmShare:(1/days))); }
@@ -5527,7 +5527,7 @@ function liveBudgetPacing() {
     var flexiblePool=round2(openingFlexiblePool-buckets.flexible-cadenceAdjustment-scheduledAdjustment);
     var adjustmentNeeded=round2(Math.max(0,-flexiblePool));
 
-    return {mode:mode,scope:scope,target:target,avg:avg,openingRemaining:openingRemaining,currentRemaining:currentRemaining,days:days,safe:safe,rawSafe:rawSafe,openingSafe:openingSafe,sustainableDaily:sustainableDaily,flexibilityPct:flexibilityPct,maxFlexibilityPct:maxFlexibilityPct,adaptiveFlex:adaptive,adjustmentNeeded:adjustmentNeeded,futureReserve:openingReserve,liveFutureReserve:liveReserve,reserveBreakdown:reserveBreakdown,openingReserveBreakdown:openingReserveBreakdown,flexibleForecastTotal:flexibleForecastTotal,flexibleForecastBreakdown:flexibleForecastBreakdown,openingCadenceReserve:openingCadenceReserve,openingScheduledReserve:openingScheduledReserve,flexiblePool:flexiblePool,todayFlexibleSpent:buckets.flexible,todayCadenceSpent:buckets.cadence,cadenceAdjustment:cadenceAdjustment,scheduledAdjustment:scheduledAdjustment,spentTodayScope:spentTodayScope,forecast:fc};
+    return {mode:mode,scope:scope,target:target,avg:avg,openingRemaining:openingRemaining,currentRemaining:currentRemaining,days:days,safe:safe,rawSafe:rawSafe,openingSafe:openingSafe,sustainableDaily:sustainableDaily,flexibilityPct:flexibilityPct,maxFlexibilityPct:maxFlexibilityPct,adaptiveFlex:adaptive,todayRhythmShare:todayRhythmShare!=null?todayRhythmShare:1/Math.max(1,days),adjustmentNeeded:adjustmentNeeded,futureReserve:openingReserve,liveFutureReserve:liveReserve,reserveBreakdown:reserveBreakdown,openingReserveBreakdown:openingReserveBreakdown,flexibleForecastTotal:flexibleForecastTotal,flexibleForecastBreakdown:flexibleForecastBreakdown,openingCadenceReserve:openingCadenceReserve,openingScheduledReserve:openingScheduledReserve,flexiblePool:flexiblePool,todayFlexibleSpent:buckets.flexible,todayCadenceSpent:buckets.cadence,cadenceAdjustment:cadenceAdjustment,scheduledAdjustment:scheduledAdjustment,spentTodayScope:spentTodayScope,forecast:fc};
   }
 
   var effectiveInfo=currentEffectiveBudgetInfo();
@@ -5535,7 +5535,7 @@ function liveBudgetPacing() {
   var monthPer=getPeriodBounds("month",0,currentWeeklyTarget(),dailyAllowance());
   var weekTarget=effectiveBudgetTargetForRange(weekPer.startStr,weekPer.endStr,effectiveInfo);
   var monthTarget=effectiveInfo.effectiveBudget;
-  var categoryMonth=effectiveInfo.categoryBudget,dailyBorrow=categoryMonth?cbSafeBorrowableForDaily(categoryMonth,today):{total:0,byGroup:{},futureNeed:{}};
+  var categoryMonth=effectiveInfo.categoryBudget,dailyBorrow=categoryMonth&&categoryMonth.rows.some(function(r){return r.daily;})?cbSafeBorrowableForDaily(categoryMonth,today):{total:0,byGroup:{},futureNeed:{}};
   if(categoryMonth){categoryMonth.safeBorrowable=round2(dailyBorrow.total||0);categoryMonth.safeBorrowByGroup=dailyBorrow.byGroup||{};categoryMonth.safeBorrowFutureNeed=dailyBorrow.futureNeed||{};}
   var week=categoryMonth?horizon("week","daily",cbDailyPlannedAmountForRange(categoryMonth,weekPer.startStr,weekPer.endStr,state.settings,state.entries,todayStr())):horizon("week","budget",weekTarget);
   var month=categoryMonth?horizon("month","daily",round2(categoryMonth.dailyTarget+(dailyBorrow.total||0))):horizon("month","budget",monthTarget);
@@ -7735,7 +7735,7 @@ function normalizeForecastProtection(list){
 }
 
 function makeForecastProtectionSnapshot(snap){
-  var month=currentEffectiveBudgetInfo().categoryBudget;if(!month)return [];
+  var month=currentEffectiveBudgetInfo().categoryBudget;if(!month||!month.rows.some(function(r){return r.daily;}))return [];
   var result=cbSafeBorrowableForDaily(month,snap.snapshotDate),plan=month.plan||((month.classification||{}).plan),opening=forecastCategoryTotals(snap.periodStart,snap.snapshotDate,"budget",snap.context);
   return (month.rows||[]).filter(function(r){return !r.daily&&r.group!==CB_BUFFER;}).map(function(r){
     var cats=cbBudgetMembersForRow(plan,r.group,state.settings);
@@ -8583,7 +8583,7 @@ function forecastAccuracyCard(title,x,scope){
 }
 function forecastProtectionStatus(){
   var info=currentEffectiveBudgetInfo(),month=info&&info.categoryBudget;
-  if(!month)return {enabled:false,total:0,rows:[]};
+  if(!month||!month.rows.some(function(r){return r.daily;}))return {enabled:false,total:0,rows:[]};
   var result=cbSafeBorrowableForDaily(month,todayStr());
   return {enabled:true,total:result.total,loggingPaused:!!result.loggingPaused,held:result.heldForEvidence||[],rows:(month.rows||[]).filter(function(r){return !r.daily&&r.group!==CB_BUFFER;}).map(function(r){return {name:r.name||r.group,remaining:Math.max(0,Number(r.remaining)||0),reserve:result.futureNeed[r.group]||0,lend:result.byGroup[r.group]||0};})};
 }
@@ -8604,7 +8604,7 @@ function renderForecastHealth(){
   h+=forecastAccuracyCard('Budget · Week',forecastAccuracySummary('budget','week'),'budget');
   h+=forecastAccuracyCard('Budget · Month',forecastAccuracySummary('budget','month'),'budget');
   h+=forecastAccuracyCard('Total spending · Month',forecastAccuracySummary('overall','month'),'overall');
-  h+='<div class="card forecast-score-card"><b>Safe to Spend protection</b>'+renderForecastProtectionHealth()+'<p class="fh-copy">Other sub-budgets lend only what remains after outstanding bills, predicted spending and an uncertainty buffer. A sub-budget with missing or fewer than three spending dates in any category keeps its remaining allocation, unless that category is explicitly one-off or has only scheduled/model-matched commitments. A small plan does not make sparse unrelated spending predictable.</p><p class="fh-copy">Reserves add 1.28 times estimated uncertainty above predicted spending. Frequent uncertainty includes correlated days and uncertainty in the pace; irregular uncertainty includes limited event evidence. This is a working upper estimate, not a proven 90% guarantee. These are cautious reserves, not a guaranteed spending limit. Minimum protected amounts still apply.</p><p class="fh-copy">After three days with no logged expenses, extra borrowing pauses and outside-budget affordability estimates stop treating further unlogged days as savings. Logging resumes these calculations; genuinely quiet days can therefore make this cautious.</p><p class="fh-copy">Established / Developing / Limited history describes the amount of evidence, not proven accuracy. Event chances are provisional model estimates. Check settled forecast errors above and keep transactions up to date.</p></div>';
+  h+='<div class="card forecast-score-card"><b>Safe to Spend protection</b>'+renderForecastProtectionHealth()+'<p class="fh-copy">Scheduled payments in the daily budget are reserved before calculating today’s flexible allowance. Paying a linked plan replaces its reserve without charging daily spending twice. Other sub-budgets lend only what remains after outstanding bills, predicted spending and an uncertainty buffer. A sub-budget with missing or fewer than three spending dates in any category keeps its remaining allocation, unless that category is explicitly one-off or has only scheduled/model-matched commitments. A small plan does not make sparse unrelated spending predictable.</p><p class="fh-copy">Reserves add 1.28 times estimated uncertainty above predicted spending. Frequent uncertainty includes correlated days and uncertainty in the pace; irregular uncertainty includes limited event evidence. This is a working upper estimate, not a proven 90% guarantee. These are cautious reserves, not a guaranteed spending limit. Minimum protected amounts still apply.</p><p class="fh-copy">After three days with no logged expenses, extra borrowing pauses and outside-budget affordability estimates stop treating further unlogged days as savings. Logging resumes these calculations; genuinely quiet days can therefore make this cautious.</p><p class="fh-copy">Established / Developing / Limited history describes the amount of evidence, not proven accuracy. Event chances are provisional model estimates. Check settled forecast errors above and keep transactions up to date.</p></div>';
   h+=forecastReliabilityHealthHtml();
   var diag=forecastHealthDiagnostics(),snaps=normalizeForecastSnapshots(state.settings.forecastSnapshots),old=snaps.filter(function(x){return x.modelVersion!==FORECAST_MODEL_VERSION;}).length,pending=snaps.filter(function(x){return x.modelVersion===FORECAST_MODEL_VERSION&&x.periodEnd>=toStr(addDays(parseD(todayStr()),-2));}).length;
   h+='<div class="card forecast-score-card"><b>Data & assumptions</b><p class="fh-copy">'+pending+' daily forecasts awaiting a settled outcome. '+old+' older-model forecasts preserved separately.</p>';
