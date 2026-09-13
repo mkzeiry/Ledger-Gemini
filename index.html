@@ -521,7 +521,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.16";
+var APP_VERSION = "v113.17";
 var SAFE_SPEND_MODEL_VERSION = "v11315-plans-1";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var TEST_KEY = "ledger-selftest";
@@ -2390,6 +2390,32 @@ function normalizedOutsideBudgetMonthlyCost(){
   rows.sort(function(a,b){return b.amount-a.amount;});
   return {total:round2(total),rows:rows};
 }
+/* v113.17 — Budget and savings are one planning relationship. This is the
+   normalized, strategic view: recurring income minus normalized protected
+   spending minus the controllable budget equals the saving that budget can
+   support. Cash-timing shifts and annual catch-up stay separate so a payment
+   month never silently changes the underlying long-run plan. */
+function monthlyPlanningRelationship(dateStr,budgetOverride,pctOverride){
+  var ds=String(dateStr||todayStr()),mk=ds.slice(0,7),start=mk+"-01",end=toStr(endOfMonth(parseD(start)));
+  var recurringIncome=Math.max(0,Number(plannedIncomeForRange(start,end))||0);
+  var outside=normalizedOutsideBudgetMonthlyCost(),reserves=annualReserveNormalizedMonthlyCost();
+  var normalizedOutside=round2(Number(outside.total)||0),normalizedReserves=round2(Number(reserves.total)||0),protectedMonthly=round2(normalizedOutside+normalizedReserves);
+  var goalPct=pctOverride==null?savingsTargetPctForMonth(start):normalizeSavingsTargetPct(pctOverride);
+  var goalSaving=round2(recurringIncome*goalPct/100),goalCompatibleBudget=round2(Math.max(0,recurringIncome-goalSaving-protectedMonthly));
+  var configured=budgetOverride==null?monthlyBudgetForDate(start):Math.max(0,Number(budgetOverride)||0);
+  configured=round2(configured);
+  var budgetSupportedSaving=round2(recurringIncome-protectedMonthly-configured);
+  var budgetSupportedSavingPct=recurringIncome>0?round2(budgetSupportedSaving/recurringIncome*100):null;
+  var savingGapPct=budgetSupportedSavingPct==null?null:round2(budgetSupportedSavingPct-goalPct),budgetGap=round2(configured-goalCompatibleBudget);
+  var aligned=Math.abs(budgetGap)<50 || (savingGapPct!=null&&Math.abs(savingGapPct)<0.2);
+  return {month:mk,start:start,end:end,recurringIncome:round2(recurringIncome),normalizedOutside:normalizedOutside,normalizedReserves:normalizedReserves,protectedMonthly:protectedMonthly,goalPct:goalPct,goalSaving:goalSaving,goalCompatibleBudget:goalCompatibleBudget,configuredBudget:configured,budgetSupportedSaving:budgetSupportedSaving,budgetSupportedSavingPct:budgetSupportedSavingPct,savingGapPct:savingGapPct,budgetGap:budgetGap,aligned:aligned,outsideBreakdown:outside.rows||[],reserveBreakdown:reserves.rows||[]};
+}
+function planningRelationshipStatus(rel){
+  if(!rel||!(rel.recurringIncome>0))return {text:"Add recurring income to connect budget and savings",color:"var(--text-muted)"};
+  if(rel.aligned)return {text:"Budget and savings goal are aligned",color:"var(--positive)"};
+  if(rel.budgetGap>0)return {text:fmt(toReporting(rel.budgetGap),0)+" "+reportingCurrency()+" above the goal-compatible budget · "+fmt(Math.abs(rel.savingGapPct||0),1)+" pp below goal",color:"var(--amber)"};
+  return {text:fmt(toReporting(Math.abs(rel.budgetGap)),0)+" "+reportingCurrency()+" below the goal-compatible budget · "+fmt(Math.abs(rel.savingGapPct||0),1)+" pp above goal",color:"var(--positive)"};
+}
 /* The configured variable budget is compared with an annualized sustainable
    amount. Projected cash spending for this specific month is still calculated
    and displayed, but it no longer tightens Safe-to-Spend merely because a
@@ -2618,7 +2644,7 @@ function currentSavingsBudgetComparison() {
   var rangeGoal=savingsGoalForRange(per.startStr,per.endStr,projectedIncome), catchUp=annualSavingsCatchUpForMonth(per.startStr,per.endStr,pct), catchAdj=catchUp&&catchUp.active?Number(catchUp.monthlyAdjustment)||0:0;
   var targetSaving=round2(Math.max(0,rangeGoal.targetSaving+catchAdj)), spendCeiling=round2(Math.max(0,rangeGoal.spendCeiling-catchAdj));
   var compatibleBudget=round2(Math.max(0,spendCeiling-normalizedExcluded));
-  var configuredBudget=round2(per.target||0), requestedFloor=minimumControllableBudget(), minimumBudget=round2(Math.min(configuredBudget,requestedFloor));
+  var configuredBudget=round2(per.target||0), planRelationship=monthlyPlanningRelationship(todayStr(),configuredBudget,pct), requestedFloor=minimumControllableBudget(), minimumBudget=round2(Math.min(configuredBudget,requestedFloor));
   /* v112.67 — the savings target remains the annual goal, but it may not make
      the current month's controllable budget unrealistically small. The user can
      set a minimum operating floor. When the target-compatible amount falls
@@ -2630,7 +2656,7 @@ function currentSavingsBudgetComparison() {
   var floorGap=round2(Math.max(0,effectiveBudget-compatibleBudget));
   var delta=round2(effectiveBudget-configuredBudget);
   var tighter=floorActive?"floor":(Math.abs(delta)<0.5?"equal":(compatibleBudget<configuredBudget?"savings":"budget"));
-  return {pct:pct,projectedIncome:projectedIncome,recurringIncome:rangeGoal.recurringIncome,extraIncome:rangeGoal.extraIncome,targetSaving:targetSaving,baseTargetSaving:rangeGoal.targetSaving,catchUp:catchUp,spendCeiling:spendCeiling,configuredBudget:configuredBudget,projectedOverall:projectedOverall,projectedBudget:projectedBudget,projectedExcluded:projectedExcluded,actualExcluded:actualExcluded,normalizedExcluded:normalizedExcluded,normalizedOutsideOnly:normalizedOutsideOnly,normalizedReserves:normalizedReserves,normalizedBreakdown:(normalized.rows||[]).concat(reserveNormalized.rows||[]),annualReserveBreakdown:reserveNormalized.rows||[],compatibleBudget:compatibleBudget,minimumBudget:minimumBudget,requestedMinimumBudget:requestedFloor,floorActive:floorActive,floorGap:floorGap,effectiveBudget:effectiveBudget,delta:delta,tighter:tighter,projectedCashSaving:round2(projectedIncome-projectedOverall),projectedCashSavingPct:projectedIncome>0?round2((projectedIncome-projectedOverall)/projectedIncome*100):null};
+  return {pct:pct,projectedIncome:projectedIncome,recurringIncome:rangeGoal.recurringIncome,extraIncome:rangeGoal.extraIncome,targetSaving:targetSaving,baseTargetSaving:rangeGoal.targetSaving,catchUp:catchUp,spendCeiling:spendCeiling,configuredBudget:configuredBudget,projectedOverall:projectedOverall,projectedBudget:projectedBudget,projectedExcluded:projectedExcluded,actualExcluded:actualExcluded,normalizedExcluded:normalizedExcluded,normalizedOutsideOnly:normalizedOutsideOnly,normalizedReserves:normalizedReserves,normalizedBreakdown:(normalized.rows||[]).concat(reserveNormalized.rows||[]),annualReserveBreakdown:reserveNormalized.rows||[],compatibleBudget:compatibleBudget,minimumBudget:minimumBudget,requestedMinimumBudget:requestedFloor,floorActive:floorActive,floorGap:floorGap,effectiveBudget:effectiveBudget,delta:delta,tighter:tighter,projectedCashSaving:round2(projectedIncome-projectedOverall),projectedCashSavingPct:projectedIncome>0?round2((projectedIncome-projectedOverall)/projectedIncome*100):null,budgetSupportedSaving:planRelationship.budgetSupportedSaving,budgetSupportedSavingPct:planRelationship.budgetSupportedSavingPct,goalCompatibleBudget:planRelationship.goalCompatibleBudget,planSavingGapPct:planRelationship.savingGapPct,planBudgetGap:planRelationship.budgetGap,planAligned:planRelationship.aligned};
 }
 
 function currentBudgetSpendPaceStats(){
@@ -4314,11 +4340,11 @@ function renderTrackingHero(overall,pacing) {
   return h+'</section>';
 }
 function renderBudgetPositionCard(spent,target,projected,delta,remaining,position) {
-  var gap=round2(projected-target),color=gap>0?'var(--rust)':(gap<0?'var(--positive)':'var(--text)');
+  var gap=round2(projected-target),color=gap>0?'var(--rust)':(gap<0?'var(--positive)':'var(--text)'),planRel=monthlyPlanningRelationship(todayStr()),planLine=planRel.budgetSupportedSavingPct==null?'':'<div class="budget-position-secondary" style="margin-top:6px;">'+fmt(toReporting(planRel.configuredBudget),0)+' '+esc(reportingCurrency())+' budget · supports <strong>'+fmt(planRel.budgetSupportedSavingPct,1)+'%</strong> saving · goal <strong>'+fmt(planRel.goalPct,1)+'%</strong></div>';
   var projectedLabel=gap===0?'Projected on budget':('Projected '+uiMoney(Math.abs(gap),0)+' '+esc(reportingCurrency())+' '+(gap>0?'over':'under'));
   var remainingLabel=uiMoney(Math.abs(remaining),0)+' '+esc(reportingCurrency())+' '+(remaining<0?'over':'remaining');
   var paceLabel=uiMoney(Math.abs(position),0)+' '+esc(reportingCurrency())+' '+(position>=0?'ahead of':'behind')+' pace';
-  return '<section class="card budget-position-card"><div class="budget-position-summary"><div class="budget-position-copy"><div class="eyebrow">Budget position</div><div class="budget-position-primary home-metric-value-line" style="color:'+color+';"><span>'+projectedLabel+'</span>'+(delta||'')+'</div><div class="budget-position-secondary">'+remainingLabel+' · <span style="color:'+(position>=0?'var(--positive)':'var(--rust)')+';">'+paceLabel+'</span></div></div><button class="btn-plain" data-action="go-page" data-page="budget">Details</button></div></section>';
+  return '<section class="card budget-position-card"><div class="budget-position-summary"><div class="budget-position-copy"><div class="eyebrow">Budget position</div><div class="budget-position-primary home-metric-value-line" style="color:'+color+';"><span>'+projectedLabel+'</span>'+(delta||'')+'</div><div class="budget-position-secondary">'+remainingLabel+' · <span style="color:'+(position>=0?'var(--positive)':'var(--rust)')+';">'+paceLabel+'</span></div>'+planLine+'</div><button class="btn-plain" data-action="go-page" data-page="budget">Details</button></div></section>';
 }
 function countLedgerTransactions(entries) { return Object.keys(entries||{}).reduce(function(n,d){return n+((entries[d]&&entries[d].items)||[]).length;},0); }
 function renderPlanningEmpty() {
@@ -4333,9 +4359,10 @@ function renderSettingsIndex() {
   h+=row('settings-section','tags','Tags',String((s.transactionTags||[]).length),'');
   h+=row('settings-section','currency','Currencies',reportingCurrency(),'');h+='</div>';
   h+='<div class="settings-group-title">Planning</div><div class="settings-list">';
-  h+=row('settings-section','budget','Monthly budget',currentMonthlyBudget()>0?uiMoney(currentMonthlyBudget(),0)+' '+esc(reportingCurrency())+'':'Not set','');
+  var settingsPlanRel=monthlyPlanningRelationship(todayStr());
+  h+=row('settings-section','budget','Monthly budget',currentMonthlyBudget()>0?uiMoney(currentMonthlyBudget(),0)+' '+esc(reportingCurrency())+'':'Not set',settingsPlanRel.budgetSupportedSavingPct==null?'Set income to see the savings impact':'Supports '+fmt(settingsPlanRel.budgetSupportedSavingPct,1)+'% saving');
   h+=row('open-category-budgets','','Sub-budgets',categoryBudgetsEnabled()?'On':'Optional','Allocation, rhythm and rollover');
-  h+=row('settings-section','savings','Savings target',savingsTargetPctForMonth(todayStr())>0?fmt(savingsTargetPctForMonth(todayStr()),1)+'%':'Off','Annual goal, monthly plan and minimum budget');
+  h+=row('settings-section','savings','Savings goal',savingsTargetPctForMonth(todayStr())>0?fmt(savingsTargetPctForMonth(todayStr()),1)+'%':'Off',settingsPlanRel.budgetSupportedSavingPct==null?'Annual goal and monthly plan':'Budget plan '+fmt(settingsPlanRel.budgetSupportedSavingPct,1)+'% · goal '+fmt(settingsPlanRel.goalPct,1)+'%');
   h+=row('settings-section','annualReserves','Annual reserves',String(activeAnnualReserves().length),'');
   h+=row('settings-section','forecastAccuracy','Forecast health','','');h+='</div>';
   h+='<div class="settings-group-title">Your app</div><div class="settings-list">';
@@ -5039,9 +5066,9 @@ var INFO_CONTENT={
   autoRemainder:{title:"Everything else",body:"Every inside-budget subcategory that is not assigned to another sub-budget lands here automatically. Its target share is simply whatever percentage remains after your manual sub-budget shares."},
   autoRebalance:{title:"Automatic rebalancing",body:"Sub-budget targets are soft allocations inside the hard main budget. If one sub-budget runs over, Ledger automatically covers the overage proportionally from unused room in other sub-budgets, while respecting their minimum guardrails. The original planned allocation is still shown so you can see which area ran hot."},
   dailyBorrow:{title:"Daily safe spending after a sub-budget is used",body:"If a Daily sub-budget reaches its planned allocation while the main budget still has room, Ledger can keep giving it a Safe to Spend amount. It only borrows money that other sub-budgets are forecast not to need, and spreads that safe pool across the remaining days using the selected spending rhythm. The main budget never increases."},
-  monthlyBudget:{title:"Monthly budget",body:"This is the maximum controllable-spending ceiling. Your savings target can reduce the effective budget below this amount. Earlier months keep the budget that applied at the time unless you explicitly rewrite all periods."},
-  savingsTarget:{title:"Savings target",body:"Set an annual savings goal for each year, then optionally pin individual months to a different percentage. Ledger balances the other unpinned months so the annual goal is preserved where possible. Completed months are frozen before later target changes, so history is not rewritten. Cash-timing adjustments and annual catch-up remain separate from the planned monthly percentage."},
-  minimumBudgetFloor:{title:"Minimum controllable budget",body:"Optional monthly floor for the spending you can realistically live with. Ledger still calculates the budget required by your annual savings target, but it will not reduce the current controllable budget below this floor (or above your main budget ceiling). If you actually use the extra room, the resulting saving shortfall is carried into the annual catch-up engine after the month closes."},
+  monthlyBudget:{title:"Monthly budget",body:"This is your controllable-spending ceiling. Ledger immediately translates it into the savings rate that budget supports after normalized protected spending, then compares it with your savings goal. The savings goal can still tighten the effective budget when the two are not aligned. Earlier months keep the budget that applied at the time unless you explicitly rewrite all periods."},
+  savingsTarget:{title:"Savings target",body:"Your savings goal and monthly budget are two views of the same plan. Ledger shows both the saving rate your budget supports and the controllable budget your savings goal supports. You can still set annual goals and month overrides; completed months stay frozen. Cash-timing adjustments and annual catch-up remain separate from this normalized planning relationship."},
+  minimumBudgetFloor:{title:"Minimum controllable budget",body:"Advanced safeguard only. Use this if the savings goal would otherwise squeeze the effective controllable budget below a level you consider livable. It does not change the strategic savings goal; any resulting shortfall is handled by the annual catch-up engine after the month closes."},
   normalizedOutside:{title:"Normalized outside-budget spending",body:"These are the monthly affordability costs deducted before Ledger calculates the controllable budget. Normal monthly/variable items use an expected monthly amount. Only yearly or finite periodic bills are smoothed into a monthly provision. Annual reserves are shown separately."},
   annualReserves:{title:"Annual reserves",body:"Use annual reserves for planned yearly spending such as travel or gifts. Ledger protects the annual amount by its monthly equivalent for affordability, without creating fake monthly transactions. Real linked transactions still appear in Cash Flow and consume the reserve when recorded."},
   reserveLink:{title:"Linked annual-reserve spending",body:"While a reserve is active, its linked main category or subcategory stays outside the controllable budget automatically so the same spending is not budgeted twice."},
@@ -5882,9 +5909,10 @@ function renderHomeBody(T, da) {
       targetBridgeHtml+='<div class="cash-target-bridge-row cash-target-bridge-total"><span>This month cash-saving target</span><span class="mono">'+bridgeMoney(effectiveSavingTargetAmount)+'</span></div></div></details>';
     }
   }
-  var effectiveSavingTargetPctText=effectiveSavingTargetPct==null?'':((effectiveSavingTargetPct<0?'−':'')+Math.abs(effectiveSavingTargetPct).toFixed(1)+'%');
+  var effectiveSavingTargetPctText=effectiveSavingTargetPct==null?'':((effectiveSavingTargetPct<0?'−':'')+Math.abs(effectiveSavingTargetPct).toFixed(1)+'%'),homePlanRelationship=monthlyPlanningRelationship(todayHomeStr,configuredBudgetHome,homeSavingsPct);
   var savingPctComparison='<span class="mono">'+esc(simpleSavingPctText)+'</span> projected';
-  if(effectiveSavingTargetPctText) savingPctComparison+=' <span style="color:var(--text-muted);">·</span> <span class="mono">'+esc(effectiveSavingTargetPctText)+'</span> target this month';
+  if(homePlanRelationship.budgetSupportedSavingPct!=null)savingPctComparison+=' <span style="color:var(--text-muted);">·</span> <span class="mono">'+fmt(homePlanRelationship.budgetSupportedSavingPct,1)+'%</span> budget plan';
+  if(homeSavingsPct>0)savingPctComparison+=' <span style="color:var(--text-muted);">·</span> <span class="mono">'+fmt(homeSavingsPct,1)+'%</span> goal';
   var savingSummary = '<div class="home-projected-saving"><div class="metric-label">Projected saving</div><div class="saving-main"><div class="mono metric-value home-metric-value-line" style="color:' + simpleSavingColor + ';"><span class="home-metric-primary">' + (simpleSaving >= 0 ? '+' : '−') + fmt(Math.abs(simpleSaving), 0) + ' <span class="metric-unit">AED</span></span>' + projectedSavingDeltaHtml + '</div><div class="metric-sub" style="color:var(--text-muted);font-weight:650;">' + savingPctComparison + '</div></div></div>';
   if(maxSpendForSavings!=null){
     cashDetails += '<div class="home-target-summary home-target-reference"><div class="home-target-summary-row"><span class="home-target-summary-label">Spending target this month</span><span class="mono home-target-summary-value">' + fmt(maxSpendForSavings,0) + ' AED</span></div>'+targetBridgeHtml+'</div>';
@@ -6001,6 +6029,10 @@ function renderBudgetBody(T) {
   summary+=statBlock('Spendable remaining',isCurrent&&flexibleRemainingRaw!=null?((flexibleRemainingRaw<0?'−':'')+fmt(Math.abs(flexibleRemainingRaw),0)+' AED'):'—',flexibleRemainingRaw==null?'var(--text-muted)':(flexibleRemainingRaw>=0?'var(--positive)':'var(--rust)'));
   summary+=statBlock('Avg safe / day',isCurrent&&avgSafePerDay!=null?(fmt(avgSafePerDay,0)+' AED/day'):'—',flexibleRemainingRaw!=null&&flexibleRemainingRaw<0?'var(--rust)':'var(--accent)');
   summary+=statBlock('Projected vs budget',isCurrent?((projectedSaving>=0?'+':'−')+fmt(Math.abs(projectedSaving),0)+' AED'):'—',projectedSaving>=0?'var(--positive)':'var(--rust)')+'</div>';
+  if(isCurrent&&state.view==='month'){
+    var budgetPlanRelationship=monthlyPlanningRelationship(todayStr()),budgetPlanRelationStatus=planningRelationshipStatus(budgetPlanRelationship);
+    if(budgetPlanRelationship.budgetSupportedSavingPct!=null)summary+='<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--sep);"><div class="row between" style="gap:12px;"><div><div class="subhead" style="font-weight:720;">Spending & saving plan</div><div class="caption" style="margin-top:3px;color:'+budgetPlanRelationStatus.color+';font-weight:700;">'+esc(budgetPlanRelationStatus.text)+'</div></div><div style="text-align:right;white-space:nowrap;"><div class="mono subhead" style="font-weight:750;">'+fmt(budgetPlanRelationship.budgetSupportedSavingPct,1)+'%</div><div class="muted caption">goal '+fmt(budgetPlanRelationship.goalPct,1)+'%</div></div></div></div>';
+  }
   if(budgetSavingsComparison){
     var bsc=budgetSavingsComparison, savingsTighter=effectiveInfo&&effectiveInfo.savingsTight, floorActive=effectiveInfo&&effectiveInfo.floorActive;
     var relationText=floorActive?(fmt(bsc.minimumBudget,0)+' AED minimum floor is active'):(savingsTighter ? fmt(bsc.pct,0)+'% savings target sets this limit' : 'Your monthly budget sets this limit');
@@ -6340,7 +6372,7 @@ function openCategoryBudgetActivity(month,category,person){
 
 function renderSettingsPage() {
   var section = state.settingsSection || "";
-  var titles = { categoryBudgets:"Sub-budgets", budget:"Monthly budget", savings:"Savings target", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast health", categories:"Categories", people:"People", tags:"Transaction tags", theme:"Appearance", tracking:"Tracking start", backup:"Data & Backup", clearEntries:"Clear all entries", factoryReset:"Reset app to defaults", demo:"Demo & showcase" };
+  var titles = { categoryBudgets:"Sub-budgets", budget:"Monthly budget", savings:"Savings goal", annualReserves:"Annual reserves", currency:"Currencies", forecastAccuracy:"Forecast health", categories:"Categories", people:"People", tags:"Transaction tags", theme:"Appearance", tracking:"Tracking start", backup:"Data & Backup", clearEntries:"Clear all entries", factoryReset:"Reset app to defaults", demo:"Demo & showcase" };
   var categoryHeaderTitle = "Categories";
   if (section === "categories") {
     if (state.settingsSubcategorySelected) categoryHeaderTitle = state.settingsSubcategorySelected;
@@ -6370,7 +6402,9 @@ function renderSettingsPage() {
     h += '<div class="info-title-row"><label class="eyebrow">Monthly budget</label>'+infoButton('monthlyBudget')+'</div>';
     h += '<div style="position:relative; margin:6px 0 6px;"><span class="muted" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px;">'+reportingCurrency()+'</span>';
     h += '<input id="monthlyDraftInput" aria-label="Monthly budget" type="number" inputmode="decimal" class="field mono" style="padding-left:44px; font-size:20px; font-weight:650;" value="'+round2(toReporting(curMonthly))+'" /></div>';
-    h += '<div class="muted" id="monthlyBudgetDerivedText" style="font-size:12px; margin-bottom:18px;">= '+fmt(curMonthly/dim,2)+' AED/day in '+esc(monthName)+' · about '+fmt((curMonthly/dim)*7,0)+' AED/week pace</div>';
+    h += '<div class="muted" id="monthlyBudgetDerivedText" style="font-size:12px; margin-bottom:12px;">= '+fmt(curMonthly/dim,2)+' AED/day in '+esc(monthName)+' · about '+fmt((curMonthly/dim)*7,0)+' AED/week pace</div>';
+    var budgetPlanRel=monthlyPlanningRelationship(todayStr(),curMonthly),budgetPlanStatus=planningRelationshipStatus(budgetPlanRel),budgetPlanPctText=budgetPlanRel.budgetSupportedSavingPct==null?'—':fmt(budgetPlanRel.budgetSupportedSavingPct,1)+'%';
+    h += '<div id="budgetPlanRelationshipCard" class="card card-pad" style="margin-bottom:14px;"><div class="eyebrow">SPENDING & SAVING PLAN</div><div class="row between" style="margin-top:10px;"><span class="muted subhead">This budget supports</span><strong id="budgetPlanSavingPct" class="mono subhead">'+budgetPlanPctText+'</strong></div><div class="row between" style="margin-top:8px;"><span class="muted subhead">Savings goal this month</span><strong id="budgetPlanGoalPct" class="mono subhead">'+fmt(budgetPlanRel.goalPct,1)+'%</strong></div><div class="row between" style="margin-top:8px;"><span class="muted subhead">Budget supported by goal</span><strong id="budgetPlanGoalBudget" class="mono subhead">'+(budgetPlanRel.recurringIncome>0?fmt(toReporting(budgetPlanRel.goalCompatibleBudget),0)+' '+esc(reportingCurrency()):'—')+'</strong></div><div id="budgetPlanGapText" class="caption" style="margin-top:9px;color:'+budgetPlanStatus.color+';font-weight:700;line-height:1.4;">'+esc(budgetPlanStatus.text)+'</div><div class="muted caption" style="margin-top:5px;line-height:1.35;">Based on recurring income and normalized protected spending. Cash timing and one-time income are kept separate.</div><div class="row gap2" style="margin-top:12px;flex-wrap:wrap;">'+(budgetPlanRel.recurringIncome>0&&!budgetPlanRel.aligned?'<button id="useGoalCompatibleBudgetBtn" data-action="use-goal-compatible-budget" data-budget="'+budgetPlanRel.goalCompatibleBudget+'" class="btn-outline compact-action">Use '+fmt(toReporting(budgetPlanRel.goalCompatibleBudget),0)+' '+esc(reportingCurrency())+' goal budget</button>':'')+'<button data-action="open-savings-settings" class="btn-plain">Edit savings goal</button></div></div>';
     h += '<button data-action="apply-budget" data-scope="future" class="btn-accent" style="width:100%; margin-bottom:8px;">From this month onward</button>';
     h += '<div class="muted" style="font-size:12px; margin-bottom:14px;">Starts '+esc(shortLabel(monthBounds.startStr))+'</div>';
     h += '<button data-action="apply-budget" data-scope="all" class="btn-outline" style="width:100%; margin-bottom:8px;">All periods, past and future</button>';
@@ -6394,9 +6428,9 @@ function renderSettingsPage() {
     });
     h += '<div class="muted caption" style="margin-top:10px;line-height:1.4;">A custom month is pinned. Ledger redistributes the annual target across the remaining automatic months using their planned recurring income. Set the annual goal itself lower or higher if you want the full-year goal to change.</div></div></details>';
 
-    var savePct=savingsTargetPctForMonth(savingToday), savingFloor=minimumControllableBudget(), savingConfiguredBudget=currentMonthlyBudget();
-    h += '<div class="info-title-row"><label class="eyebrow">Minimum controllable budget</label>'+infoButton('minimumBudgetFloor')+'</div>';
-    h += '<div style="position:relative;margin:6px 0 16px;"><span class="muted" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;">'+reportingCurrency()+'</span><input id="minimumControllableBudgetInput" type="number" inputmode="decimal" min="0" step="50" class="field mono" style="padding-left:44px;font-size:20px;font-weight:650;" value="'+(savingFloor>0?round2(toReporting(savingFloor)):'')+'" placeholder="Optional"/></div>';
+    var savePct=savingsTargetPctForMonth(savingToday), savingFloor=minimumControllableBudget(), savingConfiguredBudget=currentMonthlyBudget(),savingPlanRelationship=monthlyPlanningRelationship(savingToday,savingConfiguredBudget,savePct),savingPlanStatus=planningRelationshipStatus(savingPlanRelationship);
+    h += '<div class="card card-pad" style="margin-bottom:14px;"><div class="eyebrow">SPENDING & SAVING PLAN · THIS MONTH</div><div class="row between" style="margin-top:10px;"><span class="muted subhead">Current budget</span><strong class="mono subhead">'+fmt(toReporting(savingConfiguredBudget),0)+' '+esc(reportingCurrency())+'</strong></div><div class="row between" style="margin-top:8px;"><span class="muted subhead">Budget supports saving</span><strong id="savingsPlanBudgetPct" class="mono subhead">'+(savingPlanRelationship.budgetSupportedSavingPct==null?'—':fmt(savingPlanRelationship.budgetSupportedSavingPct,1)+'%')+'</strong></div><div class="row between" style="margin-top:8px;"><span class="muted subhead">Savings goal</span><strong id="savingsPlanGoalPct" class="mono subhead">'+fmt(savePct,1)+'%</strong></div><div class="row between" style="margin-top:8px;"><span class="muted subhead">Goal-compatible budget</span><strong id="savingsPlanGoalBudget" class="mono subhead">'+(savingPlanRelationship.recurringIncome>0?fmt(toReporting(savingPlanRelationship.goalCompatibleBudget),0)+' '+esc(reportingCurrency()):'—')+'</strong></div><div id="savingsPlanStatus" class="caption" style="margin-top:9px;color:'+savingPlanStatus.color+';font-weight:700;line-height:1.4;">'+esc(savingPlanStatus.text)+'</div><div class="muted caption" style="margin-top:5px;line-height:1.35;">This is the normalized plan. Payment-month timing, catch-up and one-time income are shown separately below.</div><div class="row gap2" style="margin-top:12px;flex-wrap:wrap;">'+(savingPlanRelationship.recurringIncome>0&&!savingPlanRelationship.aligned?'<button id="alignBudgetGoalBtn" data-action="align-budget-to-goal" data-budget="'+savingPlanRelationship.goalCompatibleBudget+'" class="btn-outline compact-action">Align budget to goal</button>':'')+'<button data-action="open-budget-settings" class="btn-plain">Edit budget</button></div></div>';
+    h += '<details class="card card-pad" style="margin-bottom:14px;"><summary><span class="info-title-row">Advanced safeguard '+infoButton('minimumBudgetFloor')+'</span><span class="muted caption">Optional</span></summary><div style="padding-top:10px;"><label class="eyebrow">Minimum controllable budget</label><div style="position:relative;margin:6px 0 5px;"><span class="muted" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;">'+reportingCurrency()+'</span><input id="minimumControllableBudgetInput" type="number" inputmode="decimal" min="0" step="50" class="field mono" style="padding-left:44px;font-size:20px;font-weight:650;" value="'+(savingFloor>0?round2(toReporting(savingFloor)):'')+'" placeholder="Optional"/></div><div class="muted caption">Only use this if you want Ledger to allow more controllable spending than the savings goal would normally support.</div></div></details>';
     var savingIncomePlan=incomePlanForDate(savingToday), savingNow=new Date(), savingYearDays=Math.round((new Date(savingNow.getFullYear()+1,0,1)-new Date(savingNow.getFullYear(),0,1))/86400000);
     var savingMonthlyIncome=savingIncomePlan.mode==="daily"?round2(savingIncomePlan.amount*daysInMonth(savingNow)):round2(savingIncomePlan.amount);
     var savingCurrentYearPlan=savingsTargetPlanForYear(savingCurrentYear),savingYearlyIncome=savingCurrentYearPlan.totalRecurringIncome,savingMonthlyTarget=round2(savingMonthlyIncome*savePct/100), savingYearlyTarget=savingCurrentYearPlan.annualTargetSaving;
@@ -6405,7 +6439,7 @@ function renderSettingsPage() {
     var savingNormalizedObligations=round2((savingOutsideNormalized.total||0)+(savingReserveNormalized.total||0));
     var savingCompatibleBudget=round2(Math.max(0,savingMonthlyIncome-savingAdjustedMonthlyTarget-savingNormalizedObligations));
     var savingAppliedFloor=round2(Math.min(savingConfiguredBudget,savingFloor)), savingAppliedBudget=round2(Math.min(savingConfiguredBudget,Math.max(savingCompatibleBudget,savingAppliedFloor))), savingFloorActive=savingAppliedFloor>0&&savingCompatibleBudget<savingAppliedFloor-.005, savingFloorGap=round2(Math.max(0,savingAppliedBudget-savingCompatibleBudget));
-    h += '<div id="savingsRelationshipCard" class="card card-pad" style="margin-bottom:14px;" data-income="'+savingMonthlyIncome+'" data-normalized-obligations="'+savingNormalizedObligations+'" data-configured-budget="'+savingConfiguredBudget+'" data-current-pct="'+savePct+'"><div class="eyebrow">CURRENT MONTH IMPACT</div>';
+    h += '<div id="savingsRelationshipCard" class="card card-pad" style="margin-bottom:14px;" data-income="'+savingMonthlyIncome+'" data-normalized-obligations="'+savingNormalizedObligations+'" data-configured-budget="'+savingConfiguredBudget+'" data-current-pct="'+savePct+'"><div class="eyebrow">CASH-TIMING & CATCH-UP</div>';
     h += '<div class="row between" style="margin-top:10px;"><span class="muted subhead">Planned target · '+fmt(savePct,1)+'%</span><span id="savingsMonthlyPreview" class="mono subhead" style="font-weight:650;">'+fmt(savingMonthlyTarget,0)+' AED</span></div>';
     h += '<div class="row between" style="margin-top:9px;"><span class="muted subhead">'+savingCurrentYear+' annual goal · '+fmt(savingsTargetYearPct(savingCurrentYear),1)+'%</span><span id="savingsYearlyPreview" class="mono subhead" style="font-weight:650;">'+fmt(savingYearlyTarget,0)+' AED</span></div>';
     h += '<div class="hairline-top" style="margin-top:12px;padding-top:12px;"><div class="row between"><span class="muted subhead">Annual catch-up</span><span id="savingsCatchUpPreview" class="mono subhead" style="font-weight:650;color:'+(savingCatchAdjustment>0?'var(--amber)':(savingCatchAdjustment<0?'var(--positive)':'var(--text-muted)'))+';">'+(Math.abs(savingCatchAdjustment)<.005?'On target':((savingCatchAdjustment>0?'+':'−')+fmt(Math.abs(savingCatchAdjustment),0)+' AED/mo'))+'</span></div><div id="savingsCatchUpDetail" class="muted caption" style="margin-top:5px;line-height:1.35;">'+(savingCatchUp.closedMonths?(savingCatchUp.shortfall>0?fmt(savingCatchUp.shortfall,0)+' AED short across closed months · spread over '+savingCatchUp.remainingMonths+' months':(savingCatchUp.ahead>0?fmt(savingCatchUp.ahead,0)+' AED ahead across closed months · spread over '+savingCatchUp.remainingMonths+' months':'Closed months are exactly on target')):'Catch-up starts after the first tracked month closes.')+'</div></div>';
@@ -9737,11 +9771,8 @@ function handleAddTabbyTransaction(startDate, totalAmount, category, note, perso
    this month so earlier months stay judged against what they actually had;
    "all" collapses history to a single entry. */
 
-function handleApplyBudget(scope) {
-  var el = document.getElementById("monthlyDraftInput");
-  var vShown = el ? parseFloat(el.value) : NaN;
-  if (isNaN(vShown) || vShown <= 0) return;
-  var v = fromReporting(vShown);
+function applyMonthlyBudgetValue(v,scope,labelOverride) {
+  v=Number(v);if(!isFinite(v)||v<=0)return false;
   var month = getPeriodBounds("month", 0, currentWeeklyTarget(), dailyAllowance());
   var hist = (state.settings.monthlyBudgetHistory || []).slice();
   var nextEntries = Object.assign({}, state.entries);
@@ -9773,8 +9804,14 @@ function handleApplyBudget(scope) {
     weeklyTarget: (v / daysInMonth(new Date())) * 7
   });
   persistAll(nextSettings, nextEntries, "your budget");
-  showToast(label);
+  showToast(labelOverride||label);
   render();
+  return true;
+}
+function handleApplyBudget(scope) {
+  var el=document.getElementById("monthlyDraftInput"),vShown=el?parseFloat(el.value):NaN;
+  if(isNaN(vShown)||vShown<=0)return;
+  applyMonthlyBudgetValue(fromReporting(vShown),scope);
 }
 
 /* Brings up the number pad the instant the Add/Edit sheet opens, so the
@@ -10092,6 +10129,15 @@ document.addEventListener("click", function(e) {
     case "close-backup": state.showBackup = false; state.restoreError = null; render(); break;
     case "open-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = null; state.showSettings = true; render(); break;
     case "open-budget-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = "budget"; state.showSettings = true; render(); break;
+    case "open-savings-settings": settingsRootSnapshot = captureTxnVisual(); settingsNavStack = []; state.settingsSection = "savings"; state.showSettings = true; state.savingsTargetYear=new Date().getFullYear(); render(); break;
+    case "use-goal-compatible-budget":
+      var goalBudgetDraft=Number(el.dataset.budget),goalBudgetInput=document.getElementById("monthlyDraftInput");
+      if(goalBudgetInput&&isFinite(goalBudgetDraft)&&goalBudgetDraft>=0){goalBudgetInput.value=round2(toReporting(goalBudgetDraft));goalBudgetInput.dispatchEvent(new Event("input",{bubbles:true}));showToast("Goal-compatible budget loaded · save when ready");}
+      break;
+    case "align-budget-to-goal":
+      var alignedBudget=Number(el.dataset.budget);
+      if(isFinite(alignedBudget)&&alignedBudget>0)applyMonthlyBudgetValue(alignedBudget,"future","Budget aligned to this month’s savings goal");
+      break;
     case "toggle-theme":
       var toggledTheme = state.settings.theme === "dark" ? "light" : "dark";
       persistAll(Object.assign({}, state.settings, { theme: toggledTheme }), state.entries, "your settings");
@@ -11162,6 +11208,12 @@ document.addEventListener("input", function(e) {
       var monthName = new Date().toLocaleDateString("en-GB",{month:"long"});
       derived.textContent = "= " + fmt(perDay,2) + " "+reportingCurrency()+"/day in " + monthName + " · about " + fmt(perDay*7,0) + " "+reportingCurrency()+"/week";
     }
+    var budgetBase=(!isNaN(v)&&v>=0)?fromReporting(v):0,previewRel=monthlyPlanningRelationship(todayStr(),budgetBase),previewStatus=planningRelationshipStatus(previewRel),previewPct=document.getElementById("budgetPlanSavingPct"),previewGoal=document.getElementById("budgetPlanGoalPct"),previewGoalBudget=document.getElementById("budgetPlanGoalBudget"),previewGap=document.getElementById("budgetPlanGapText"),previewBtn=document.getElementById("useGoalCompatibleBudgetBtn");
+    if(previewPct)previewPct.textContent=previewRel.budgetSupportedSavingPct==null?'—':fmt(previewRel.budgetSupportedSavingPct,1)+'%';
+    if(previewGoal)previewGoal.textContent=fmt(previewRel.goalPct,1)+'%';
+    if(previewGoalBudget)previewGoalBudget.textContent=previewRel.recurringIncome>0?fmt(toReporting(previewRel.goalCompatibleBudget),0)+' '+reportingCurrency():'—';
+    if(previewGap){previewGap.textContent=previewStatus.text;previewGap.style.color=previewStatus.color;}
+    if(previewBtn){previewBtn.dataset.budget=previewRel.goalCompatibleBudget;previewBtn.textContent='Use '+fmt(toReporting(previewRel.goalCompatibleBudget),0)+' '+reportingCurrency()+' goal budget';previewBtn.style.display=previewRel.recurringIncome>0&&!previewRel.aligned?'inline-flex':'none';}
   }
   if (e.target && e.target.id === "yearlyBillOverrideInput") {
     var annualPreview = parseFloat(e.target.value);
@@ -11180,6 +11232,20 @@ document.addEventListener("input", function(e) {
     var reservePreviewKey=String(e.target.dataset.reservePreview), reservePreviewEl=document.getElementById("annualReserveMonthlyPreview_"+reservePreviewKey), reservePreviewShown=Number(e.target.value), reservePreviewBase=isFinite(reservePreviewShown)?Math.max(0,fromReporting(reservePreviewShown)):0;
     if(reservePreviewEl) reservePreviewEl.textContent="≈ "+fmt(toReporting(reservePreviewBase/12),0)+" "+reportingCurrency()+"/month";
     return;
+  }
+  if (e.target && (e.target.id === "savingsAnnualPctInput" || (e.target.dataset && e.target.dataset.savingsMonth))) {
+    var draftYear=Number(state.savingsTargetYear)||new Date().getFullYear(),currentPlanYear=new Date().getFullYear();
+    if(draftYear===currentPlanYear){
+      var draftSettings=Object.assign({},state.settings),draftYears=normalizeSavingsTargetYears(draftSettings.savingsTargetYears),draftMonths=normalizeSavingsTargetMonths(draftSettings.savingsTargetMonths),draftAnnual=document.getElementById("savingsAnnualPctInput");
+      if(draftAnnual)draftYears[String(draftYear)]=normalizeSavingsTargetPct(draftAnnual.value);
+      document.querySelectorAll('[data-savings-month]').forEach(function(inp){var mk=String(inp.dataset.savingsMonth||'');if(Number(mk.slice(0,4))!==draftYear)return;var raw=String(inp.value||'').trim();if(raw==='')delete draftMonths[mk];else draftMonths[mk]=normalizeSavingsTargetPct(raw);});
+      draftSettings.savingsTargetYears=draftYears;draftSettings.savingsTargetMonths=draftMonths;
+      var draftPct=savingsTargetPctForMonthWithSettings(todayStr(),draftSettings),draftRel=monthlyPlanningRelationship(todayStr(),currentMonthlyBudget(),draftPct),draftStatus=planningRelationshipStatus(draftRel),draftGoalPctEl=document.getElementById("savingsPlanGoalPct"),draftGoalBudgetEl=document.getElementById("savingsPlanGoalBudget"),draftStatusEl=document.getElementById("savingsPlanStatus"),draftAlignBtn=document.getElementById("alignBudgetGoalBtn");
+      if(draftGoalPctEl)draftGoalPctEl.textContent=fmt(draftPct,1)+'%';
+      if(draftGoalBudgetEl)draftGoalBudgetEl.textContent=draftRel.recurringIncome>0?fmt(toReporting(draftRel.goalCompatibleBudget),0)+' '+reportingCurrency():'—';
+      if(draftStatusEl){draftStatusEl.textContent=draftStatus.text;draftStatusEl.style.color=draftStatus.color;}
+      if(draftAlignBtn){draftAlignBtn.dataset.budget=draftRel.goalCompatibleBudget;draftAlignBtn.style.display=draftRel.recurringIncome>0&&!draftRel.aligned?'inline-flex':'none';}
+    }
   }
   if (e.target && e.target.id === "minimumControllableBudgetInput") {
     var floorInput=document.getElementById("minimumControllableBudgetInput"),floorShown=floorInput&&floorInput.value!==""?Number(floorInput.value):0,floorPreview=normalizeMinimumControllableBudget(isFinite(floorShown)?fromReporting(floorShown):0),relCard=document.getElementById("savingsRelationshipCard");
