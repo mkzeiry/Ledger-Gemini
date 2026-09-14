@@ -641,7 +641,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.29";
+var APP_VERSION = "v113.30";
 var SAFE_SPEND_MODEL_VERSION = "v11319-lending-2";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var FORECAST_RANGE_MODEL_VERSION = "v11319-range-2";
@@ -6113,7 +6113,16 @@ function periodicPlanRulesForNormalization(){
   });
 }
 function periodicNormalizationCashTimingForMonth(startStr,endStr){
-  var today=todayStr(),out=[],activePeriodic=periodicPlanRulesForNormalization().filter(function(r){var from=recurringNormalizationStartDate(r),thru=periodicNormalizationEndDate(r);return (!from||from<=endStr)&&(!thru||thru>=startStr);}),activeRuleIds={};
+  /* v113.30 — normalized recurring costs are calendar-month accruals, not
+     day-of-month accruals. A Mortgage due on the 15th still belongs to the
+     entire August normalized month, so an Aug 1–14 same-day comparison must
+     include its monthly equivalent. The same month-granular rule applies to
+     quarterly/semiannual/yearly normalized plans as well. */
+  var rangeStartMonth=cbMonth(startStr),rangeEndMonth=cbMonth(endStr);
+  var today=todayStr(),out=[],activePeriodic=periodicPlanRulesForNormalization().filter(function(r){
+    var from=recurringNormalizationStartDate(r),thru=periodicNormalizationEndDate(r),fromMonth=cbMonth(from),thruMonth=cbMonth(thru);
+    return (!fromMonth||fromMonth<=rangeEndMonth)&&(!thruMonth||thruMonth>=rangeStartMonth);
+  }),activeRuleIds={};
   activePeriodic.forEach(function(r){activeRuleIds[r.id]=true;});
   /* Historical normalized affordability follows the rule's economic active
      span, not whether the rule happens to be complete today. A completed
