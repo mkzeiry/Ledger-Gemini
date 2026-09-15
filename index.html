@@ -649,7 +649,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.35";
+var APP_VERSION = "v113.36";
 var SAFE_SPEND_MODEL_VERSION = "v11319-lending-2";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var FORECAST_RANGE_MODEL_VERSION = "v11319-range-2";
@@ -9543,7 +9543,7 @@ function buildForecastCard(rows, totalDays, target, periodStart, T, refLabel, pe
   } else compareUnavailableNote = "Not enough history yet to show an average pace.";
 
   var s = '<div class="card card-pad" style="margin-bottom:16px;">';
-  if(scope==="overall"&&periodWord==="month")s += '<div class="row between" style="align-items:center;margin-bottom:10px;gap:10px;"><div class="eyebrow">Forecasted total spend</div>'+moneyViewSwitchHtml()+'</div>';
+  if(scope==="overall"&&periodWord==="month")s += '<div class="row between" style="align-items:center;margin-bottom:10px;gap:10px;"><div class="eyebrow">Forecasted total spend</div>'+financialViewSwitchHtml()+'</div>';
   else s += '<div class="eyebrow" style="margin-bottom:10px;">Forecasted '+(scope==="budget"?"budget spend":"total spend")+'</div>';
   s += '<div class="row between" style="align-items:flex-start; margin-bottom:14px;">';
   s += '<div><div class="muted caption">'+(normalizedMode?'NORMALIZED THIS MONTH':('THIS '+esc(periodWord.toUpperCase())))+'</div><div class="mono" style="font-size:22px; font-weight:700; margin-top:2px;">'+fmt(projectedSpend,0)+' AED</div>';
