@@ -649,7 +649,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.36";
+var APP_VERSION = "v113.37";
 var SAFE_SPEND_MODEL_VERSION = "v11319-lending-2";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var FORECAST_RANGE_MODEL_VERSION = "v11319-range-2";
@@ -5150,10 +5150,37 @@ function settingsScrollInstant(y) {
   html.style.scrollBehavior=oldHtml; if(body)body.style.scrollBehavior=oldBody;
 }
 
+function captureSettingsRouteState() {
+  return {
+    settingsSection: state.settingsSection || null,
+    settingsCategorySelected: state.settingsCategorySelected || null,
+    settingsSubcategorySelected: state.settingsSubcategorySelected || null,
+    settingsCategoryCustomize: !!state.settingsCategoryCustomize,
+    settingsCategoryEditMode: !!state.settingsCategoryEditMode,
+    cbEditingIndex: state.cbEditingIndex == null ? null : Number(state.cbEditingIndex)
+  };
+}
+
+function restoreSettingsRouteState(route) {
+  if (!route) { applySettingsBackState(); return; }
+  state.settingsSection = route.settingsSection || null;
+  state.settingsCategorySelected = route.settingsCategorySelected || null;
+  state.settingsSubcategorySelected = route.settingsSubcategorySelected || null;
+  state.settingsCategoryCustomize = !!route.settingsCategoryCustomize;
+  state.settingsCategoryEditMode = !!route.settingsCategoryEditMode;
+  var cbIndex = route.cbEditingIndex == null ? null : Number(route.cbEditingIndex);
+  if (cbIndex != null && (!state.cbDraft || !state.cbDraft[cbIndex] || state.cbDraft[cbIndex].auto)) cbIndex = null;
+  state.cbEditingIndex = cbIndex;
+}
+
 function captureSettingsVisual() {
   var page = document.querySelector('.settings-page');
   if (!page) return null;
-  return { html: page.outerHTML, scrollY: window.scrollY || window.pageYOffset || 0 };
+  return {
+    html: page.outerHTML,
+    scrollY: window.scrollY || window.pageYOffset || 0,
+    route: captureSettingsRouteState()
+  };
 }
 
 function makeSettingsNavLayer(snapshot, className) {
@@ -5262,7 +5289,8 @@ function settingsNavigateBack() {
   var current = captureSettingsVisual();
   if (!destination || !current || settingsReducedMotion()) {
     if (settingsNavStack.length) settingsNavStack.pop();
-    applySettingsBackState();
+    if (destination && destination.route) restoreSettingsRouteState(destination.route);
+    else applySettingsBackState();
     settingsNextScrollY = destination ? (destination.scrollY || 0) : 0;
     render();
     return;
@@ -5280,7 +5308,8 @@ function settingsNavigateBack() {
       parts.front.style.transform = 'translate3d(100%,0,0)';
       setTimeout(function(){
         settingsNavStack.pop();
-        applySettingsBackState();
+        if (destination.route) restoreSettingsRouteState(destination.route);
+        else applySettingsBackState();
         settingsNextScrollY = destination.scrollY || 0;
         render();
         removeSettingsNavOverlay(parts);
@@ -5369,7 +5398,8 @@ function finishSettingsSwipe(commit) {
         settingsScrollInstant(appRestoreY);
       } else {
         settingsNavStack.pop();
-        applySettingsBackState();
+        if (sw.destination.route) restoreSettingsRouteState(sw.destination.route);
+        else applySettingsBackState();
         settingsNextScrollY = sw.destination.scrollY || 0;
         render();
       }
@@ -10921,17 +10951,27 @@ document.addEventListener("click", function(e) {
     case "show-budget-compare-detail": showToast(el.dataset.detail||"Budget comparison");render();break;
     case "toggle-monthly-savings-rows": state.monthlySavingsShowAll=!state.monthlySavingsShowAll;render();break;
     case "open-category-budgets":
-      cbPrepareDraft();state.cbEditingIndex=null;openSettingsDeepLink("categoryBudgets");break;
+      cbPrepareDraft();state.cbEditingIndex=null;
+      if(state.showSettings){
+        settingsNavigateForward(function(){
+          state.settingsSection="categoryBudgets";
+          state.settingsCategorySelected=null;
+          state.settingsSubcategorySelected=null;
+          state.settingsCategoryCustomize=false;
+          state.settingsCategoryEditMode=false;
+        });
+      } else openSettingsDeepLink("categoryBudgets");
+      break;
     case "save-category-budgets":saveCategoryBudgetDraft();break;
     case "add-category-budget":
       if(!state.cbDraft)cbPrepareDraft();
       var cbAutoIdx=(state.cbDraft||[]).findIndex(function(r){return r.auto;});if(cbAutoIdx<0)cbAutoIdx=state.cbDraft.length;
-      var cbManualCount=state.cbDraft.filter(function(r){return !r.auto;}).length;state.cbDraft.splice(cbAutoIdx,0,{group:cbDraftNewKey(),originalGroup:null,name:"Budget "+(cbManualCount+1),share:"0",min:"",max:"",subcategories:[],auto:false,rhythm:CB_RHYTHM_MONTHLY,dayWeights:[1,1,1,1,1,1,1],daily:false,rollover:true,icon:"tag",color:PIE_COLORS[cbManualCount%PIE_COLORS.length]||"#8595B5"});state.cbEditingIndex=cbAutoIdx;state.cbDraftError="";render();break;
-    case "edit-category-budget":state.cbEditingIndex=Number(el.dataset.index);render();window.scrollTo(0,0);break;
+      var cbManualCount=state.cbDraft.filter(function(r){return !r.auto;}).length;state.cbDraft.splice(cbAutoIdx,0,{group:cbDraftNewKey(),originalGroup:null,name:"Budget "+(cbManualCount+1),share:"0",min:"",max:"",subcategories:[],auto:false,rhythm:CB_RHYTHM_MONTHLY,dayWeights:[1,1,1,1,1,1,1],daily:false,rollover:true,icon:"tag",color:PIE_COLORS[cbManualCount%PIE_COLORS.length]||"#8595B5"});state.cbDraftError="";settingsNavigateForward(function(){state.cbEditingIndex=cbAutoIdx;});break;
+    case "edit-category-budget":{var cbEditIdx=Number(el.dataset.index);settingsNavigateForward(function(){state.cbEditingIndex=cbEditIdx;state.cbDraftError="";});break;}
     case "set-category-budget-icon":{var cbiRow=state.cbDraft&&state.cbDraft[Number(el.dataset.index)],cbiKey=el.dataset.icon||"tag";if(cbiRow&&!cbiRow.auto&&CAT_ICON_SVGS[cbiKey]){cbiRow.icon=cbiKey;render();}break;}
-    case "category-budget-edit-done":state.cbEditingIndex=null;state.cbDraftError="";render();window.scrollTo(0,0);break;
+    case "category-budget-edit-done":state.cbDraftError="";settingsNavigateBack();break;
     case "remove-category-budget":
-      if(state.cbDraft){var cbRemoveIdx=Number(el.dataset.index);if(cbRemoveIdx>=0&&state.cbDraft[cbRemoveIdx]&&!state.cbDraft[cbRemoveIdx].auto){state.cbDraft.splice(cbRemoveIdx,1);state.cbEditingIndex=null;state.cbDraftError="";render();}}break;
+      if(state.cbDraft){var cbRemoveIdx=Number(el.dataset.index);if(cbRemoveIdx>=0&&state.cbDraft[cbRemoveIdx]&&!state.cbDraft[cbRemoveIdx].auto){state.cbDraft.splice(cbRemoveIdx,1);state.cbDraftError="";settingsNavigateBack();}}break;
     case "toggle-category-budget-card":
       state.cbExpanded=Object.assign({},state.cbExpanded||{});state.cbExpanded[el.dataset.group]=!state.cbExpanded[el.dataset.group];render();break;
     case "toggle-category-budget-move":state.cbMoveOpen=!state.cbMoveOpen;state.cbMoveError="";render();break;
@@ -11208,7 +11248,6 @@ document.addEventListener("click", function(e) {
       break;
 
     case "settings-back":
-      if(state.settingsSection==="categoryBudgets"&&state.cbEditingIndex!=null){state.cbEditingIndex=null;state.cbDraftError="";settingsNextScrollY=0;render();break;}
       var wasSettingsRoot = !settingsNavStack.length;
       settingsNavigateBack();
       if(wasSettingsRoot) settingsRootSnapshot=null;
