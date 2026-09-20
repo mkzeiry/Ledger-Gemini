@@ -649,7 +649,7 @@ var DEMO_DATA_VERSION = "v11247-custom-subbudgets-1";
 function demoModeRequested(){ try { return localStorage.getItem(DEMO_MODE_FLAG_KEY)==="1"; } catch(e) { return false; } }
 var IS_DEMO_MODE = demoModeRequested();
 var STORAGE_KEY = IS_DEMO_MODE ? DEMO_STORAGE_KEY : REAL_STORAGE_KEY;
-var APP_VERSION = "v113.37";
+var APP_VERSION = "v113.38";
 var SAFE_SPEND_MODEL_VERSION = "v11319-lending-2";
 var FORECAST_MODEL_VERSION = "v11314-scope-risk-1";
 var FORECAST_RANGE_MODEL_VERSION = "v11319-range-2";
@@ -7710,6 +7710,7 @@ function renderAddTxnPage() {
   else if (txnKind==='expense' && splitMode==='tabby') saveLabel='Create Tabby plan';
   else saveLabel='Add '+(txnKind==='income'?'income':'expense');
   h += '<button id="addTxnBtn" data-action="add-transaction" class="btn-accent txn-entry-save" style="width:100%;justify-content:center;align-items:center;">'+saveLabel+'</button>';
+  if(!editingItem && splitMode!=="tabby") h += '<button data-action="add-transaction-another" class="btn-outline" style="width:100%;margin-top:10px;justify-content:center;align-items:center;">Save & add another</button>';
   if(editingItem) h += '<button data-action="ask-delete-txn" data-date="'+state.editingOriginalDate+'" data-id="'+esc(editingItem.id)+'" class="btn-outline row gap2" style="width:100%;margin-top:10px;justify-content:center;align-items:center;color:var(--rust);border-color:color-mix(in srgb, var(--rust) 40%, transparent);">'+ICONS.trash+' Delete transaction</button>';
   h += '</div>';
   if (state.toastMessage) h += '<div class="app-toast'+(state.toastKind==='success'?' is-success':'')+'" role="status" aria-live="polite">'+(state.toastKind==='success'?ICONS.check:'')+'<span>'+esc(state.toastMessage)+'</span></div>';
@@ -10473,7 +10474,7 @@ function statBlock(label, value, color) {
 }
 
 /* ---------------- actions ---------------- */
-function handleAddTransaction() {
+function handleAddTransaction(keepOpen) {
   var dateEl = document.getElementById("entryDateInput");
   var amtEl = document.getElementById("entryAmountInput");
   var noteEl = document.getElementById("entryNoteInput");
@@ -10564,13 +10565,47 @@ function handleAddTransaction() {
     if(!txnTime) delete newItem.time;
     if(!tags.length) delete newItem.tags;
     nextEntries[date] = existing ? Object.assign({}, existing, { items: existing.items.concat([newItem]) }) : { allowance: allowanceForDate(date), items: [newItem] };
-    state.showAddTxn = false;
-    state.txnEntryRestoreScroll = true;
+    if (keepOpen) {
+      /* Catch-up entry mode: keep only the shared date. Clear transaction-specific
+         fields so the next expense can use a different amount/category/person.
+         Historical backfills intentionally reopen with a blank time instead of
+         copying today's clock time onto old transactions. */
+      state.showAddTxn = true;
+      state.txnEntryRestoreScroll = false;
+      state.txnSplitMode = "single";
+      state.txnPersonSplitMode = "single";
+      state.txnCategoryGroup = null;
+      state.txnShowAllCategories = false;
+      state.txnCategoryPickerOpen = false;
+      state.txnCategoryPickerSearch = "";
+      state.entryAmountDraft = null;
+      state.entryNoteDraft = null;
+      state.entrySplitDaysDraft = null;
+      state.entryPersonSplitDraft = null;
+      state.entryCategoryDraft = null;
+      state.entryPersonDraft = null;
+      state.entryTagsDraft = null;
+      state.entryCurrencyDraft = null;
+      state.entryFxRateDraft = null;
+      state.entryFxSourceDraft = null;
+      state.entryFxDateDraft = null;
+      state.entryTimeDraft = date===todayStr() ? null : "";
+    } else {
+      state.showAddTxn = false;
+      state.txnEntryRestoreScroll = true;
+    }
   }
 
   state.entryDate = date;
   state.entryTagsDraft = null;
   persistAll(state.settings, nextEntries, "your entry");
+  if (keepOpen && !wasEditing) {
+    showToast("Saved · adding another for "+shortLabel(date), "success");
+    render();
+    var nextAmountFocus=document.getElementById("entryAmountInput");
+    if(nextAmountFocus){try{nextAmountFocus.focus({preventScroll:true});}catch(_nextFocusErr){nextAmountFocus.focus();}}
+    return;
+  }
   showToast(wasEditing ? "Transaction updated" : "Transaction saved", "success");
   render();
   animateTxnCommittedBack(txnCloseVisual);
@@ -11023,7 +11058,8 @@ document.addEventListener("click", function(e) {
       state.offset = Math.min(0, next);
       render();
       break;
-    case "add-transaction": handleAddTransaction(); break;
+    case "add-transaction": handleAddTransaction(false); break;
+    case "add-transaction-another": handleAddTransaction(true); break;
     case "delete-txn":
       handleDeleteTxn(el.dataset.date, el.dataset.id);
       break;
